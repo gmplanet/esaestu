@@ -1,0 +1,103 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>esaestu</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="debug-mode">
+    <header class="header-main">
+        <div class="header-left">
+            <span class="menu-toggle">☰</span> Logo
+        </div>
+
+        <div class="header-center">
+            <form action="{% url 'search' %}" method="get">
+                <input type="text" name="q" placeholder="{% trans 'Search...' %}" value="{{ query|default:'' }}">
+                <button type="submit">{% trans 'Go' %}</button>
+            </form>
+        </div>
+
+        <div class="header-right">
+            <form action="{% url 'set_language' %}" method="post" id="lang-form">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}">
+                <select name="language" onchange="document.getElementById('lang-form').submit();" class="lang-select">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+                    {% for language in languages %}
+                    <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
+                        {{ language.code|upper }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <div class="header-auth">
+                {% if user.is_authenticated %}
+                <span class="user-welcome">
+                    {% trans "Hello" %},
+                    <a href="{% url 'profile' %}" style="color: #000000; text-decoration: none;">
+                        <strong>{{ user.username }}</strong>
+                    </a>
+                </span>
+                <form action="{% url 'logout' %}" method="post" style="display: inline; margin-left: 10px;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">{% trans "Logout" %}</button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}" class="login-link">{% trans "Login" %}</a>
+                <span style="color: white; margin: 0 5px;">|</span>
+                <a href="{% url 'signup' %}" class="login-link">{% trans "Sign Up" %}</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <aside class="sidebar-left">
+            <ul class="main-menu">
+                {% for item in main_menu %}
+                <li class="{% if item.children.all %}has-children{% endif %}" id="menu-item-{{ item.id }}">
+                    <a href="{{ item.get_url }}" class="menu-item-link">
+                        <span class="link-text">{{ item.title }}</span>
+                        {% if item.children.all %}
+                        <span class="toggle-icon js-menu-toggle">▼</span>
+                        {% endif %}
+                    </a>
+
+                    {% if item.children.all %}
+                    <ul class="submenu">
+                        {% for child in item.children.all %}
+                        <li>
+                            <a href="{{ child.get_url }}">{{ child.title }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <main class="content-center">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <footer class="footer-main">
+        <div class="footer-content">
+            {{ footer_content.text|default:"© 2025 esaestu" }}
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+
+</html>

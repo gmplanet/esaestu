@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>{% trans "User Profile" %}</h2>
+    <div class="profile-info">
+        <p><strong>{% trans "Username" %}:</strong> {{ user.username }}</p>
+        <p><strong>{% trans "Email" %}:</strong> {{ user.email }}</p>
+        <p><strong>{% trans "Status" %}:</strong> 
+            {% if user.is_email_verified %}
+                <span style="color: green;">{% trans "Verified" %} ✅</span>
+            {% else %}
+                <span style="color: red;">{% trans "Not Verified" %} ❌</span>
+            {% endif %}
+        </p>
+        <p><strong>{% trans "Joined" %}:</strong> {{ user.date_joined|date:"d E Y" }}</p>
+    </div>
+    <div class="auth-footer">
+        <a href="{% url 'home' %}" class="btn-main" style="text-decoration: none; display: block; text-align: center;">
+            {% trans "Back to Home" %}
+        </a>
+    </div>
+</div>
+{% endblock %}

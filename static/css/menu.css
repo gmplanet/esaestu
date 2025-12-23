@@ -1,0 +1,61 @@
+.sidebar-left {
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #ddd;
+    transition: all 0.3s ease;
+}
+
+/* Стили меню */
+.main-menu, .submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-item-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #eee;
+}
+
+.submenu {
+    display: none;
+    background: #fdfdfd;
+    padding-left: 15px;
+}
+
+.has-children.open > .submenu {
+    display: block;
+}
+
+/* Мобильное состояние меню */
+@media (max-width: 768px) {
+    .sidebar-left {
+        position: fixed;
+        left: -250px; /* Спрятано */
+        top: 0;
+        height: 100%;
+        z-index: 2000;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+
+    .sidebar-left.mobile-open {
+        left: 0; /* Выдвинуто */
+    }
+
+    /* Затемнение фона */
+    .sidebar-left.mobile-open::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 250px;
+        width: calc(100vw - 250px);
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1999;
+    }
+}

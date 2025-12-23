@@ -1,0 +1,29 @@
+@import "layout.css";
+@import "menu.css";
+@import "content.css";
+@import "auth.css";
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+/* DEBUG MODE */
+.debug-mode .header-main { border: 1px solid red !important; background: rgb(167, 189, 233);}
+.debug-mode .header-left { border: 1px solid yellow !important; background: rgb(230, 248, 96); }
+.debug-mode .header-center { border: 1px solid pink !important; background: rgb(233, 212, 167); }
+.debug-mode .header-right { border: 1px solid brown !important; background: rgb(55, 255, 102);}
+.debug-mode .sidebar-left { border: 1px solid orange !important; background: rgb(227, 117, 255);}
+.debug-mode .content-center { border: 1px solid purple !important; background: rgb(182, 227, 104); }
+.debug-mode .footer-main { border: 1px solid blue !important; background: rgb(99, 146, 151);}
+.debug-mode .page-content { border: 1px dashed green !important; background: rgb(255, 98, 138);}
+ 
+

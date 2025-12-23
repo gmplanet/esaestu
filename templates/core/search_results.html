@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+    <h2>
+        {% blocktrans with query=query %}Search results for: "{{ query }}"{% endblocktrans %}
+    </h2>
+
+    {% if results %}
+        <ul>
+            {% for item in results %}
+                <li>
+                    <a href="{{ item.url }}">
+                        {{ item.title }} 
+                        <small style="color: #999;">({{ item.lang }})</small>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>{% trans "No results found." %}</p>
+    {% endif %}
+{% endblock %}
