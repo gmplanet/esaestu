@@ -27,7 +27,7 @@ SECRET_KEY = env.str('SECRET_KEY')
 # Обработка хостов с защитой от пустого значения
 #ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 # Пропиши это жестко, без env.list
-ALLOWED_HOSTS = ['esaestu.casa', 'www.esaestu.casa', '135.181.192.215']
+ALLOWED_HOSTS = ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 
 # Добавь это ПРЯМО ТУТ (не в конце файла, а рядом с ALLOWED_HOSTS)
 CSRF_TRUSTED_ORIGINS = ['https://esaestu.casa', 'https://www.esaestu.casa']
