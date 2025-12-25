@@ -139,7 +139,7 @@ LOCALE_PATHS = [
 ]
 
 # 9. Статические и Медиа файлы
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 
