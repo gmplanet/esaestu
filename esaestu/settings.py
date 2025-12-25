@@ -33,19 +33,20 @@ ALLOWED_HOSTS = ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 
 CSRF_TRUSTED_ORIGINS = ['https://esaestu.casa', 'https://www.esaestu.casa']
 
 
-# Включаем HSTS на 1 год (в секундах)
-SECURE_HSTS_SECONDS = 31536000 
+# 1. Позволяет Django понять, что Nginx передал ему запрос по HTTPS
+# Без этого SECURE_SSL_REDIRECT может уйти в бесконечный цикл
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Рекомендуется также добавить эти две настройки:
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Применять ко всем поддоменам
-SECURE_HSTS_PRELOAD = True             # Позволяет включить сайт в глобальный список HSTS
+# 2. Перенаправляет все HTTP-запросы на HTTPS внутри приложения (второй слой защиты)
+SECURE_SSL_REDIRECT = True
 
+# 3. Безопасность куки: браузер будет передавать их ТОЛЬКО по зашифрованному HTTPS
+# Это критично, чтобы никто не украл сессию пользователя в открытом Wi-Fi
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
-# Запрещает встраивать твой сайт в <iframe> на чужих ресурсах (защита от кликджекинга)
-X_FRAME_OPTIONS = 'DENY'
-
-# Защита от подмены типов контента
-SECURE_CONTENT_TYPE_NOSNIFF = True
+# 4. Дополнительная защита (опционально, но полезно)
+SECURE_BROWSER_XSS_FILTER = True
 
 
 
