@@ -5,3 +5,6 @@ venv/
 *.pyc
 __pycache__/
 backup/
+logs/
+*.log
+data.json
