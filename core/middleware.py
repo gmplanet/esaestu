@@ -10,12 +10,15 @@ class MaintenanceModeMiddleware:
         if request.path.startswith('/admin/'):
             return self.get_response(request)
 
-        # Берем настройки из базы
-        maintenance = Maintenance.objects.first()
+        # Берем настройки. Если базы нет или она пуста - просто идем дальше
+        try:
+            maintenance = Maintenance.objects.first()
+        except:
+            return self.get_response(request)
 
-        # Если режим включен, показываем заглушку
+        # Если запись есть и режим активен
         if maintenance and maintenance.is_active:
-            # Передаем объект как 'maintenance', чтобы в HTML работало {{ maintenance.message }}
+            # Важно: передаем объект под именем 'maintenance'
             return render(request, 'maintenance.html', {'maintenance': maintenance})
 
         return self.get_response(request)
