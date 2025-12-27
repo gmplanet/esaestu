@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import Maintenance
 
-class MaintenanceMiddleware:
+class MaintenanceModeMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
