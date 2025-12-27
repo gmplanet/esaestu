@@ -32,14 +32,32 @@
     display: block;
 }
 
+
+
+
+
 /* Мобильное состояние меню */
 @media (max-width: 768px) {
+
+        .menu-toggle {
+        position: fixed;
+        display: block;
+        padding: 15px ;
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 5500;
+        color: var(--pixel-black);
+        
+            }
+
+
+
     .sidebar-left {
         position: fixed;
-        left: -250px; /* Спрятано */
+        left: -280px; /* Спрятано */
         top: 0;
         height: 100%;
-        z-index: 2000;
+        z-index: 1300;
         box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     }
 
@@ -50,12 +68,16 @@
     /* Затемнение фона */
     .sidebar-left.mobile-open::after {
         content: '';
+        transition: opacity 0.3s;
         position: fixed;
         top: 0;
-        left: 250px;
-        width: calc(100vw - 250px);
+        left: 280px;
+        width: calc(100vw - 280px);
         height: 100%;
         background: rgba(0,0,0,0.5);
-        z-index: 1999;
+        z-index: 1299;
     }
+
+
 }
+

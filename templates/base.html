@@ -6,28 +6,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>esaestu</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>esaestu.casa - Sin Intermediarios</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/pixel_style.css' %}">
 </head>
 
-<body class="debug-mode">
+<body>
+    
+    <!-- SVG ASSETS (Скрытые спрайты для иконок) -->
+    <svg style="display: none;">
+        <!-- Иконка Дома -->
+        <symbol id="icon-home" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M8 1l7 7h-2v7H3V8H1l7-7zM5 13h2V9h2v4h2V7.4L8 3.3 5 7.4V13z" />
+        </symbol>
+        <!-- Иконка Здания (Administraciones) -->
+        <symbol id="icon-building" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M2 1h12v14H2V1zm2 2h2v2H4V3zm6 0h2v2h-2V3zM4 7h2v2H4V7zm6 0h2v2h-2V7zm-6 4h2v2H4v-2zm6 0h2v2h-2v-2z" />
+        </symbol>
+        <!-- Иконка Работника (Empleado) -->
+        <symbol id="icon-user" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 8a4 4 0 0 0-4 4v3h16v-3a4 4 0 0 0-4-4H4z" />
+        </symbol>
+        <!-- Иконка Законов (Leyes) -->
+        <symbol id="icon-legal" viewBox="0 0 16 16">
+            <path fill="currentColor" d="M1 13h14v2H1v-2zm2-2h2V4H3v7zm4 0h2V2H7v9zm4 0h2V5h-2v6z" />
+        </symbol>
+    </svg>
+    <span class="menu-toggle"> ☰ </span>
     <header class="header-main">
+         
         <div class="header-left">
-            <span class="menu-toggle">☰</span> Logo
+            
+            <a href="/" class="logo-pixel">
+                <svg  width="24" height="24" style="margin-bottom: -4px;"><use xlink:href="#icon-home"></use></svg>
+                ESAESTU<span>.CASA</span>
+            </a>
         </div>
-
         <div class="header-center">
-            <form action="{% url 'search' %}" method="get">
-                <input type="text" name="q" placeholder="{% trans 'Search...' %}" value="{{ query|default:'' }}">
-                <button type="submit">{% trans 'Go' %}</button>
+            <form action="{% url 'search' %}" method="get" class="search-form-pixel">
+                <input type="text" name="q" placeholder="¿Qué buscas?" value="{{ query|default:'' }}">
+                <button type="submit">BUSCAR</button>
             </form>
         </div>
 
         <div class="header-right">
-            <form action="{% url 'set_language' %}" method="post" id="lang-form">
+
+
+            <div class="header-auth">
+                {% if user.is_authenticated %}
+                <div class="user-info">
+                    
+                    <a href="{% url 'profile' %}" class="user-link">{{ user.username }}</a>
+                    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="auth-btn-small">SALIR</button>
+                    </form>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="auth-link entrar">ENTRAR</a>
+                <a href="{% url 'signup' %}" class="auth-link register">REGISTRO</a>
+                {% endif %}
+            </div>
+            <form action="{% url 'set_language' %}" method="post" id="lang-form" class="lang-pixel">
                 {% csrf_token %}
                 <input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}">
-                <select name="language" onchange="document.getElementById('lang-form').submit();" class="lang-select">
+                <select class="auth-link lang" name="language" onchange="document.getElementById('lang-form').submit();">
                     {% get_current_language as LANGUAGE_CODE %}
                     {% get_available_languages as LANGUAGES %}
                     {% get_language_info_list for LANGUAGES as languages %}
@@ -38,66 +82,58 @@
                     {% endfor %}
                 </select>
             </form>
-
-            <div class="header-auth">
-                {% if user.is_authenticated %}
-                <span class="user-welcome">
-                    {% trans "Hello" %},
-                    <a href="{% url 'profile' %}" style="color: #000000; text-decoration: none;">
-                        <strong>{{ user.username }}</strong>
-                    </a>
-                </span>
-                <form action="{% url 'logout' %}" method="post" style="display: inline; margin-left: 10px;">
-                    {% csrf_token %}
-                    <button type="submit" class="logout-btn">{% trans "Logout" %}</button>
-                </form>
-                {% else %}
-                <a href="{% url 'login' %}" class="login-link">{% trans "Login" %}</a>
-                <span style="color: white; margin: 0 5px;">|</span>
-                <a href="{% url 'signup' %}" class="login-link">{% trans "Sign Up" %}</a>
-                {% endif %}
-            </div>
         </div>
     </header>
 
     <div class="main-wrapper">
         <aside class="sidebar-left">
-            <ul class="main-menu">
-                {% for item in main_menu %}
-                <li class="{% if item.children.all %}has-children{% endif %}" id="menu-item-{{ item.id }}">
-                    <a href="{{ item.get_url }}" class="menu-item-link">
-                        <span class="link-text">{{ item.title }}</span>
+            <nav class="pixel-nav">
+                <ul class="main-menu">
+                                       
+                    {% for item in main_menu %}
+                    <li class="{% if item.children.all %}has-children{% endif %}" id="menu-item-{{ item.id }}">
+                        <a href="{{ item.get_url }}" class="menu-item-link">
+                            <span class="link-text">{{ item.title }}</span>
+                            {% if item.children.all %}
+                            <span class="toggle-icon js-menu-toggle">▼</span>
+                            {% endif %}
+                        </a>
                         {% if item.children.all %}
-                        <span class="toggle-icon js-menu-toggle">▼</span>
+                        <ul class="submenu">
+                            {% for child in item.children.all %}
+                            <li><a href="{{ child.get_url }}">{{ child.title }}</a></li>
+                            {% endfor %}
+                        </ul>
                         {% endif %}
-                    </a>
-
-                    {% if item.children.all %}
-                    <ul class="submenu">
-                        {% for child in item.children.all %}
-                        <li>
-                            <a href="{{ child.get_url }}">{{ child.title }}</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
         </aside>
 
         <main class="content-center">
-            {% block content %}{% endblock %}
+            {% block content %}
+            <div class="hero-pixel">
+                <h1>Servicios para tu comunidad</h1>
+                <p>Sin comisiones extra.</p>
+                <div class="pixel-grid">
+                   <!-- Здесь могут быть карточки разделов -->
+                </div>
+            </div>
+            {% endblock %}
         </main>
     </div>
 
     <footer class="footer-main">
         <div class="footer-content">
-            {{ footer_content.text|default:"© 2025 esaestu" }}
+            <p>{{ footer_content.text|default:"© 2025 esaestu" }}</p>
         </div>
     </footer>
+    
+     
 
     <script src="{% static 'js/main.js' %}"></script>
+
 </body>
 
 </html>
