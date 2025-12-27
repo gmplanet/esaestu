@@ -164,20 +164,13 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
 }
 
 .auth-link.salir {
-    /*appearance: none;     /* Убирает стандартные стили браузера/ОС */
-    /*background: none;     /* Убирает серый фон */
-    border: none;         /* Убирает рамку */
-    /*padding: 0;           /* Убирает внутренние отступы */
-    /*outline: none;        /* Убирает синюю обводку при клике */
-    /*font: inherit;        /* Заставляет кнопку использовать шрифт родителя */
-    /*color: inherit;       /* Наследует цвет текста */
-    cursor: pointer;      /* Возвращает палец (курсор) при наведении */
 
-
-    background: var(--pixel-yellow);
+    border: 3px solid black;
+    cursor: pointer;
+    background: var(--pixel-red);
     color: white;
-    border-color: var(--pixel-yellow);
-    box-shadow: 2px 2px 2px var(--pixel-black);
+    border-color: #000000;
+    box-shadow: 3px 3px 0px #888;
     
 }
 
@@ -185,8 +178,6 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
     transform: translate(2px, 2px); 
     box-shadow: 0px 0px 0px var(--pixel-black);
     z-index: 1300;
-    box-shadow: inset -2px -2px 0 2px grey;
-    box-shadow: inset -1px -1px 0 1px rgb(0, 0, 0);
 }
 
 .auth-link.user_link {
