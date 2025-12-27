@@ -164,18 +164,29 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
 }
 
 .auth-link.salir {
-    background: var(--pixel-white);
-    color: rgb(0, 0, 0);
-    border-color: var(--pixel-black);
-    box-shadow: 3px 3px 0px var(--pixel-grey);
+    /*appearance: none;     /* Убирает стандартные стили браузера/ОС */
+    /*background: none;     /* Убирает серый фон */
+    border: none;         /* Убирает рамку */
+    /*padding: 0;           /* Убирает внутренние отступы */
+    /*outline: none;        /* Убирает синюю обводку при клике */
+    /*font: inherit;        /* Заставляет кнопку использовать шрифт родителя */
+    /*color: inherit;       /* Наследует цвет текста */
+    cursor: pointer;      /* Возвращает палец (курсор) при наведении */
+
+
+    background: var(--pixel-yellow);
+    color: white;
+    border-color: var(--pixel-yellow);
+    box-shadow: 2px 2px 2px var(--pixel-black);
+    
 }
 
 .auth-link.salir:hover {
-    background: var(--pixel-white);
-    color: rgb(0, 0, 0);
-    border-color: var(--pixel-black);
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px var(--pixel-white);
+    transform: translate(2px, 2px); 
+    box-shadow: 0px 0px 0px var(--pixel-black);
+    z-index: 1300;
+    box-shadow: inset -2px -2px 0 2px grey;
+    box-shadow: inset -1px -1px 0 1px rgb(0, 0, 0);
 }
 
 .auth-link.user_link {
