@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.utils.translation import get_language # Добавляем этот импорт
 from .models import Maintenance
 
 class MaintenanceModeMiddleware:
@@ -10,12 +11,15 @@ class MaintenanceModeMiddleware:
         if request.path.startswith('/admin/'):
             return self.get_response(request)
 
-        # 2. Получаем объект модели Maintenance (просто Maintenance, как в models.py)
+        # 2. Пытаемся получить настройки
         maintenance = Maintenance.objects.first()
 
-        # 3. Проверяем поле is_active
+        # 3. Если режим активен
         if maintenance and maintenance.is_active:
-            # Передаем весь объект в шаблон, чтобы можно было вывести сообщение
-            return render(request, 'maintenance.html', {'maintenance': maintenance})
+            # Используем свойство .message, которое само выберет язык
+            # благодаря тому, что мы импортировали поддержку перевода
+            return render(request, 'maintenance.html', {
+                'content': maintenance.message # Передаем уже готовый текст по языку
+            })
 
         return self.get_response(request)
