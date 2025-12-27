@@ -1,7 +1,4 @@
 from django.shortcuts import render
-from django.template.loader import get_template
-from django.http import HttpResponse
-from django.utils.translation import get_language
 from .models import Maintenance
 
 class MaintenanceModeMiddleware:
@@ -9,16 +6,27 @@ class MaintenanceModeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # 1. Пропускаем админку, чтобы не заблокировать вход
         if request.path.startswith('/admin/'):
             return self.get_response(request)
 
-        maintenance = Maintenance.objects.first()
+        # 2. Получаем настройки режима обслуживания
+        try:
+            maintenance = Maintenance.objects.first()
+        except Exception:
+            # Если база еще не мигрирована или ошибка в БД, пропускаем запрос
+            return self.get_response(request)
 
+        # 3. Если режим включен в админке
         if maintenance and maintenance.is_active:
-            # Используем get_template + render без контекста запроса,
-            # чтобы пропустить выполнение context_processors
-            template = get_template('maintenance.html')
-            html = template.render({'content': maintenance.message})
-            return HttpResponse(html, status=503) # 503 Service Unavailable
+            # Используем стандартный render. 
+            # Он сам найдет maintenance.html в корневой папке templates,
+            # так как она прописана в DIRS вашего settings.py
+            return render(
+                request, 
+                'maintenance.html', 
+                {'content': maintenance.message},
+                status=503
+            )
 
         return self.get_response(request)
