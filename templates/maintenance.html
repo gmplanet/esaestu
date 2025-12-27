@@ -4,109 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESAESTU.CASA - MAINTENANCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    
     <style>
-        /* Основные стили в твоем стиле */
+        :root {
+            --pixel-grey: #888888;
+            --pixel-black: #1a1a1a;
+            --pixel-white: #ffffff;
+            --pixel-blue: #0055A4;   /* Azul Bilbao */
+            --pixel-yellow: #FFD700; /* Amarillo Sol */
+            --pixel-border: 3px;
+        }
+
+        * {
+            box-sizing: border-box;
+            image-rendering: pixelated;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            background-color: #ffffff;
-            color: #000000;
-            font-family: 'Courier New', Courier, monospace; /* Имитация ретро-стиля */
+            font-family: 'VT323', monospace;
+            background-color: var(--pixel-white);
+            color: var(--pixel-black);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* Шапка как на твоем скрине */
-        header {
-            border-bottom: 3px solid #000000;
-            padding: 20px 40px;
+        /* HEADER (Копия твоего стиля) */
+        .header-main {
             display: flex;
+            justify-content: flex-start;
             align-items: center;
+            padding: 15px 25px;
+            background: var(--pixel-white);
+            border-bottom: var(--pixel-border) solid var(--pixel-black);
         }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
+        .logo-pixel {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2rem;
+            text-decoration: none;
+            color: var(--pixel-black);
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
-        .logo span {
-            color: #0044cc; /* Синий акцент из твоего логотипа */
+        .logo-pixel span {
+            color: var(--pixel-blue);
         }
 
-        /* Центральный блок */
-        main {
+        /* CONTENT */
+        .main-wrapper {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: 20px;
         }
 
-        .maintenance-container {
-            border: 2px dashed #0044cc; /* Твоя синяя пунктирная рамка */
-            padding: 60px;
+        .hero-pixel {
+            text-align: center;
             max-width: 800px;
             width: 100%;
-            text-align: center;
+            padding: 60px 40px;
+            border: var(--pixel-border) dashed var(--pixel-blue); /* Твоя синяя рамка */
+            background: var(--pixel-white);
+        }
+
+        .status-badge {
+            font-family: 'Press Start 2P', cursive;
+            display: inline-block;
+            background: var(--pixel-yellow);
+            color: var(--pixel-black);
+            padding: 12px 20px;
+            font-size: 0.8rem;
+            border: var(--pixel-border) solid var(--pixel-black);
+            box-shadow: 4px 4px 0px var(--pixel-grey);
+            margin-bottom: 40px;
         }
 
         h1 {
-            font-size: clamp(24px, 5vw, 42px);
-            text-transform: uppercase;
-            margin-top: 0;
-            font-weight: 900;
-        }
-
-        .message {
-            font-size: 20px;
-            margin-top: 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
             line-height: 1.5;
-        }
-
-        /* Желтая "кнопка" в твоем стиле */
-        .status-badge {
-            display: inline-block;
-            background-color: #ffcc00; /* Твой фирменный желтый */
-            color: #000000;
-            padding: 10px 20px;
-            font-weight: bold;
-            text-transform: uppercase;
             margin-bottom: 30px;
-            border: 2px solid #000000;
+            text-transform: uppercase;
         }
 
-        footer {
+        .message-text {
+            font-size: 1.8rem;
+            line-height: 1.4;
+            color: var(--pixel-black);
+            margin-bottom: 20px;
+        }
+
+        /* FOOTER */
+        .footer-main {
+            border-top: var(--pixel-border) solid var(--pixel-black);
             padding: 20px;
-            font-size: 12px;
             text-align: center;
-            border-top: 1px solid #000000;
+            font-size: 1.2rem;
+        }
+
+        /* Анимация мигания для ретро-эффекта */
+        .blink {
+            animation: blinker 1.5s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">🏠 ESAESTU<span>.CASA</span></div>
+    <header class="header-main">
+        <div class="logo-pixel">🏠 ESAESTU<span>.CASA</span></div>
     </header>
 
-    <main>
-        <div class="maintenance-container">
-            <div class="status-badge">MANTENIMIENTO / MAINTENANCE</div>
+    <div class="main-wrapper">
+        <div class="hero-pixel">
+            <div class="status-badge blink">SYSTEM PAUSED</div>
             
-            <h1>{{ maintenance.message }}</h1>
+            <h1>Maintenance Mode</h1>
             
-            <div class="message">
-                Estamos trabajando para mejorar el servicio.<br>
-                We are working to improve the service.
+            <div class="message-text">
+                {{ maintenance.message }}
+            </div>
+
+            <div style="font-size: 1.2rem; color: var(--pixel-grey); margin-top: 20px;">
+                TRABAJANDO PARA MEJORAR EL SERVICIO...
             </div>
         </div>
-    </main>
+    </div>
 
-    <footer>
-        &copy; 2025 ESAESTU.CASA - SIN COMISIONES EXTRA.
+    <footer class="footer-main">
+        &copy; 2025 ESAESTU.CASA
     </footer>
 
 </body>
