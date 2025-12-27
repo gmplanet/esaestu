@@ -6,27 +6,16 @@ class MaintenanceModeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # 1. Пропускаем админку, чтобы не заблокировать вход
+        # Пропускаем админку
         if request.path.startswith('/admin/'):
             return self.get_response(request)
 
-        # 2. Получаем настройки режима обслуживания
-        try:
-            maintenance = Maintenance.objects.first()
-        except Exception:
-            # Если база еще не мигрирована или ошибка в БД, пропускаем запрос
-            return self.get_response(request)
+        # Берем настройки из базы
+        maintenance = Maintenance.objects.first()
 
-        # 3. Если режим включен в админке
+        # Если режим включен, показываем заглушку
         if maintenance and maintenance.is_active:
-            # Используем стандартный render. 
-            # Он сам найдет maintenance.html в корневой папке templates,
-            # так как она прописана в DIRS вашего settings.py
-            return render(
-                request, 
-                'maintenance.html', 
-                {'content': maintenance.message},
-                status=503
-            )
+            # Передаем объект как 'maintenance', чтобы в HTML работало {{ maintenance.message }}
+            return render(request, 'maintenance.html', {'maintenance': maintenance})
 
         return self.get_response(request)
