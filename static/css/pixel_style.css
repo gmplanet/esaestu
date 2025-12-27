@@ -196,6 +196,23 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
 }
 
 
+.auth-link.inicio {
+    background: var(--pixel-white);
+    color: rgb(0, 0, 0);
+    border-color: var(--pixel-black);
+    box-shadow: 3px 3px 0px var(--pixel-grey);
+    width:100%;
+}
+
+.auth-link.inicio:hover {
+    background: var(--pixel-white);
+    color: rgb(0, 0, 0);
+    border-color: var(--pixel-black);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--pixel-white);
+    width:100%;
+}
+
 
 
 .auth-link.lang {
