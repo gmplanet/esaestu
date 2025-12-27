@@ -57,10 +57,10 @@
                 {% if user.is_authenticated %}
                 <div class="user-info">
                     
-                    <a href="{% url 'profile' %}" class="user-link">{{ user.username }}</a>
+                    <a href="{% url 'profile' %}" class="auth-link user_link">{{ user.username }}</a>
                     <form action="{% url 'logout' %}" method="post" style="display: inline;">
                         {% csrf_token %}
-                        <button type="submit" class="auth-btn-small">SALIR</button>
+                        <button type="submit" class="auth-link salir">>SALIR</button>
                     </form>
                 </div>
                 {% else %}

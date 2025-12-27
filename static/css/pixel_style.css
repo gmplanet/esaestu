@@ -143,8 +143,6 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
     background: var(--pixel-blue);
     color: rgb(255, 255, 255);
     border-color: var(--pixel-black);
-    
-    
     transform: translate(2px, 2px); 
     box-shadow: 2px 2px 0px var(--pixel-white);
 }
@@ -159,14 +157,43 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
 
 .auth-link.entrar:hover {
     background: var(--pixel-white);
-    
     color: rgb(0, 0, 0);
     border-color: var(--pixel-black);
-    
-    
-    transform: translate(2px, 2px); 
+    transform: translate(2px, 2px);
     box-shadow: 2px 2px 0px var(--pixel-white);
 }
+
+.auth-link.salir {
+    background: var(--pixel-white);
+    color: rgb(0, 0, 0);
+    border-color: var(--pixel-black);
+    box-shadow: 3px 3px 0px var(--pixel-grey);
+}
+
+.auth-link.salir:hover {
+    background: var(--pixel-white);
+    color: rgb(0, 0, 0);
+    border-color: var(--pixel-black);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--pixel-white);
+}
+
+.auth-link.user_link {
+    background: var(--pixel-white);
+    color: rgb(0, 0, 0);
+    border-color: var(--pixel-black);
+    box-shadow: 3px 3px 0px var(--pixel-grey);
+}
+
+.auth-link.user_link:hover {
+    background: var(--pixel-white);
+    color: rgb(0, 0, 0);
+    border-color: var(--pixel-black);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--pixel-white);
+}
+
+
 
 
 .auth-link.lang {
@@ -283,7 +310,7 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
-    
+
     .header-center { display: none; }
 
     .sidebar-left {
