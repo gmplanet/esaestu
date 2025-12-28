@@ -57,7 +57,7 @@
                 {% if user.is_authenticated %}
                 <div class="user-info">
                     
-                    <a href="{% url 'profile' %}" class="auth-link user_link">{{ user.username }}</a>
+                    <a href="{% url 'profile' %}" class="auth-link user_link">{{ user.email|truncatechars:15 }}</a>
                     <form action="{% url 'logout' %}" method="post" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="auth-link salir">>SALIR</button>
@@ -113,21 +113,15 @@
 
         <main class="content-center">
             {% block content %}
-            <div class="hero-pixel">
-                <h1>Test</h1>
-                <p>Test</p>
-                <div class="pixel-grid">
-                   <!-- Здесь могут быть карточки разделов -->
-                </div>
-            </div>
+            
             {% endblock %}
         </main>
     </div>
 
     <footer class="footer-main">
-        <div class="footer-content">
+        
             <p>{{ footer_content.text|default:"© 2025 esaestu" }}</p>
-        </div>
+    
     </footer>
     
      

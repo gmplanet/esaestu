@@ -33,9 +33,6 @@
 }
 
 
-
-
-
 /* Мобильное состояние меню */
 @media (max-width: 768px) {
 
@@ -49,10 +46,8 @@
         color: var(--pixel-black);
         
             }
-
-
-
-    .sidebar-left {
+    
+        .sidebar-left {
         position: fixed;
         left: -280px; /* Спрятано */
         top: 0;

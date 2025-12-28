@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load account %}
+
+{% block content %}
+<div class="auth-container">
+    {# Заголовок в твоем стиле (как LOGIN и REGISTRATION) #}
+    <h2 style="text-transform: uppercase;">{% trans "Confirm Email" %}</h2>
+
+    <div class="auth-body" style="text-align: center; margin-top: 20px;">
+        {% if confirmation %}
+            {% user_display confirmation.email_address.user as user_display %}
+            <p style="margin-bottom: 25px;">
+                {% blocktrans with email=confirmation.email_address.email %}Please confirm that <span style="font-weight: bold; border-bottom: 2px solid #000;">{{ email }}</span> is your email.{% endblocktrans %}
+            </p>
+
+            {# Важно: action указывает на ключ подтверждения #}
+            <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-main" style="width: 100%;">
+                    {% trans "CONFIRM" %}
+                </button>
+            </form>
+        {% else %}
+            {# Если ссылка просрочена #}
+            <p>{% trans "This e-mail confirmation link expired or is invalid." %}</p>
+            <div style="margin-top: 20px;">
+                <a href="{% url 'account_email' %}" class="btn-main" style="text-decoration: none; display: inline-block; width: 100%;">
+                    {% trans "New Request" %}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

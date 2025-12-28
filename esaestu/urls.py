@@ -3,14 +3,28 @@ from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
-    # Админка вне i18n_patterns, чтобы URL всегда был /admin/
+    # Админка вне i18n_patterns
     path('admin/', admin.site.urls),
     # Стандартный обработчик переключения языков
     path('i18n/', include('django.conf.urls.i18n')),
     path('captcha/', include('captcha.urls')),
-    ]
+]
 
 urlpatterns += i18n_patterns(
     path('', include('core.urls')),
-    path('accounts/', include('accounts.urls')),
+
+    # 1. Сначала подключаем allauth. 
+    # Он заберет на себя /accounts/login/, /accounts/signup/ и т.д.
+    path('account/', include('allauth.urls')),
+
+
+
+    # 2. Затем твое приложение. 
+    # Если там есть пути, которых нет в allauth (например, 'profile/'), они будут работать.
+    path('account/', include('accounts.urls')),
+
+    
+ 
+    
+
 )

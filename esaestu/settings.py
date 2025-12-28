@@ -1,10 +1,17 @@
-"""" ESAESTU Django settings for the esaestu project."""
+#███████╗███████╗ █████╗ ███████╗███████╗████████╗██╗   ██╗
+#██╔════╝██╔════╝██╔══██╗██╔════╝██╔════╝╚══██╔══╝██║   ██║
+#█████╗  ███████╗███████║█████╗  ███████╗   ██║   ██║   ██║
+#██╔══╝  ╚════██║██╔══██║██╔══╝  ╚════██║   ██║   ██║   ██║
+#███████╗███████║██║  ██║███████╗███████║   ██║   ╚██████╔╝
+#╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝    ╚═════╝ 
+                                                          
 import environ
 import os
 from pathlib import Path
 
 # 1. Настройка путей
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # 2. Инициализируем environ
 env = environ.Env(
@@ -14,10 +21,10 @@ env = environ.Env(
 # 3. Читаем файл .env
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-DEBUG = env('DEBUG')
 
 # Безопасность и Отладка
-SECRET_KEY = env.str('SECRET_KEY')
+DEBUG = env('DEBUG')
+SECRET_KEY = env.str('SECRET_KEY') 
 
 # Настройка хостов
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
@@ -33,7 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Приложения для Allauth:
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
+
+SITE_ID = 1
 
 # 4. Middleware
 MIDDLEWARE = [
@@ -46,7 +61,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.MaintenanceModeMiddleware',
-    
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'esaestu.urls'
@@ -114,14 +129,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Модель пользователя
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
-AUTHENTICATION_BACKENDS = [
-    'accounts.backends.EmailVerifiedBackend',
-    'django.contrib.auth.backends.ModelBackend',
-]
-
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-
 # Email settings
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -184,3 +191,76 @@ else:
     CSRF_COOKIE_SECURE = False
     # Локально разрешаем HTTP для работы с CSRF
     CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
+
+
+
+
+AUTHENTICATION_BACKENDS = [
+    # 1. Ваш кастомный бэкенд (оставляем первым)
+    'accounts.backends.EmailVerifiedBackend',
+    
+    # 2. Стандартный бэкенд Django
+    'django.contrib.auth.backends.ModelBackend',
+    
+    # 3. Бэкенд для входа через соцсети (Google)
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Куда перенаправлять пользователя после входа
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+
+
+# Настройки Allauth — Современный синтаксис 2025
+
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
+# Это одна настройка заменяет собой все ACCOUNT_EMAIL_REQUIRED, 
+# ACCOUNT_USERNAME_REQUIRED и прочие. 
+# Звездочка * означает "обязательно".
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+
+# Это оставляем, так как это связь с вашей моделью CustomUser
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
+
+
+# Остальные настройки оставляем без изменений
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'OAUTH_PROTOCOL': 'https',
+    }
+}
+
+
+
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+
+
+# Пользователь не будет считаться залогиненным, пока не подтвердит почту
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+# Не логинить автоматически сразу после регистрации
+ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
+
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/accounts/login/'
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/profile/'
+
+
+ACCOUNT_FORMS = {
+    'signup': 'accounts.forms.CustomSignupForm',
+}
+
+
+
+ACCOUNT_RATE_LIMITS = {
+    'login_failed': '5/600s'
+}

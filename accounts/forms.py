@@ -1,14 +1,19 @@
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import get_user_model
+from allauth.account.forms import SignupForm
 from captcha.fields import CaptchaField
+from django import forms
 
-User = get_user_model()
+class CustomSignupForm(SignupForm):
+    # Добавляем капчу
+    captcha = CaptchaField(label='Captcha')
 
-class CustomUserCreationForm(UserCreationForm):
-    # Добавляем поле капчи прямо в форму
-    captcha = CaptchaField()
+    def __init__(self, *args, **kwargs):
+        super(CustomSignupForm, self).__init__(*args, **kwargs)
+        # Убираем стандартные placeholders, если хочешь полный контроль в HTML
+        self.fields['email'].placeholder = 'example@mail.com'
+        self.fields['username'].placeholder = 'YourNickname'
 
-    class Meta(UserCreationForm.Meta):
-        model = User
-        fields = ("username", "email") # Добавляем email как обязательное поле
+    def save(self, request):
+        # Вызываем базовый метод сохранения Allauth
+        user = super(CustomSignupForm, self).save(request)
+        # Здесь можно добавить свою логику, если нужно
+        return user

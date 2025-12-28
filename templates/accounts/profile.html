@@ -8,10 +8,10 @@
         <p><strong>{% trans "Username" %}:</strong> {{ user.username }}</p>
         <p><strong>{% trans "Email" %}:</strong> {{ user.email }}</p>
         <p><strong>{% trans "Status" %}:</strong> 
-            {% if user.is_email_verified %}
-                <span style="color: green;">{% trans "Verified" %} ✅</span>
+            {% if user.emailaddress_set.first.verified %}
+            Verified ✅
             {% else %}
-                <span style="color: red;">{% trans "Not Verified" %} ❌</span>
+            Not Verified ❌
             {% endif %}
         </p>
         <p><strong>{% trans "Joined" %}:</strong> {{ user.date_joined|date:"d E Y" }}</p>

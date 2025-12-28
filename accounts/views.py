@@ -7,14 +7,14 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.tokens import default_token_generator
-from .forms import CustomUserCreationForm
+from .forms import CustomSignupForm
 from django.contrib.auth.decorators import login_required
 
 User = get_user_model()
 
 def signup_view(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = CustomSignupForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.is_active = False  # ЗАПРЕТ ЛОГИНА ТУТ
@@ -31,7 +31,7 @@ def signup_view(request):
             send_mail(subject, message, 'noreply@esaestu.com', [user.email])
             return render(request, 'accounts/signup_done.html')
     else:
-        form = CustomUserCreationForm()
+        form = CustomSignupForm()
     return render(request, 'accounts/signup.html', {'form': form})
 
 def activate(request, uidb64, token):

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load account %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>{% trans "Registration" %}</h2>
+
+    <form method="post" action="{% url 'account_signup' %}">
+        {% csrf_token %}
+
+        {# 1. Поле Email #}
+        <div class="form-group">
+            <label for="id_email">{% trans "Email" %}:</label>
+            <input type="email" name="email" placeholder="example@mail.com" id="id_email"
+                value="{{ form.email.value|default:'' }}" required>
+            {% if form.email.errors %}
+            <div class="error">{{ form.email.errors }}</div>
+            {% endif %}
+        </div>
+
+        {# 2. Поле Username #}
+        <div class="form-group">
+            <label for="id_username">{% trans "Username" %}:</label>
+            <input type="text" name="username" placeholder="YourNickname" id="id_username"
+                value="{{ form.username.value|default:'' }}" required>
+            {% if form.username.errors %}
+            <div class="error">{{ form.username.errors }}</div>
+            {% endif %}
+        </div>
+
+        {# 3. Пароль #}
+        <div class="form-group">
+            <label for="id_password1">{% trans "Password" %}:</label>
+            <input type="password" name="password1" placeholder="*" id="id_password1" required>
+            {% if form.password1.errors %}
+            <div class="error">{{ form.password1.errors }}</div>
+            {% endif %}
+        </div>
+
+        {# 4. Повтор пароля #}
+        <div class="form-group">
+            <label for="id_password2">{% trans "Password (again)" %}:</label>
+            <input type="password" name="password2" placeholder="*" id="id_password2" required>
+            {% if form.password2.errors %}
+            <div class="error">{{ form.password2.errors }}</div>
+            {% endif %}
+        </div>
+
+        {# --- ТВОЙ БЛОК CAPTCHA --- #}
+        {% if form.captcha %}
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label>{% trans "Captcha" %}:</label>
+
+            <div class="captcha-container" style="display: flex; flex-direction: column; gap: 8px;">
+                {# Сама картинка капчи #}
+                <div class="captcha-img-box">
+                    {{ form.captcha }}
+                </div>
+            </div>
+
+            {% if form.captcha.errors %}
+            <div class="error" style="color: red; font-size: 0.8em; margin-top: 5px;">
+                {{ form.captcha.errors }}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+        <div class="error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+
+        <button type="submit" class="btn-main">{% trans "Register" %}</button>
+    </form>
+
+    <div class="auth-footer">
+        <p>{% trans "Already have an account?" %} <a href="{% url 'account_login' %}">{% trans "Log In" %}</a></p>
+    </div>
+</div>
+
+<style>
+    /* Твой стиль для капчи, чтобы она не ломала верстку */
+    .captcha-wrapper img {
+        display: block;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+    }
+
+    .captcha-wrapper input {
+        width: 100%;
+        /* Или как в твоем дизайне */
+    }
+</style>
+{% endblock %}

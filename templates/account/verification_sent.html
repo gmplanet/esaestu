@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="auth-container" style="text-align: center;">
+    {# Используем твой стиль заголовка #}
+    <h2>{% trans "Check Your Email" %}</h2>
+    
+    <div class="auth-body" style="margin: 20px 0;">
+        <p>
+            {% blocktrans %}We have sent an e-mail to you for verification. Please follow the link provided to finalize your registration.{% endblocktrans %}
+        </p>
+        
+        {# Можно добавить иконку письма или просто выделить текст #}
+        <p style="font-size: 0.9em; color: #666; margin-top: 15px;">
+            {% trans "If you do not see the email, please check your spam folder." %}
+        </p>
+    </div>
+
+    <div class="auth-footer" style="border-top: 1px solid #eee; padding-top: 15px;">
+        <a href="{% url 'account_login' %}" class="btn-main" style="text-decoration: none; display: inline-block;">
+            {% trans "Back to Login" %}
+        </a>
+    </div>
+</div>
+{% endblock %}
