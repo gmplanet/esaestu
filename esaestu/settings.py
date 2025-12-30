@@ -32,7 +32,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 # 3. Определение приложений
 INSTALLED_APPS = [
     'core',
-    'accounts',
+    'profile_app',
     'captcha',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'django_rename_app',
 ]
 
 SITE_ID = 1
@@ -127,7 +128,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Модель пользователя
-AUTH_USER_MODEL = 'accounts.CustomUser'
+AUTH_USER_MODEL = 'profile_app.CustomUser'
 
 # Email settings
 if DEBUG:
@@ -197,7 +198,7 @@ else:
 
 AUTHENTICATION_BACKENDS = [
     # 1. Ваш кастомный бэкенд (оставляем первым)
-    'accounts.backends.EmailVerifiedBackend',
+    'profile_app.backends.EmailVerifiedBackend',
     
     # 2. Стандартный бэкенд Django
     'django.contrib.auth.backends.ModelBackend',
@@ -251,12 +252,12 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 # Не логинить автоматически сразу после регистрации
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
 
-ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/accounts/login/'
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/profile_app/login/'
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/profile/'
 
 
 ACCOUNT_FORMS = {
-    'signup': 'accounts.forms.CustomSignupForm',
+    'signup': 'profile_app.forms.CustomSignupForm',
 }
 
 

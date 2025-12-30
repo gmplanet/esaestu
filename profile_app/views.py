@@ -1,4 +1,4 @@
-# accounts/views.py
+# profile_app/views.py
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_str
@@ -22,17 +22,17 @@ def signup_view(request):
 
             current_site = get_current_site(request)
             subject = 'Activate Your Account'
-            message = render_to_string('accounts/acc_active_email.html', {
+            message = render_to_string('profile_app/acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': default_token_generator.make_token(user),
             })
             send_mail(subject, message, 'noreply@esaestu.com', [user.email])
-            return render(request, 'accounts/signup_done.html')
+            return render(request, 'profile_app/signup_done.html')
     else:
         form = CustomSignupForm()
-    return render(request, 'accounts/signup.html', {'form': form})
+    return render(request, 'profile_app/signup.html', {'form': form})
 
 def activate(request, uidb64, token):
     try:
@@ -45,14 +45,14 @@ def activate(request, uidb64, token):
         user.is_active = True # РАЗРЕШАЕМ ЛОГИН
         user.is_email_verified = True
         user.save()
-        login(request, user, backend='accounts.backends.EmailVerifiedBackend')
+        login(request, user, backend='profile_app.backends.EmailVerifiedBackend')
         return redirect('home')
     else:
-        return render(request, 'accounts/activation_invalid.html')
+        return render(request, 'profile_app/activation_invalid.html')
     
     
 @login_required
 def profile_view(request):
-    return render(request, 'accounts/profile.html', {
+    return render(request, 'profile_app/profile.html', {
         'user': request.user
     })

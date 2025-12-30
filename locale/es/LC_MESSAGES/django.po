@@ -19,63 +19,63 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
 "1 : 2;\n"
 
-#: .\templates\accounts\login.html:6
+#: .\templates\profile_app\login.html:6
 msgid "Login"
 msgstr "Inicio seción"
 
-#: .\templates\accounts\login.html:11 .\templates\accounts\profile.html:8
+#: .\templates\profile_app\login.html:11 .\templates\profile_app\profile.html:8
 msgid "Username"
 msgstr "Usuario"
 
-#: .\templates\accounts\login.html:19
+#: .\templates\profile_app\login.html:19
 msgid "Password"
 msgstr "Contraseña"
 
-#: .\templates\accounts\login.html:30
+#: .\templates\profile_app\login.html:30
 msgid "Log In"
 msgstr "Acceder"
 
-#: .\templates\accounts\login.html:34
+#: .\templates\profile_app\login.html:34
 msgid "Don't have an account?"
 msgstr "¿No tienes cuenta?"
 
-#: .\templates\accounts\login.html:34
+#: .\templates\profile_app\login.html:34
 msgid "Sign Up"
 msgstr "Crear cuenta"
 
-#: .\templates\accounts\profile.html:6
+#: .\templates\profile_app\profile.html:6
 msgid "User Profile"
 msgstr "Mi perfil"
 
-#: .\templates\accounts\profile.html:9
+#: .\templates\profile_app\profile.html:9
 msgid "Email"
 msgstr "Email"
 
-#: .\templates\accounts\profile.html:10
+#: .\templates\profile_app\profile.html:10
 msgid "Status"
 msgstr "Estado"
 
-#: .\templates\accounts\profile.html:12
+#: .\templates\profile_app\profile.html:12
 msgid "Verified"
 msgstr "Verificada/o"
 
-#: .\templates\accounts\profile.html:14
+#: .\templates\profile_app\profile.html:14
 msgid "Not Verified"
 msgstr "No verificada/o"
 
-#: .\templates\accounts\profile.html:17
+#: .\templates\profile_app\profile.html:17
 msgid "Joined"
 msgstr ""
 
-#: .\templates\accounts\profile.html:21
+#: .\templates\profile_app\profile.html:21
 msgid "Back to Home"
 msgstr "Inicio"
 
-#: .\templates\accounts\signup.html:6
+#: .\templates\profile_app\signup.html:6
 msgid "Registration"
 msgstr "Registro"
 
-#: .\templates\accounts\signup.html:20
+#: .\templates\profile_app\signup.html:20
 msgid "Register"
 msgstr "Registrarse"
 

@@ -14,14 +14,14 @@ urlpatterns += i18n_patterns(
     path('', include('core.urls')),
 
     # 1. Сначала подключаем allauth. 
-    # Он заберет на себя /accounts/login/, /accounts/signup/ и т.д.
+    # Он заберет на себя /profile_app/login/, /profile_app/signup/ и т.д.
     path('account/', include('allauth.urls')),
 
 
 
     # 2. Затем твое приложение. 
     # Если там есть пути, которых нет в allauth (например, 'profile/'), они будут работать.
-    path('account/', include('accounts.urls')),
+    path('account/', include('profile_app.urls')),
 
     
  
