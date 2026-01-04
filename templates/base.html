@@ -57,7 +57,7 @@
                 {% if user.is_authenticated %}
                 <div class="user-info">
                     
-                    <a href="{% url 'profile' %}" class="auth-link user_link">{{ user.email|truncatechars:15 }}</a>
+                    <a href="{% url 'profile' %}" class="auth-link user_link">{{ user.email|truncatechars:9 }}</a>
                     <form action="{% url 'logout' %}" method="post" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="auth-link salir">>SALIR</button>
