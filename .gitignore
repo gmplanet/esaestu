@@ -10,3 +10,5 @@ logs/
 data.json
 .vscode/
 .DS_Store
+plan.md
+.gitignore

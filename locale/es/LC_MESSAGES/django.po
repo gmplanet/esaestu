@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-27 12:33+0100\n"
+"POT-Creation-Date: 2026-03-03 13:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,74 +19,180 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
 "1 : 2;\n"
 
-#: .\templates\profile_app\login.html:6
+#: .\templates\account\email_confirm.html:8
+msgid "Confirm Email"
+msgstr ""
+
+#: .\templates\account\email_confirm.html:14
+#, python-format
+msgid ""
+"Please confirm that <span style=\"font-weight: bold; border-bottom: 2px "
+"solid #000;\">%(email)s</span> is your email."
+msgstr ""
+
+#: .\templates\account\email_confirm.html:21
+msgid "CONFIRM"
+msgstr "CONFIRMAR"
+
+#: .\templates\account\email_confirm.html:26
+msgid "This e-mail confirmation link expired or is invalid."
+msgstr "Este enlace de confirmación de correo electrónico ha expirado o no es válido."
+
+#: .\templates\account\email_confirm.html:29
+msgid "New Request"
+msgstr "Nueva solicitud"
+
+#: .\templates\account\login.html:8
 msgid "Login"
 msgstr "Inicio seción"
 
-#: .\templates\profile_app\login.html:11 .\templates\profile_app\profile.html:8
-msgid "Username"
-msgstr "Usuario"
+#: .\templates\account\login.html:15 .\templates\account\password_reset.html:14
+#: .\templates\account\signup.html:14 .\templates\profile_app\profile.html:9
+msgid "Email"
+msgstr "Email"
 
-#: .\templates\profile_app\login.html:19
+#: .\templates\account\login.html:24 .\templates\account\signup.html:34
 msgid "Password"
 msgstr "Contraseña"
 
-#: .\templates\profile_app\login.html:30
+#: .\templates\account\login.html:34
+msgid "Remember Me"
+msgstr "Acuérdate de mí"
+
+#: .\templates\account\login.html:41 .\templates\account\signup.html:82
 msgid "Log In"
 msgstr "Acceder"
 
-#: .\templates\profile_app\login.html:34
+#: .\templates\account\login.html:75
 msgid "Don't have an account?"
 msgstr "¿No tienes cuenta?"
 
-#: .\templates\profile_app\login.html:34
+#: .\templates\account\login.html:75
 msgid "Sign Up"
 msgstr "Crear cuenta"
+
+#: .\templates\account\login.html:76
+#, fuzzy
+#| msgid "Password"
+msgid "Forgot Password?"
+msgstr "Contraseña"
+
+#: .\templates\account\password_reset.html:7
+#, fuzzy
+#| msgid "Password"
+msgid "Password Reset"
+msgstr "Contraseña"
+
+#: .\templates\account\password_reset.html:9
+msgid ""
+"Forgotten your password? Enter your email address below, and we'll send you "
+"an email allowing you to reset it."
+msgstr ""
+
+#: .\templates\account\password_reset.html:15
+msgid "Email address"
+msgstr "Correo electrónico"
+
+#: .\templates\account\password_reset.html:21
+#, fuzzy
+#| msgid "Password"
+msgid "Reset My Password"
+msgstr "Contraseña"
+
+#: .\templates\account\password_reset.html:25
+msgid "Please contact us if you have any trouble resetting your password."
+msgstr "Comuníquese con nosotros si tiene algún problema para restablecer su contraseña."
+
+#: .\templates\account\signup.html:7
+msgid "Registration"
+msgstr "Registro"
+
+#: .\templates\account\signup.html:24 .\templates\profile_app\profile.html:8
+msgid "Username"
+msgstr "Usuario"
+
+#: .\templates\account\signup.html:43
+#, fuzzy
+#| msgid "Password"
+msgid "Password (again)"
+msgstr "Contraseña"
+
+#: .\templates\account\signup.html:53
+msgid "Captcha"
+msgstr "Captcha"
+
+#: .\templates\account\signup.html:78
+msgid "Register"
+msgstr "Registrarse"
+
+#: .\templates\account\signup.html:82
+#, fuzzy
+#| msgid "Don't have an account?"
+msgid "Already have an account?"
+msgstr "¿No tienes cuenta?"
+
+#: .\templates\account\verification_sent.html:7
+msgid "Check Your Email"
+msgstr "Revisa tu correo electrónico"
+
+#: .\templates\account\verification_sent.html:11
+msgid ""
+"We have sent an e-mail to you for verification. Please follow the link "
+"provided to finalize your registration."
+msgstr ""
+
+#: .\templates\account\verification_sent.html:16
+msgid "If you do not see the email, please check your spam folder."
+msgstr "Si no ve el correo electrónico, revise su carpeta de correo no deseado."
+
+#: .\templates\account\verification_sent.html:22
+#, fuzzy
+#| msgid "Back to Home"
+msgid "Back to Login"
+msgstr "Inicio"
+
+#: .\templates\base.html:49
+msgid "SEARCH"
+msgstr "BUSCAR"
+
+#: .\templates\base.html:63
+msgid "LOGOUT"
+msgstr "SALIR"
+
+#: .\templates\base.html:67
+msgid "ENTER"
+msgstr "ENTRAR"
+
+#: .\templates\base.html:68
+msgid "REGISTER"
+msgstr "REGISTRO"
+
+#: .\templates\core\search_results.html:6
+#, python-format
+msgid "Search results for: \"%(query)s\""
+msgstr "Resultos: \"%(query)s\""
+
+#: .\templates\core\search_results.html:21
+msgid "No results found."
+msgstr "No resultos"
 
 #: .\templates\profile_app\profile.html:6
 msgid "User Profile"
 msgstr "Mi perfil"
 
-#: .\templates\profile_app\profile.html:9
-msgid "Email"
-msgstr "Email"
-
 #: .\templates\profile_app\profile.html:10
 msgid "Status"
 msgstr "Estado"
 
-#: .\templates\profile_app\profile.html:12
-msgid "Verified"
-msgstr "Verificada/o"
-
-#: .\templates\profile_app\profile.html:14
-msgid "Not Verified"
-msgstr "No verificada/o"
-
 #: .\templates\profile_app\profile.html:17
 msgid "Joined"
-msgstr ""
+msgstr "Unido"
 
-#: .\templates\profile_app\profile.html:21
-msgid "Back to Home"
-msgstr "Inicio"
+#~ msgid "Verified"
+#~ msgstr "Verificada/o"
 
-#: .\templates\profile_app\signup.html:6
-msgid "Registration"
-msgstr "Registro"
-
-#: .\templates\profile_app\signup.html:20
-msgid "Register"
-msgstr "Registrarse"
-
-#: .\templates\core\search_results.html:6
-#, python-format
-msgid "Search results for: \"%(query)s\""
-msgstr "Resultos \"%(query)s\""
-
-#: .\templates\core\search_results.html:21
-msgid "No results found."
-msgstr "No resultos"
+#~ msgid "Not Verified"
+#~ msgstr "No verificada/o"
 
 #~ msgid "Search..."
 #~ msgstr "Buscar"

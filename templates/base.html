@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>esaestu.casa - Sin Intermediarios</title>
+    <title>esaestu.casa</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/pixel_style.css' %}">
@@ -45,8 +45,8 @@
         </div>
         <div class="header-center">
             <form action="{% url 'search' %}" method="get" class="search-form-pixel">
-                <input type="text" name="q" placeholder="¿Qué buscas?" value="{{ query|default:'' }}">
-                <button type="submit">BUSCAR</button>
+                <input type="text" name="q" placeholder="" value="{{ query|default:'' }}">
+                <button type="submit">{% trans "SEARCH" %}</button>
             </form>
         </div>
 
@@ -60,12 +60,12 @@
                     <a href="{% url 'profile' %}" class="auth-link user_link">{{ user.email|truncatechars:9 }}</a>
                     <form action="{% url 'logout' %}" method="post" style="display: inline;">
                         {% csrf_token %}
-                        <button type="submit" class="auth-link salir">>SALIR</button>
+                        <button type="submit" class="auth-link salir">{% trans "LOGOUT" %}</button>
                     </form>
                 </div>
                 {% else %}
-                <a href="{% url 'login' %}" class="auth-link entrar">ENTRAR</a>
-                <a href="{% url 'signup' %}" class="auth-link register">REGISTRO</a>
+                <a href="{% url 'login' %}" class="auth-link entrar">{% trans "ENTER" %}</a>
+                <a href="{% url 'signup' %}" class="auth-link register">{% trans "REGISTER" %}</a>
                 {% endif %}
             </div>
             <form action="{% url 'set_language' %}" method="post" id="lang-form" class="lang-pixel">
