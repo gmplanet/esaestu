@@ -7,7 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Стандартный обработчик переключения языков
     path('i18n/', include('django.conf.urls.i18n')),
-    path('captcha/', include('captcha.urls')),
+    
 ]
 
 urlpatterns += i18n_patterns(

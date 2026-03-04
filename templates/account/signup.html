@@ -5,7 +5,8 @@
 {% block content %}
 <div class="auth-container">
     <h2>{% trans "Registration" %}</h2>
-
+{# Подключаем JavaScript-файлы, необходимые для работы виджета Google reCAPTCHA #}
+{{ form.media }}
     <form method="post" action="{% url 'account_signup' %}">
         {% csrf_token %}
 
@@ -83,17 +84,5 @@
     </div>
 </div>
 
-<style>
-    /* Твой стиль для капчи, чтобы она не ломала верстку */
-    .captcha-wrapper img {
-        display: block;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-    }
 
-    .captcha-wrapper input {
-        width: 100%;
-        /* Или как в твоем дизайне */
-    }
-</style>
 {% endblock %}
