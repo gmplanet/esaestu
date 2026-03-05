@@ -2,29 +2,30 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 
+# Импортируем инструменты для чтения настроек и генерации ссылок на медиафайлы
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     # Админка вне i18n_patterns
     path('admin/', admin.site.urls),
     # Стандартный обработчик переключения языков
     path('i18n/', include('django.conf.urls.i18n')),
+
+    path("ckeditor5/", include('django_ckeditor_5.urls')), # Подключаем URL-ы для CKEditor 5
     
 ]
 
 urlpatterns += i18n_patterns(
     path('', include('core.urls')),
-
-    # 1. Сначала подключаем allauth. 
-    # Он заберет на себя /profile_app/login/, /profile_app/signup/ и т.д.
     path('account/', include('allauth.urls')),
-
-
-
-    # 2. Затем твое приложение. 
-    # Если там есть пути, которых нет в allauth (например, 'profile/'), они будут работать.
     path('account/', include('profile_app.urls')),
-
-    
- 
-    
-
 )
+
+
+
+# Включаем раздачу медиафайлов (например, загруженных картинок из редактора) только для локального режима разработки (DEBUG = True)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    

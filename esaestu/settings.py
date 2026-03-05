@@ -33,13 +33,21 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 INSTALLED_APPS = [
     'core',
     'profile_app',
-    'django_recaptcha',
+    
+    # Обязательно: admin_interface и его зависимость colorfield должны стоять строго ДО django.contrib.admin
+    'admin_interface',
+    'colorfield',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Ваша новая Google капча
+    'django_recaptcha',
+    
     # Приложения для Allauth:
     'django.contrib.sites',
     'allauth',
@@ -47,6 +55,14 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'django_rename_app',
+    
+    # Подключение новых загруженных библиотек
+    'django_ckeditor_5', # Интеграция визуального редактора текста
+    'imagekit',          # Инструмент для автоматической обработки и обрезки изображений
+    'mptt',              # Утилита для работы с древовидными структурами (например, для вложенных категорий)
+    
+    # Обязательно: пакет для автоматического удаления связанных файлов должен быть самым последним в списке
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 SITE_ID = 1
@@ -265,4 +281,48 @@ ACCOUNT_FORMS = {
 
 ACCOUNT_RATE_LIMITS = {
     'login_failed': '5/600s'
+}
+
+
+
+
+
+
+
+# === НАСТРОЙКИ DJANGO-ADMIN-INTERFACE ===
+# Разрешаем загрузку iframe-контента с того же домена (необходимо для работы модальных окон)
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
+# Подавляем системное предупреждение W019, так как мы осознанно изменили политику X_FRAME_OPTIONS
+SILENCED_SYSTEM_CHECKS = ["security.W019"]
+
+
+
+
+
+
+
+
+# === НАСТРОЙКИ DJANGO-CKEDITOR-5 ===
+# Указываем директорию внутри вашего MEDIA_ROOT, куда будут сохраняться картинки из редактора
+CKEDITOR_5_UPLOADS_FOLDER = "ckeditor5_uploads/"
+
+# Глобальная конфигурация панелей инструментов
+CKEDITOR_5_CONFIGS = {
+    # 'default' - базовая панель для небольших полей
+    'default': {
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+                    'bulletedList', 'numberedList', 'blockQuote', 'imageUpload'],
+    },
+    # 'extends' - расширенная панель с исходным кодом, таблицами и выравниванием изображений
+    'extends': {
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link', 'underline', 'strikethrough',
+                    '|', 'bulletedList', 'numberedList', '|', 'blockQuote', 'imageUpload',
+                    'insertTable', 'mediaEmbed', 'removeFormat', 'sourceEditing'],
+        'image': {
+            'toolbar': ['imageTextAlternative', '|', 'imageStyle:alignLeft',
+                        'imageStyle:alignRight', 'imageStyle:alignCenter', 'imageStyle:side'],
+            'styles': ['full', 'side', 'alignLeft', 'alignRight', 'alignCenter']
+        },
+    }
 }

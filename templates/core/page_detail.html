@@ -3,6 +3,8 @@
 {% block content %}
     <h1>{{ page.title }}</h1>
     <div class="page-content">
-        {{ page.content|linebreaks }}
+        {# Убираем фильтр linebreaks и добавляем фильтр safe #}
+        {# safe отключает защиту от HTML-инъекций для этой переменной, позволяя браузеру применить стили и форматирование из админки #}
+        {{ page.content|safe }}
     </div>
 {% endblock %}

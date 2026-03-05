@@ -3,16 +3,23 @@ from django.urls import reverse
 from django.db.models import Q
 from django.utils.translation import get_language, activate
 
+from django_ckeditor_5.fields import CKEditor5Field
+
+
+
 # Модель страницы с поддержкой английского и испанского языков
 class Page(models.Model):
     # Английский
     title_en = models.CharField(max_length=200, verbose_name="Title (EN)")
-    content_en = models.TextField(verbose_name="Content (EN)")
+    # Используем CKEditor5Field для включения визуального редактора в интерфейсе админки
+    # Параметр config_name='extends' связывает это поле с нашими настройками тулбара
+    content_en = CKEditor5Field(verbose_name="Content (EN)", config_name='extends')
     slug_en = models.SlugField(max_length=200, unique=True, verbose_name="URL Slug (EN)")
     
     # Испанский
     title_es = models.CharField(max_length=200, verbose_name="Title (ES)")
-    content_es = models.TextField(verbose_name="Content (ES)")
+    # Аналогично меняем поле для испанского контента
+    content_es = CKEditor5Field(verbose_name="Content (ES)", config_name='extends')
     slug_es = models.SlugField(max_length=200, unique=True, verbose_name="URL Slug (ES)")
     
     # Метаданные
