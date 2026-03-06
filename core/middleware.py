@@ -7,7 +7,7 @@ class MaintenanceModeMiddleware:
 
     def __call__(self, request):
         # 1. Сразу пропускаем админку
-        if request.path.startswith('/admin/'):
+        if request.path.startswith('/door13/'):
             return self.get_response(request)
 
         # 2. Безопасно берем запись из базы
