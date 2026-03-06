@@ -168,9 +168,9 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     
     # HSTS настройки (для рейтинга A+)
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    #SECURE_HSTS_SECONDS = 31536000
+    #SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    #SECURE_HSTS_PRELOAD = True
     
     CSRF_TRUSTED_ORIGINS = ['https://esaestu.casa', 'https://www.esaestu.casa']
     
