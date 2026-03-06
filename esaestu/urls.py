@@ -8,7 +8,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     # Админка вне i18n_patterns
-    path('admin/', admin.site.urls),
+    path('door13/', admin.site.urls),
     # Стандартный обработчик переключения языков
     path('i18n/', include('django.conf.urls.i18n')),
 
