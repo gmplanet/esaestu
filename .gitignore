@@ -12,3 +12,4 @@ data.json
 .DS_Store
 plan.md
 .gitignore
+.nginx/
