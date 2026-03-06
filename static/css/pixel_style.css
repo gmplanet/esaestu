@@ -249,9 +249,6 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
 
 /* SIDEBAR */
 
-   
-
-
 .sidebar-left {
     width: 280px;
     /*border-right: var(--pixel-border) solid var(--pixel-black);*/
@@ -276,17 +273,27 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
 
 .menu-item-link:hover {
     background: var(--pixel-yellow);
-}
+}   
+
 
 .submenu {
     list-style: none;
     padding-left: 30px;
     background: #f9f9f9;
     display: none;
+    
 }
 
-.has-children.open .submenu {
+/* ДОБАВЛЕН ЗНАК ">": Теперь открывается только тот список, который находится непосредственно внутри кликнутого пункта, а не все сразу */
+.has-children.open > .submenu {
     display: block;
+}
+
+/* Опционально: Добавляем немного визуального отличия для 3-го уровня (и глубже), чтобы пункты не сливались */
+.submenu .submenu {
+    padding-left: 15px;
+    background: #f1f1f1;
+    border-left: 2px dashed var(--pixel-grey);
 }
 
 .submenu a {

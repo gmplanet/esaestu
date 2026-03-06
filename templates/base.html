@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{# Подключаем набор тегов шаблона MPTT для работы с древовидными структурами #}
+{% load mptt_tags %}
 <!DOCTYPE html>
 <html lang="{{ request.LANGUAGE_CODE }}">
 
@@ -7,28 +9,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>esaestu.casa</title>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/pixel_style.css' %}">
 </head>
 
 <body>
     
-    <!-- SVG ASSETS (Скрытые спрайты для иконок) -->
     <svg style="display: none;">
-        <!-- Иконка Дома -->
         <symbol id="icon-home" viewBox="0 0 16 16">
             <path fill="currentColor" d="M8 1l7 7h-2v7H3V8H1l7-7zM5 13h2V9h2v4h2V7.4L8 3.3 5 7.4V13z" />
         </symbol>
-        <!-- Иконка Здания (Administraciones) -->
         <symbol id="icon-building" viewBox="0 0 16 16">
             <path fill="currentColor" d="M2 1h12v14H2V1zm2 2h2v2H4V3zm6 0h2v2h-2V3zM4 7h2v2H4V7zm6 0h2v2h-2V7zm-6 4h2v2H4v-2zm6 0h2v2h-2v-2z" />
         </symbol>
-        <!-- Иконка Работника (Empleado) -->
         <symbol id="icon-user" viewBox="0 0 16 16">
             <path fill="currentColor" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 8a4 4 0 0 0-4 4v3h16v-3a4 4 0 0 0-4-4H4z" />
         </symbol>
-        <!-- Иконка Законов (Leyes) -->
         <symbol id="icon-legal" viewBox="0 0 16 16">
             <path fill="currentColor" d="M1 13h14v2H1v-2zm2-2h2V4H3v7zm4 0h2V2H7v9zm4 0h2V5h-2v6z" />
         </symbol>
@@ -89,24 +85,24 @@
         <aside class="sidebar-left">
             <nav class="pixel-nav">
                 <ul class="main-menu">
-                                       
-                    {% for item in main_menu %}
-                    <li class="{% if item.children.all %}has-children{% endif %}" id="menu-item-{{ item.id }}">
-                        <a href="{{ item.get_url }}" class="menu-item-link">
-                            <span class="link-text">{{ item.title }}</span>
-                            {% if item.children.all %}
+                    {# Запускаем рекурсивный обход по вашей переменной main_menu #}
+                    {% recursetree main_menu %}
+                    {# Метод is_leaf_node проверяет отсутствие потомков. Если их нет (not), мы добавляем ваш класс has-children #}
+                    <li class="{% if not node.is_leaf_node %}has-children{% endif %}" id="menu-item-{{ node.id }}">
+                        <a href="{{ node.get_url }}" class="menu-item-link">
+                            <span class="link-text">{{ node.title }}</span>
+                            {% if not node.is_leaf_node %}
                             <span class="toggle-icon js-menu-toggle">▼</span>
                             {% endif %}
                         </a>
-                        {% if item.children.all %}
+                        {% if not node.is_leaf_node %}
                         <ul class="submenu">
-                            {% for child in item.children.all %}
-                            <li><a href="{{ child.get_url }}">{{ child.title }}</a></li>
-                            {% endfor %}
+                            {# Автоматически вставляем HTML-код всех вложенных уровней, сохраняя структуру тегов #}
+                            {{ children }}
                         </ul>
                         {% endif %}
                     </li>
-                    {% endfor %}
+                    {% endrecursetree %}
                 </ul>
             </nav>
         </aside>

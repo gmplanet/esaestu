@@ -1,4 +1,5 @@
 from django.contrib import admin
+from mptt.admin import DraggableMPTTAdmin # Импортируем специальный класс DraggableMPTTAdmin для создания визуального дерева с кнопками управления
 from .models import Page, MenuItem, Maintenance, Footer
 
 admin.site.site_header = "esaestu Administration"
@@ -25,11 +26,19 @@ class PageAdmin(admin.ModelAdmin):
     )
 
 @admin.register(MenuItem)
-class MenuItemAdmin(admin.ModelAdmin):
-    # Добавили колонку родителя и фильтр
-    list_display = ('title_en', 'title_es', 'parent', 'order', 'url')
-    list_editable = ('order',)
-    list_filter = ('parent',) # Удобно фильтровать подпункты
+class MenuItemAdmin(DraggableMPTTAdmin):
+    # Настраиваем колонки: tree_actions выводит стрелки перемещения, а indented_title отображает наглядные отступы для подпунктов
+    list_display = (
+        'tree_actions',
+        'indented_title',
+        'title_en',
+        'title_es',
+        'linked_page',
+        'url',
+    )
+    # Делаем поле с отступами кликабельным для перехода к редактированию элемента
+    list_display_links = ('indented_title',)
+    # Оставляем только строку поиска, удаляя старые фильтры и сортировки, так как теперь позиции элементов задаются визуальным перетаскиванием
     search_fields = ('title_en', 'title_es')
 
 @admin.register(Maintenance)

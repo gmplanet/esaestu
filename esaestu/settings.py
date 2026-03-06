@@ -36,8 +36,7 @@ INSTALLED_APPS = [
     
     # Обязательно: admin_interface и его зависимость colorfield должны стоять строго ДО django.contrib.admin
     'admin_interface',
-    'colorfield',
-    
+    'colorfield',    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
