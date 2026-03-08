@@ -11,17 +11,18 @@
 
 :root {
     --pixel-grey: #888888;
+    --pixel-light-grey: #d1d1d1;
     --pixel-black: #1a1a1a;
     --pixel-white: #ffffff;
-    --pixel-blue: #0055A4;   /* Azul Bilbao */
-    --pixel-yellow: #FFD700; /* Amarillo Sol */
-    --pixel-red: #E63946;    /* Rojo Alerta */
+    --pixel-blue: #0055A4;
+    --pixel-yellow: #FFD700;
+    --pixel-red: #E63946;
     --pixel-border: 3px;
 }
 
 html {
-    /* Резервирует место под скроллбар всегда */
-    scrollbar-gutter: stable;
+    
+    scrollbar-gutter: stable;/* Убираем отступ справа, который появляется при появлении скроллбара */
 }
 
 
@@ -31,7 +32,7 @@ html {
 }
 
 body {
-    scrollbar-gutter: stable;
+    scrollbar-gutter: stable; /* Резервирует место под скроллбар всегда */
     margin: 0;
     padding: 0;
     font-family: 'Inter', sans-serif;
@@ -45,40 +46,24 @@ body {
 
 
 /* --- TYPOGRAPHY --- */
-h1, h2, h3, .logo-pixel, .auth-link, button {
+h1,
+h2,
+h3,
+.logo-pixel,
+.auth-link,
+button {
     font-family: 'Press Start 2P', cursive;
     text-transform: uppercase;
 }
 
-.menu-item-link, .link-text, .search-form-pixel input {
+.menu-item-link,
+.link-text,
+.search-form-pixel input {
     font-family: 'VT323', monospace;
-    font-size: 1.4rem;
+    font-size: 1.6rem;
 }
 
-/* --- HEADER --- */
-.header-main {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 25px;
-    background: var(--pixel-white);
-    border-bottom: var(--pixel-border) solid var(--pixel-black);
-    border-right: var(--pixel-border) solid var(--pixel-black);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 3px 3px 0px #d1d1d1;
-}
 
-.logo-pixel {
-    font-size: 1.2rem;
-    text-decoration: none;
-    color: var(--pixel-black);
-}
-
-.logo-pixel span {
-    color: var(--pixel-blue);
-}
 
 /* SEARCH */
 .search-form-pixel {
@@ -97,143 +82,22 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
 }
 
 .search-form-pixel button {
-    /*appearance: none;     /* Убирает стандартные стили браузера/ОС */
-    /*background: none;     /* Убирает серый фон */
-    border: none;         /* Убирает рамку */
-    /*padding: 0;           /* Убирает внутренние отступы */
-    /*outline: none;        /* Убирает синюю обводку при клике */
-    /*font: inherit;        /* Заставляет кнопку использовать шрифт родителя */
-    /*color: inherit;       /* Наследует цвет текста */
-    cursor: pointer;      /* Возвращает палец (курсор) при наведении */
-
-
+    
+    border: none;    
+    cursor: pointer; 
     background: var(--pixel-yellow);
     color: white;
     border-color: var(--pixel-yellow);
     box-shadow: 2px 2px 2px var(--pixel-black);
-    
-    
 }
 
 .search-form-pixel button:hover {
-    transform: translate(2px, 2px); 
+    transform: translate(2px, 2px);
     box-shadow: 0px 0px 0px var(--pixel-black);
     z-index: 1300;
     box-shadow: inset -2px -2px 0 2px grey;
     box-shadow: inset -1px -1px 0 1px rgb(0, 0, 0);
 }
-
-/* AUTH & LANG */
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.auth-link {
-    font-size: 0.6rem;
-    text-decoration: none;
-    color: var(--pixel-black);
-    display: inline-block;
-    padding: 8px 12px;
-    margin-left: 5px;
-    border: var(--pixel-border) solid transparent;
-}
-
-.auth-link.register {
-    background: var(--pixel-blue);
-    color: rgb(255, 255, 255);
-    border-color: var(--pixel-black);
-    box-shadow: 3px 3px 0px var(--pixel-grey);
-}
-
-.auth-link.register:hover {
-
-    background: var(--pixel-blue);
-    color: rgb(255, 255, 255);
-    border-color: var(--pixel-black);
-    transform: translate(2px, 2px); 
-    box-shadow: 2px 2px 0px var(--pixel-white);
-}
-
-
-.auth-link.entrar {
-    background: var(--pixel-white);
-    color: rgb(0, 0, 0);
-    border-color: var(--pixel-black);
-    box-shadow: 3px 3px 0px var(--pixel-grey);
-}
-
-.auth-link.entrar:hover {
-    background: var(--pixel-white);
-    color: rgb(0, 0, 0);
-    border-color: var(--pixel-black);
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px var(--pixel-white);
-}
-
-.auth-link.salir {
-
-    border: 3px solid black;
-    cursor: pointer;
-    background: var(--pixel-red);
-    color: white;
-    border-color: #000000;
-    box-shadow: 3px 3px 0px #888;
-    
-}
-
-.auth-link.salir:hover {
-    transform: translate(2px, 2px); 
-    box-shadow: 0px 0px 0px var(--pixel-black);
-    z-index: 1300;
-}
-
-.auth-link.user_link {
-    background: var(--pixel-white);
-    color: rgb(0, 0, 0);
-    border-color: var(--pixel-black);
-    box-shadow: 3px 3px 0px var(--pixel-grey);
-}
-
-.auth-link.user_link:hover {
-    background: var(--pixel-white);
-    color: rgb(0, 0, 0);
-    border-color: var(--pixel-black);
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px var(--pixel-white);
-}
-
-
-.auth-link.inicio {
-    background: var(--pixel-white);
-    color: rgb(0, 0, 0);
-    border-color: var(--pixel-black);
-    box-shadow: 3px 3px 0px var(--pixel-grey);
-    width:100%;
-}
-
-.auth-link.inicio:hover {
-    background: var(--pixel-white);
-    color: rgb(0, 0, 0);
-    border-color: var(--pixel-black);
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px var(--pixel-white);
-    width:100%;
-}
-
-
-
-.auth-link.lang {
-    font-size: 0.6rem;
-    text-decoration: none;
-    color: var(--pixel-black);
-    display: inline-block;
-    padding: 8px 12px;
-    margin-left: 5px;
-    border: var(--pixel-border) solid transparent;
-}
-
 
 
 
@@ -247,167 +111,46 @@ h1, h2, h3, .logo-pixel, .auth-link, button {
     width: 100%;
 }
 
-/* SIDEBAR */
 
-.sidebar-left {
-    width: 280px;
-    /*border-right: var(--pixel-border) solid var(--pixel-black);*/
-    background: var(--pixel-white);
-    padding-top: 50px;
-}
-
-.main-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.menu-item-link {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px 20px;
-    text-decoration: none;
-    color: var(--pixel-black);
-    border-bottom: 2px solid #eee;
-}
-
-.menu-item-link:hover {
-    background: var(--pixel-yellow);
-}   
-
-
-.submenu {
-    list-style: none;
-    padding-left: 30px;
-    background: #f9f9f9;
-    display: none;
-    
-}
-
-/* ДОБАВЛЕН ЗНАК ">": Теперь открывается только тот список, который находится непосредственно внутри кликнутого пункта, а не все сразу */
-.has-children.open > .submenu {
-    display: block;
-}
-
-/* Опционально: Добавляем немного визуального отличия для 3-го уровня (и глубже), чтобы пункты не сливались */
-.submenu .submenu {
-    padding-left: 15px;
-    background: #f1f1f1;
-    border-left: 2px dashed var(--pixel-grey);
-}
-
-.submenu a {
-    display: block;
-    padding: 10px;
-    text-decoration: none;
-    color: #444;
-    font-family: 'VT323', monospace;
-    font-size: 1.2rem;
-}
-
-/* CONTENT */
-.content-center {
-    flex: 1;
-    padding: 40px;
-    background: var(--pixel-white);
-}
-
-.hero-pixel {
-    text-align: center;
-    margin-bottom: 50px;
-    padding: 40px;
-    border: var(--pixel-border) dashed var(--pixel-blue);
-}
-
-.hero-pixel h1 {
-    font-size: 1.5rem;
-    line-height: 1.5;
-    margin-bottom: 20px;
-}
-
-/* CARDS (For future use in Django templates) */
+/* CARDS */
 .pixel-card {
     border: var(--pixel-border) solid var(--pixel-black);
-    box-shadow: 6px 6px 0px var(--pixel-black);
+    box-shadow: 5px 5px 0px var(--pixel-light-grey);
     padding: 20px;
     margin-bottom: 25px;
-    background: white;
+    background: rgb(255, 255, 255);
+}
+.creators-container {
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    font-family: 'VT323', monospace;
 }
 
-/* FOOTER */
-.footer-main {
-    border-top: var(--pixel-border) solid var(--pixel-black);
-    text-align: center;
-    font-family: 'VT323', monospace;
-    font-size: 1.2rem;
-    
-}
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
 
-    .header-center { display: none; }
-
-    .sidebar-left {
-        position: fixed;
-        left: -280px;
-        height: 100%;
-        z-index: 2000;
-        transition: 0.3s;
-    }
-    .sidebar-left.mobile-open {
-        left: 0;
-        box-shadow: 10px 0 0 var(--pixel-black);
-    }
 
 
     .logo-pixel {
         display: none;
     }
-    
-/* AUTH */
-.auth-container h2 {
-    CONTAIN-INTRINSIC-BLOCK-SIZE: AUTO 50PX;
-    text-align: center;
-    margin-bottom: 5px;
-    color: #2c3e50;
-}
 
+    .pixel-card {
+        width: 350px;
+        border: var(--pixel-border) solid var(--pixel-black);
+        box-shadow: 5px 5px 0px var(--pixel-light-grey);
+        padding: 20px;
+        margin-bottom: 25px;
+        background: rgb(255, 255, 255);
+    }
 
-.auth-container {
-    max-width: 400px;
-    margin: 10px auto;
-    padding: 10px;
-    background: #fff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    color: #333;
-}
-
-
-.content-center h2 {
-    font-size: 1rem;
-    margin-top: 10px;
-    color: #444;
-}
-
-.content-center {
-    flex: 1;
-    padding: 10px;
-    background: var(--pixel-white);
-}
-
-.content-center h1 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-}
-
-
-
-
-
-
-
-
+    .creators-container {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        gap: 15px;
+        font-family: 'VT323', monospace;
+    }
 }

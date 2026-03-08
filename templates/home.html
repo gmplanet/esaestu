@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div style="margin-top: 30px;">
+    <h2>{% trans "Creators & Services" %}</h2>
+
+    <div id="creators-container" class="creators-container"> 
+        {% if creators %}
+            {% for creator in creators %}
+                {% include "includes/user_card.html" %}
+            {% endfor %}
+        {% else %}
+            <div class="pixel-card">
+                <p>{% trans "There are no creators or services available yet." %}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div id="loading-sentinel" style="height: 50px; margin-top: 10px;"></div>
+</div>
+
+<script>
+    let page = 1;
+    let emptyPage = false;
+    let blockRequest = false;
+
+    const container = document.getElementById('creators-container');
+    const sentinel = document.getElementById('loading-sentinel');
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !emptyPage && !blockRequest) {
+            loadMoreCreators();
+        }
+    }, { threshold: 0.1 });
+
+    observer.observe(sentinel);
+
+    async function loadMoreCreators() {
+        page++;
+        blockRequest = true;
+
+        try {
+            // Отправляем запрос на ту же страницу, но с параметром page
+            const response = await fetch(`?page=${page}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const html = await response.text();
+
+            if (html.trim() === "") {
+                emptyPage = true; // Если сервер прислал пустоту — карточки кончились
+            } else {
+                container.insertAdjacentHTML('beforeend', html);
+                blockRequest = false;
+            }
+        } catch (err) {
+            console.error("Error loading creators:", err);
+            blockRequest = false;
+        }
+    }
+</script>
+{% endblock %}

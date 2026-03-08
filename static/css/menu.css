@@ -6,7 +6,8 @@
 }
 
 /* Стили меню */
-.main-menu, .submenu {
+.main-menu,
+.submenu {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -28,36 +29,107 @@
     padding-left: 15px;
 }
 
-.has-children.open > .submenu {
+.has-children.open>.submenu {
     display: block;
 }
 
+/* SIDEBAR */
 
-/* Мобильное состояние меню */
+.sidebar-left {
+    width: 280px;
+    /*border-right: var(--pixel-border) solid var(--pixel-black);*/
+    background: var(--pixel-white);
+    padding-top: 50px;
+}
+
+.main-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-item-link {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--pixel-black);
+    border-bottom: 2px solid #eee;
+}
+
+.menu-item-link:hover {
+    background: var(--pixel-yellow);
+}
+
+
+.submenu {
+    list-style: none;
+    padding-left: 30px;
+    background: #f9f9f9;
+    display: none;
+
+}
+
+/* ДОБАВЛЕН ЗНАК ">": Теперь открывается только тот список, который находится непосредственно внутри кликнутого пункта, а не все сразу */
+.has-children.open>.submenu {
+    display: block;
+}
+
+/* Опционально: Добавляем немного визуального отличия для 3-го уровня (и глубже), чтобы пункты не сливались */
+.submenu .submenu {
+    padding-left: 15px;
+    background: #f1f1f1;
+    border-left: 2px dashed var(--pixel-grey);
+}
+
+.submenu a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #444;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+}
+
+
+/* Бургер-кнопка (скрыта на десктопе) */
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+
+
 @media (max-width: 768px) {
 
-        .menu-toggle {
+    .menu-toggle {
         position: fixed;
         display: block;
-        padding: 15px ;
+        padding: 15px;
         font-size: 1.5rem;
         cursor: pointer;
         z-index: 5500;
         color: var(--pixel-black);
-        
-            }
+
+    }
+
     
-        .sidebar-left {
+
+    .sidebar-left {
         position: fixed;
-        left: -280px; /* Спрятано */
+        left: -280px;
+        /* Спрятано */
         top: 0;
         height: 100%;
         z-index: 1300;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }
 
     .sidebar-left.mobile-open {
-        left: 0; /* Выдвинуто */
+        left: 0;
+        /* Выдвинуто */
     }
 
     /* Затемнение фона */
@@ -69,10 +141,23 @@
         left: 280px;
         width: calc(100vw - 280px);
         height: 100%;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         z-index: 1299;
     }
 
 
-}
 
+    .sidebar-left {
+        position: fixed;
+        left: -280px;
+        height: 100%;
+        z-index: 2000;
+        transition: 0.3s;
+    }
+
+    .sidebar-left.mobile-open {
+        left: 0;
+        box-shadow: 10px 0 0 var(--pixel-black);
+    }
+
+}

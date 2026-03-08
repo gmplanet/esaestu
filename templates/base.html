@@ -109,51 +109,10 @@
         <main class="content-center">
             {% block content %}
             
-            <div style="margin-top: 30px;">
-                <h2>{% trans "Creators & Services" %}</h2>
-            
-                {% if creators %}
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-            
-                    {% for creator in creators %}
-                    <div class="pixel-card"
-                        style="display: flex; justify-content: space-between; align-items: center; padding: 15px;">
-            
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                        <div>
-                            {% if creator.avatar %}
-                                <img src="{{ creator.avatar.url }}" alt="{{ creator.username }}" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid var(--pixel-black);">
-                            {% else %}
-                                <div style="width: 100px; height: 100px; background: #eee; border: 3px solid var(--pixel-black); display: flex; align-items: center; justify-content: center; color: #999; font-family: 'VT323', monospace; font-size: 0.8rem; text-align: center;">No Avatar</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div>
-                            <h3 style="margin: 0; text-transform: uppercase;">{{ creator.username }}</h3>
-                            
-                            <p style="margin: 5px 0 0 0; color: #555;">
-                                {% trans "Service" %}: Shop
-                            </p>
-                        </div>
-                    </div>
-            
-                            <a href="{% url 'public_shop' slug=creator.slug %}" class="btn-main"
-                                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; height: 35px; padding: 0 15px; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; font-size: 1.1rem; border: 2px solid var(--pixel-black); margin: 0; color: black;">
-                                {% trans "Visit" %}
-                            </a>
-                        </div>
-                            {% endfor %}
-                    </div>
-            
-                    {% else %}
-                    <div class="pixel-card">
-                        <p>{% trans "There are no creators or services available yet." %}</p>
-                    </div>
-                    {% endif %}
-                </div>
+
             
             
-                {% endblock %}
+            {% endblock %}
         </main>
     </div>
 
@@ -163,7 +122,44 @@
     
     </footer>
     
-     
+     <script>
+let page = 1;
+let emptyPage = false;
+let blockRequest = false;
+
+const container = document.getElementById('creators-container');
+const sentinel = document.getElementById('loading-sentinel');
+
+// Intersection Observer следит за появлением пустой области внизу страницы
+const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !emptyPage && !blockRequest) {
+        loadMoreCreators();
+    }
+}, { threshold: 0.1 });
+
+observer.observe(sentinel);
+
+async function loadMoreCreators() {
+    page++;
+    blockRequest = true;
+
+    try {
+        const response = await fetch(`?page=${page}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const html = await response.text();
+
+        if (html.trim() === "") {
+            emptyPage = true;
+        } else {
+            container.insertAdjacentHTML('beforeend', html);
+            blockRequest = false;
+        }
+    } catch (err) {
+        console.error("Error loading creators:", err);
+    }
+}
+</script>
 
     <script src="{% static 'js/main.js' %}"></script>
 

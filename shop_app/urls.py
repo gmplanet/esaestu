@@ -26,4 +26,7 @@ urlpatterns = [
     
     # Новый маршрут для страницы оформления заказа (Checkout)
     path('u/<slug:slug>/shop/checkout/', views.checkout_view, name='checkout'),
+
+    # Маршрут для обновления количества товара в корзине (AJAX)
+    path('cart/update/<int:product_id>/', views.update_cart_quantity, name='update_cart_quantity'),
 ]

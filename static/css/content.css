@@ -1,9 +1,25 @@
+
+/* CONTENT */
+.hero-pixel {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 40px;
+    border: var(--pixel-border) dashed var(--pixel-blue);
+}
+
+.hero-pixel h1 {
+    font-size: 1.5rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
 /* Стили основного блока контента */
 .content-center {
     flex: 1;
     padding: 20px 40px;
     line-height: 1.6; /* Комфортное межстрочное расстояние */
     color: #333;
+    background: var(--pixel-white);
 }
 
 /* Стили заголовков внутри контента */
@@ -15,10 +31,18 @@
 }
 
 .content-center h2 {
-    font-size: 1.8rem;
+    font-size: 1.0rem;
     margin-top: 5px;
     color: #444;
 }
+
+.content-center h3 {
+    font-size: 0.9rem;
+    margin-top: 5px;
+    color: #444;
+}
+
+
 
 /* Стили текста и списков */
 .page-content {
@@ -92,4 +116,28 @@
 
 .login-link:hover {
     text-decoration: underline;
+}
+
+
+@media (max-width: 768px) {
+
+    .content-center h2 {
+        font-size: 1rem;
+        margin-top: 10px;
+        color: #444;
+    }
+
+    .content-center {
+        flex: 1;
+        padding: 10px;
+        background: var(--pixel-white);
+    }
+
+    .content-center h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+    }
+
 }

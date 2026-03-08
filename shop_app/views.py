@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.translation import gettext as _
+from django.http import JsonResponse
 
 # Импортируем наши новые модели и форму
 from .models import Product, ProductImage, Cart, CartItem, Order, OrderItem
@@ -258,3 +259,44 @@ def checkout_view(request, slug):
         'cart_items': cart_items,
         'cart_total': cart_total
     })
+
+
+# проверка остатков на складе при изменении количества товара в корзине (AJAX)
+@login_required
+def update_cart_quantity(request, product_id):
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        new_quantity = int(data.get('quantity', 1))
+        
+        product = get_object_or_404(Product, id=product_id)
+        cart = get_object_or_404(Cart, user=request.user)
+        cart_item = get_object_or_404(CartItem, cart=cart, product=product)
+
+        # ЛОГИКА ПРОВЕРКИ:
+        # Если пользователь УВЕЛИЧИВАЕТ количество, проверяем склад.
+        # Если УМЕНЬШАЕТ, проверка склада не нужна.
+        if new_quantity > cart_item.quantity:
+            if new_quantity > product.stock:
+                return JsonResponse({
+                    'status': 'error', 
+                    'message': _('Not enough stock. Available: %(stock)s') % {'stock': product.stock}
+                }, status=400)
+        
+        if new_quantity > 0:
+            cart_item.quantity = new_quantity
+            cart_item.save()
+            
+            shop_owner = product.owner
+            cart_items = CartItem.objects.filter(cart=cart, product__owner=shop_owner)
+            cart_total = sum(item.total_price for item in cart_items)
+
+            return JsonResponse({
+                'status': 'success',
+                'item_total': float(cart_item.total_price),
+                'cart_total': float(cart_total)
+            })
+        else:
+            # Если дошли до 0, удаляем товар из корзины
+            cart_item.delete()
+            return JsonResponse({'status': 'deleted'})

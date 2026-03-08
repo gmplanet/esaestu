@@ -1,4 +1,6 @@
 /* Шапка сайта */
+
+
 .header-main {
     display: flex;
     justify-content: space-between;
@@ -18,6 +20,8 @@
     margin-right: auto;
     width: 100%;
 }
+
+
 
 .main-wrapper {
     display: flex;
@@ -73,36 +77,61 @@
     border-color: #888;
 }
 
-
-
-/* Бургер-кнопка (скрыта на десктопе) */
-.menu-toggle {
-    display: none;
-    font-size: 24px;
-    cursor: pointer;
-    margin-right: 15px;
+/* --- HEADER --- */
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: var(--pixel-white);
+    border-bottom: var(--pixel-border) solid var(--pixel-black);
+    border-right: var(--pixel-border) solid var(--pixel-black);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 3px 3px 0px #d1d1d1;
 }
+
+.logo-pixel {
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: var(--pixel-black);
+}
+
+.logo-pixel span {
+    color: var(--pixel-blue);
+}
+
+
 
 /* Адаптивность для шапки */
 @media (max-width: 768px) {
-    .menu-toggle { display: block; }
-    .header-center { display: none; } /* Скрываем поиск в шапке на мобилках для места */
+    .menu-toggle { 
+        display: block; 
+    }
+    
+    .header-center {
+        display: none;
+    }
     
 }
 
 
 
-/* Футер сайта */
+/* FOOTER */
+
 .footer-main {
+
+    border-top: var(--pixel-border) solid var(--pixel-black);
+    text-align: center;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
     background-color: #ffffff;
     color: #000000;
-    text-align: center;
     width: 1200px;
     max-width: 1200px;
     box-shadow: inset 0 3px 0 0 #d1d1d1;
     height: 50px;
-    
-    
     margin-left: auto;
     margin-right: auto;
 }
