@@ -9,7 +9,7 @@ from django.utils.text import slugify
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
-    slug = models.SlugField(max_length=150, unique=True, blank=True)
+    slug = models.SlugField(max_length=255, null=True, blank=True, verbose_name="Slug")
     is_email_verified = models.BooleanField(default=False)
     sku_limit = models.PositiveIntegerField(default=10, verbose_name="SKU Limit")
     show_in_catalog = models.BooleanField(default=False, verbose_name="Show in Catalog")
