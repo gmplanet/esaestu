@@ -1,58 +1,49 @@
 # profile_app/views.py
-from django.shortcuts import render, redirect
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
-from django.contrib.auth import get_user_model, login
-from django.contrib.auth.tokens import default_token_generator
-from .forms import CustomSignupForm
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+# Импортируем logout для выхода из системы перед удалением
+from django.contrib.auth import get_user_model, logout
+# Импортируем нашу новую форму настроек
+from .forms import UserProfileForm
 
 User = get_user_model()
 
-def signup_view(request):
-    if request.method == 'POST':
-        form = CustomSignupForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False  # ЗАПРЕТ ЛОГИНА ТУТ
-            user.save()
-
-            current_site = get_current_site(request)
-            subject = 'Activate Your Account'
-            message = render_to_string('profile_app/acc_active_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
-            })
-            send_mail(subject, message, 'noreply@esaestu.com', [user.email])
-            return render(request, 'profile_app/signup_done.html')
-    else:
-        form = CustomSignupForm()
-    return render(request, 'profile_app/signup.html', {'form': form})
-
-def activate(request, uidb64, token):
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-
-    if user is not None and default_token_generator.check_token(user, token):
-        user.is_active = True # РАЗРЕШАЕМ ЛОГИН
-        user.is_email_verified = True
-        user.save()
-        login(request, user, backend='profile_app.backends.EmailVerifiedBackend')
-        return redirect('home')
-    else:
-        return render(request, 'profile_app/activation_invalid.html')
-    
-    
 @login_required
-def profile_view(request):
-    return render(request, 'profile_app/profile.html', {
-        'user': request.user
+def cabinet_view(request):
+    # Если метод POST, пользователь отправил форму (нажал одну из кнопок)
+    if request.method == 'POST':
+        # Получаем значение скрытого поля action, чтобы понять, что именно нужно сделать
+        action = request.POST.get('action')
+        
+        # Обработка обновления профиля
+        if action == 'update_profile':
+            form = UserProfileForm(request.POST, request.FILES, instance=request.user)
+            if form.is_valid():
+                form.save()
+                return redirect('cabinet')
+                
+        # Обработка удаления аккаунта
+        elif action == 'delete_account':
+            user = request.user
+            # Сначала принудительно завершаем сессию
+            logout(request)
+            # Затем физически удаляем пользователя из базы данных
+            user.delete()
+            # Перенаправляем на главную страницу сайта
+            return redirect('/')
+            
+    # Если это обычный переход по ссылке (GET-запрос)
+    else:
+        # Загружаем форму с текущими сохраненными данными пользователя
+        form = UserProfileForm(instance=request.user)
+
+    return render(request, 'profile_app/cabinet.html', {
+        'user': request.user,
+        'form': form
+    })
+
+def public_profile_view(request, slug):
+    profile_user = get_object_or_404(User, slug=slug)
+    return render(request, 'profile_app/public_profile.html', {
+        'profile_user': profile_user
     })

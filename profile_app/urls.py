@@ -1,11 +1,12 @@
+# profile_app/urls.py
 from django.urls import path
-from django.contrib.auth import views as auth_views
 from . import views
 
+
 urlpatterns = [
-    path('login/', auth_views.LoginView.as_view(template_name='profile_app/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('signup/', views.signup_view, name='signup'),
-    path('activate/<uidb64>/<token>/', views.activate, name='activate'),
-    path('profile/', views.profile_view, name='profile'),
+    # Маршрут закрытого личного кабинета
+    path('cabinet/', views.cabinet_view, name='cabinet'),
+    # Маршрут публичной страницы, чтобы избежать конфликтов с основными страницами сайта
+    path('u/<slug:slug>/', views.public_profile_view, name='public_profile'),
 ]
+

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <div class="pixel-card">
+        <h1>{% trans "Profile" %}: {{ profile_user.username }}</h1>
+        <p>{% trans "Member since" %}: {{ profile_user.date_joined|date:"d M Y" }}</p>
+        
+        <div style="margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px;">
+            <h2>{% trans "Showcase" %}</h2>
+            
+            {# Проверка наличия группы продавца у пользователя, чей профиль мы просматриваем #}
+            {% if profile_user.is_seller %}
+                {# Ссылка на маршрут public_shop с передачей текущего слага #}
+                <a href="{% url 'public_shop' slug=profile_user.slug %}" class="btn-main" style="text-decoration: none; padding: 10px 15px; display: inline-block;">
+                    {% trans "Visit Shop" %}
+                </a>
+            {% else %}
+                {# Сообщение для пользователей без роли продавца #}
+                <p style="color: #666;">{% trans "This user has no active storefront." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

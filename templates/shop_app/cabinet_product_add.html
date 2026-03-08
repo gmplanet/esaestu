@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <h1>{% trans "Add New Product" %}</h1>
+    
+    <div class="pixel-card">
+        {# Атрибут enctype="multipart/form-data" строго обязателен, без него браузер не отправит файлы на сервер #}
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {{ form.as_p }}
+            
+            {# Добавляем отдельный блок для загрузки изображений #}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px;">{% trans "Product Images" %}:</label>
+                {# Атрибут multiple разрешает выделять несколько файлов при выборе, accept ограничивает выбор только картинками #}
+                <input type="file" name="images" multiple accept="image/*" style="padding: 10px; border: 2px solid var(--pixel-black); width: 100%;">
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn-main">{% trans "Save Product" %}</button>
+                <a href="{% url 'cabinet_shop_list' %}" style="margin-left: 15px; color: var(--pixel-red); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                    {% trans "Cancel" %}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

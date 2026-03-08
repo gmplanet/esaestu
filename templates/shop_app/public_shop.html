@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <h1>{% trans "Shop by" %} {{ shop_owner.username }}</h1>
+
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'public_profile' slug=shop_owner.slug %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
+            {% trans "Back to Profile" %}
+        </a>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="pixel-card" style="position: sticky; top: 70px; z-index: 100; background: white; border-color: var(--pixel-blue); margin-bottom: 30px;">
+        <h2 style="margin-top: 0; color: var(--pixel-blue); text-transform: uppercase;">{% trans "Your Cart in this Shop" %}</h2>
+        
+        {% if cart_items %}
+            <ul style="list-style: none; padding: 0; margin: 0 0 15px 0;">
+                {% for item in cart_items %}
+                    <li style="display: flex; justify-content: space-between; border-bottom: 2px dashed #ccc; padding: 8px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                        <span>{{ item.product.title }} <strong style="color: var(--pixel-red);">x {{ item.quantity }}</strong></span>
+                        <span>${{ item.total_price }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-family: 'VT323', monospace; font-size: 1.5rem; text-transform: uppercase;">
+                <span>{% trans "Total" %}:</span>
+                <span>${{ cart_total }}</span>
+            </div>
+            
+            <a href="{% url 'checkout' slug=shop_owner.slug %}" class="btn-main" style="display: block; text-align: center; text-decoration: none; width: auto; margin-top: 15px; background: var(--pixel-blue); color: white; font-family: 'VT323', monospace; font-size: 1.2rem; text-transform: uppercase;">
+                {% trans "Proceed to Checkout" %}
+            </a>
+        {% else %}
+            <p style="margin: 0; color: #555; font-family: 'VT323', monospace; font-size: 1.2rem;">{% trans "Your cart is empty." %}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if products %}
+        <div class="cabinet-modules">
+            {% for product in products %}
+            <div class="pixel-card" style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+                
+                <div style="flex-shrink: 0; width: 100px;">
+                    {% with main_image=product.images.all|first %}
+                        {% if main_image %}
+                            <img src="{{ main_image.image.url }}" alt="{{ product.title }}" 
+                                 style="width: 100px; height: auto; object-fit: contain; border: 3px solid var(--pixel-black); cursor: pointer;"
+                                 onclick="openImagePopup('{{ main_image.image.url }}')">
+                        {% else %}
+                            <div style="width: 100px; height: 100px; background: #eee; border: 3px solid var(--pixel-black); display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8rem; font-family: 'VT323', monospace;">No Image</div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                <div style="flex-grow: 1; min-width: 250px;">
+                    <h2 style="margin-top: 0;">{{ product.title }}</h2>
+                    <p>{% trans "Price" %}: ${{ product.price }}</p>
+                    
+                    {% if product.stock > 0 %}
+                        <p style="color: green; font-family: 'VT323', monospace; font-size: 1.2rem;">{% trans "In Stock" %}</p>
+                        
+                        {% if user.is_authenticated %}
+                            <form method="POST" action="{% url 'add_to_cart' product_id=product.id %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 35px; padding: 0 15px; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; cursor: pointer;">
+                                    {% trans "Add to Cart" %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'account_login' %}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 35px; padding: 0 15px; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; text-decoration: none; color: black;">
+                                {% trans "Log in to Buy" %}
+                            </a>
+                        {% endif %}
+                        
+                    {% else %}
+                        <p style="color: red; font-family: 'VT323', monospace; font-size: 1.2rem;">{% trans "Out of Stock" %}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="pixel-card">
+            <p>{% trans "This user has no active products at the moment." %}</p>
+        </div>
+    {% endif %}
+</div>
+
+<div id="imagePopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;" onclick="closeImagePopup()">
+    <div style="position: relative; max-width: 90%; text-align: center;">
+        <img id="popupImage" src="" alt="Popup" style="width: 100%; max-width: 400px; border: 4px solid var(--pixel-white); background: white;">
+        <p style="color: white; font-family: 'VT323', monospace; font-size: 1.5rem; margin-top: 10px;">{% trans "Click anywhere to close" %}</p>
+    </div>
+</div>
+
+<script>
+    // Функция открытия всплывающего окна
+    function openImagePopup(imageUrl) {
+        document.getElementById('popupImage').src = imageUrl;
+        document.getElementById('imagePopup').style.display = 'flex';
+    }
+
+    // Функция закрытия всплывающего окна
+    function closeImagePopup() {
+        document.getElementById('imagePopup').style.display = 'none';
+    }
+
+    // Событие beforeunload срабатывает за долю секунды до того, как страница начнет перезагружаться
+    // Мы сохраняем текущую позицию прокрутки (по оси Y) во временное хранилище браузера (sessionStorage)
+    window.addEventListener('beforeunload', function() {
+        sessionStorage.setItem('scrollPosition', window.scrollY);
+    });
+
+    // Событие load срабатывает сразу после того, как страница загрузилась заново
+    window.addEventListener('load', function() {
+        // Читаем сохраненную позицию из памяти
+        const scrollPosition = sessionStorage.getItem('scrollPosition');
+        
+        if (scrollPosition !== null) {
+            // Метод scrollTo мгновенно перемещает экран по заданным координатам (X=0, Y=сохраненное значение)
+            window.scrollTo(0, parseInt(scrollPosition, 10));
+            // Удаляем запись из памяти, чтобы экран не прокручивался вниз при переходе на другие страницы
+            sessionStorage.removeItem('scrollPosition');
+        }
+    });
+</script>
+
+
+
+
+{% endblock %}

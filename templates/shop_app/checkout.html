@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <h1>{% trans "Checkout" %}</h1>
+    <p style="font-family: 'VT323', monospace; font-size: 1.2rem; color: #555;">
+        {% trans "Complete your order from" %} <strong style="color: var(--pixel-black);">{{ seller.username }}</strong>
+    </p>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 20px;">
+        
+        <div class="pixel-card" style="flex: 1; min-width: 300px; border-color: var(--pixel-blue);">
+            <h2 style="margin-top: 0; color: var(--pixel-blue);">{% trans "Your Details" %}</h2>
+            
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Full Name" %} *</label>
+                    {{ form.customer_name }}
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Phone Number" %} *</label>
+                    {{ form.customer_phone }}
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Email Address" %} *</label>
+                    {{ form.customer_email }}
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Additional Information" %}</label>
+                    {{ form.additional_info }}
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 2px;">{% trans "Maximum 500 characters." %}</p>
+                </div>
+
+                <button type="submit" class="btn-main" style="width: 100%; background: var(--pixel-blue); color: white; text-transform: uppercase; font-size: 1.2rem;">
+                    {% trans "Confirm Order" %}
+                </button>
+            </form>
+        </div>
+
+        <div class="pixel-card" style="flex: 1; min-width: 300px; background: #fafafa; height: fit-content;">
+            <h2 style="margin-top: 0;">{% trans "Order Summary" %}</h2>
+            
+            <ul style="list-style: none; padding: 0; margin: 0 0 20px 0;">
+                {% for item in cart_items %}
+                    <li style="display: flex; justify-content: space-between; border-bottom: 2px dashed #ccc; padding: 10px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                        <span>{{ item.product.title }} <strong style="color: var(--pixel-red);">x {{ item.quantity }}</strong></span>
+                        <span>${{ item.total_price }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-family: 'VT323', monospace; font-size: 1.8rem; text-transform: uppercase; color: var(--pixel-red);">
+                <span>{% trans "Total" %}:</span>
+                <span>${{ cart_total }}</span>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <a href="{% url 'public_shop' slug=seller.slug %}" class="btn-main" style="background: var(--pixel-grey); display: block; text-align: center; text-decoration: none; color: black;">
+                    {% trans "Cancel & Return to Shop" %}
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

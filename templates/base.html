@@ -1,6 +1,5 @@
 {% load static %}
 {% load i18n %}
-{# Подключаем набор тегов шаблона MPTT для работы с древовидными структурами #}
 {% load mptt_tags %}
 <!DOCTYPE html>
 <html lang="{{ request.LANGUAGE_CODE }}">
@@ -49,19 +48,19 @@
         <div class="header-right">
 
 
-            <div class="header-auth">
+           <div class="header-auth">
                 {% if user.is_authenticated %}
                 <div class="user-info">
                     
-                    <a href="{% url 'profile' %}" class="auth-link user_link">{{ user.email|truncatechars:9 }}</a>
-                    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                    <a href="{% url 'cabinet' %}" class="auth-link user_link">{{ user.email|truncatechars:9 }}</a>
+                    <form action="{% url 'account_logout' %}" method="post" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="auth-link salir">{% trans "LOGOUT" %}</button>
                     </form>
                 </div>
                 {% else %}
-                <a href="{% url 'login' %}" class="auth-link entrar">{% trans "ENTER" %}</a>
-                <a href="{% url 'signup' %}" class="auth-link register">{% trans "REGISTER" %}</a>
+                <a href="{% url 'account_login' %}" class="auth-link entrar">{% trans "ENTER" %}</a>
+                <a href="{% url 'account_signup' %}" class="auth-link register">{% trans "REGISTER" %}</a>
                 {% endif %}
             </div>
             <form action="{% url 'set_language' %}" method="post" id="lang-form" class="lang-pixel">
@@ -110,7 +109,51 @@
         <main class="content-center">
             {% block content %}
             
-            {% endblock %}
+            <div style="margin-top: 30px;">
+                <h2>{% trans "Creators & Services" %}</h2>
+            
+                {% if creators %}
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+            
+                    {% for creator in creators %}
+                    <div class="pixel-card"
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 15px;">
+            
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                        <div>
+                            {% if creator.avatar %}
+                                <img src="{{ creator.avatar.url }}" alt="{{ creator.username }}" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid var(--pixel-black);">
+                            {% else %}
+                                <div style="width: 100px; height: 100px; background: #eee; border: 3px solid var(--pixel-black); display: flex; align-items: center; justify-content: center; color: #999; font-family: 'VT323', monospace; font-size: 0.8rem; text-align: center;">No Avatar</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <h3 style="margin: 0; text-transform: uppercase;">{{ creator.username }}</h3>
+                            
+                            <p style="margin: 5px 0 0 0; color: #555;">
+                                {% trans "Service" %}: Shop
+                            </p>
+                        </div>
+                    </div>
+            
+                            <a href="{% url 'public_shop' slug=creator.slug %}" class="btn-main"
+                                style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; height: 35px; padding: 0 15px; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; font-size: 1.1rem; border: 2px solid var(--pixel-black); margin: 0; color: black;">
+                                {% trans "Visit" %}
+                            </a>
+                        </div>
+                            {% endfor %}
+                    </div>
+            
+                    {% else %}
+                    <div class="pixel-card">
+                        <p>{% trans "There are no creators or services available yet." %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            
+            
+                {% endblock %}
         </main>
     </div>
 

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <h1>{% trans "Edit Product" %}: {{ product.title }}</h1>
+    
+    <div class="pixel-card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {{ form.as_p }}
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px;">{% trans "Update Product Images (optional)" %}:</label>
+                <p style="font-size: 0.9rem; color: #666; margin-top: 0;">
+                    {% trans "If you upload new images, the old ones will be deleted. Leave empty to keep current images." %}
+                </p>
+                <input type="file" name="images" multiple accept="image/*" style="padding: 10px; border: 2px solid var(--pixel-black); width: 100%;">
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn-main">{% trans "Update Product" %}</button>
+                <a href="{% url 'cabinet_shop_list' %}" style="margin-left: 15px; color: var(--pixel-red); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                    {% trans "Cancel" %}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

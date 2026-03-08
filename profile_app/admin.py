@@ -1,12 +1,15 @@
+# profile_app/admin.py
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 
-@admin.register(CustomUser)
+# Создаем класс настроек отображения пользователя в админке
 class CustomUserAdmin(UserAdmin):
-    # Добавляем наше новое поле в список отображения в админке
-    list_display = ['username', 'email', 'is_email_verified', 'is_staff']
-    # Добавляем поле в форму редактирования пользователя
+    model = CustomUser
+    # Добавляем новую секцию "Shop Settings" с нашим полем sku_limit к стандартным полям Django
     fieldsets = UserAdmin.fieldsets + (
-        ('Extra Fields', {'fields': ('is_email_verified',)}),
+        ('Shop Settings', {'fields': ('avatar', 'sku_limit', 'show_in_catalog')}),
     )
+
+# Регистрируем нашу модель с новыми настройками
+admin.site.register(CustomUser, CustomUserAdmin)

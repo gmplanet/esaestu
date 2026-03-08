@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <h1>{% trans "Delete Product" %}</h1>
+    
+    <div class="pixel-card">
+        <p>{% trans "Are you sure you want to delete the product" %} "{{ product.title }}"?</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn-main" style="background-color: var(--pixel-red);">
+                    {% trans "Confirm Delete" %}
+                </button>
+                
+                <a href="{% url 'cabinet_shop_list' %}" style="margin-left: 15px; color: var(--pixel-grey); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                    {% trans "Cancel" %}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
