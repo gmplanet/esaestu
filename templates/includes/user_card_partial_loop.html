@@ -1,3 +1,40 @@
-{% for creator in creators %}
-    {% include "includes/user_card.html" %}
+{% load i18n %}
+
+{% for item in feed_items %}
+    {% if item.username %}
+        {% include 'includes/user_card.html' with creator=item %}
+    {% else %}
+        <div class="pixel-card" style="border-color: var(--pixel-grey); margin-bottom: 20px;">
+            <div style="display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap;">
+                
+                <div style="flex-shrink: 0; width: 100px; height: 100px; background: #f0f0f0; border: 3px solid var(--pixel-black); display: flex; align-items: center; justify-content: center;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </div>
+                
+                <div style="flex-grow: 1;">
+                    <h3 style="margin: 0 0 10px 0; text-transform: uppercase;">
+                        {% if LANGUAGE_CODE == 'es' and item.title_es %}{{ item.title_es }}{% else %}{{ item.title_en }}{% endif %}
+                    </h3>
+                    
+                    <p style="margin: 0 0 15px 0; font-family: 'VT323', monospace; font-size: 1.2rem; color: #555;">
+                        {% if LANGUAGE_CODE == 'es' and item.content_es %}
+                            {{ item.content_es|striptags|truncatechars:150 }}
+                        {% else %}
+                            {{ item.content_en|striptags|truncatechars:150 }}
+                        {% endif %}
+                    </p>
+                    
+                    <a href="{% url 'page_detail' slug=item.slug_en %}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 15px; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; font-size: 1rem; border: 2px solid var(--pixel-black); margin: 0; color: black; background: var(--pixel-white);">
+                        {% trans "Read Article" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endfor %}

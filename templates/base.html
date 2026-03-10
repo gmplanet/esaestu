@@ -39,10 +39,7 @@
             </a>
         </div>
         <div class="header-center">
-            <form action="{% url 'search' %}" method="get" class="search-form-pixel">
-                <input type="text" name="q" placeholder="" value="{{ query|default:'' }}">
-                <button type="submit">{% trans "SEARCH" %}</button>
-            </form>
+            
         </div>
 
         <div class="header-right">
@@ -122,44 +119,7 @@
     
     </footer>
     
-     <script>
-let page = 1;
-let emptyPage = false;
-let blockRequest = false;
-
-const container = document.getElementById('creators-container');
-const sentinel = document.getElementById('loading-sentinel');
-
-// Intersection Observer следит за появлением пустой области внизу страницы
-const observer = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting && !emptyPage && !blockRequest) {
-        loadMoreCreators();
-    }
-}, { threshold: 0.1 });
-
-observer.observe(sentinel);
-
-async function loadMoreCreators() {
-    page++;
-    blockRequest = true;
-
-    try {
-        const response = await fetch(`?page=${page}`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-        const html = await response.text();
-
-        if (html.trim() === "") {
-            emptyPage = true;
-        } else {
-            container.insertAdjacentHTML('beforeend', html);
-            blockRequest = false;
-        }
-    } catch (err) {
-        console.error("Error loading creators:", err);
-    }
-}
-</script>
+    
 
     <script src="{% static 'js/main.js' %}"></script>
 

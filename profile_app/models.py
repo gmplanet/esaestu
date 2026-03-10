@@ -30,7 +30,13 @@ class CustomUser(AbstractUser):
     @property
     def is_gallery_owner(self):
         return self.groups.filter(name='Photographer').exists()
-
+    
+    @property
+    def is_booking_provider(self):
+        # Проверяет, состоит ли пользователь в группе Booking, которую назначает администратор
+        return self.groups.filter(name='Booking').exists()
+    
+    
     def save(self, *args, **kwargs):
         # Шаг 0: Автоматическая генерация слага, если он пустой (срабатывает для новых пользователей)
         if not self.slug:

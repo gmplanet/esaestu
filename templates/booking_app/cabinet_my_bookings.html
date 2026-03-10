@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <h1>{% trans "My Bookings" %}</h1>
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'cabinet' %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
+            {% trans "Back to Dashboard" %}
+        </a>
+    </div>
+
+    {% if bookings %}
+        <div class="cabinet-modules">
+            {% for booking in bookings %}
+            <div class="pixel-card" style="border-color: {% if booking.status == 'active' %}var(--pixel-blue){% else %}var(--pixel-grey){% endif %};">
+                <h2 style="margin-top: 0;">{{ booking.service.title }}</h2>
+                <p><strong>{% trans "Seller" %}:</strong> {{ booking.service.owner.username }}</p>
+                {% if booking.provider %}
+                    <p><strong>{% trans "Provider" %}:</strong> {{ booking.provider.name }}</p>
+                {% endif %}
+                <p><strong>{% trans "Date" %}:</strong> {{ booking.start_time|date:"Y-m-d" }}</p>
+                <p><strong>{% trans "Time" %}:</strong> {{ booking.start_time|date:"H:i" }} - {{ booking.end_time|date:"H:i" }}</p>
+                <p><strong>{% trans "Status" %}:</strong>
+                    {% if booking.status == 'active' %}
+                        <span style="color: green;">{% trans "Active" %}</span>
+                    {% elif booking.status == 'cancelled_by_customer' %}
+                        <span style="color: red;">{% trans "Cancelled by You" %}</span>
+                    {% else %}
+                        <span style="color: red;">{% trans "Cancelled by Seller" %}</span>
+                    {% endif %}
+                </p>
+
+                {% if booking.status == 'active' %}
+                <div style="margin-top: 15px;">
+                    <form action="{% url 'cancel_booking' booking.id %}" method="POST" onsubmit="return confirm('{% trans "Are you sure you want to cancel this booking?" %}');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-main" style="background: var(--pixel-red); color: white; border: 2px solid var(--pixel-black); font-size: 1rem; padding: 5px 15px; width: auto;">
+                            {% trans "Cancel Booking" %}
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="pixel-card">
+            <p>{% trans "You have no bookings yet." %}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

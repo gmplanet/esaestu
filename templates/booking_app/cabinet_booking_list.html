@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+        <h1 style="margin: 0;">{% trans "Booking Management" %}</h1>
+    </div>
+    
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px;">
+        <a href="{% url 'cabinet_service_add' %}" class="btn-main" style="background: var(--pixel-green); width: auto; color: black; padding: 5px 15px;">{% trans "Add New Service" %}</a>
+        <a href="{% url 'cabinet_provider_add' %}" class="btn-main" style="background: var(--pixel-green); width: auto; color: black; padding: 5px 15px;">{% trans "Add Provider" %}</a>
+        <div style="flex-grow: 1;"></div>
+        <a href="{% url 'cabinet_schedule_manage_general' %}" class="btn-main" style="background: var(--pixel-yellow); width: auto; color: black; padding: 5px 15px;">{% trans "General Schedule" %}</a>
+        <a href="{% url 'cabinet' %}" class="btn-main" style="background: var(--pixel-grey); width: auto; color: black; padding: 5px 15px;">{% trans "Back to Dashboard" %}</a>
+    </div>
+
+    <h2 style="border-bottom: 2px dashed var(--pixel-grey); padding-bottom: 10px;">{% trans "My Services" %}</h2>
+    <div class="cabinet-modules" style="margin-bottom: 40px;">
+        {% for service in services %}
+        <div class="pixel-card" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: stretch; margin-bottom: 15px;">
+            <div style="width: 100px; height: 100px; flex-shrink: 0; border: 2px solid var(--pixel-black); background: #e0e0e0; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                {% if service.image %}
+                    <img src="{{ service.image.url }}" alt="{{ service.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <span style="color: #888; font-family: 'VT323', monospace; font-size: 1rem;">NO IMG</span>
+                {% endif %}
+            </div>
+            
+            <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="margin: 0 0 10px 0; font-size: 1.4rem; text-transform: uppercase;">{{ service.title }}</h3>
+                    <p style="margin: 0 0 5px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">Price: ${{ service.price }}</p>
+                    <p style="margin: 0 0 10px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">Status: 
+                        {% if service.is_active %}<span style="color: green;">Active</span>{% else %}<span style="color: red;">Inactive</span>{% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                <a href="{% url 'booking_edit_service' service.id %}" class="btn-main" style="background: var(--pixel-yellow); color: black; width: auto; padding: 5px 15px; margin: 0; height: 35px; display: flex; align-items: center;">{% trans "EDIT" %}</a>
+                <form action="{% url 'booking_delete_service' service.id %}" method="POST" onsubmit="return confirm('{% trans "Are you sure you want to delete this service?" %}');" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-main" style="background: var(--pixel-red); color: white; border: 2px solid var(--pixel-black); width: auto; padding: 0 15px; margin: 0; height: 35px;">{% trans "DELETE" %}</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="pixel-card">
+            <p>{% trans "You have no services yet." %}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2 style="border-bottom: 2px dashed var(--pixel-grey); padding-bottom: 10px;">{% trans "My Providers" %}</h2>
+    <div class="cabinet-modules">
+        {% for provider in providers %}
+        <div class="pixel-card" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: stretch; margin-bottom: 15px;">
+            <div style="width: 100px; height: 100px; flex-shrink: 0; border: 2px solid var(--pixel-black); background: #e0e0e0; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                {% if provider.avatar %}
+                    <img src="{{ provider.avatar.url }}" alt="{{ provider.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <span style="color: #888; font-family: 'VT323', monospace; font-size: 1rem;">NO IMG</span>
+                {% endif %}
+            </div>
+            
+            <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="margin: 0 0 10px 0; font-size: 1.4rem; text-transform: uppercase;">{{ provider.name }}</h3>
+                    <p style="margin: 0 0 10px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">Status: 
+                        {% if provider.is_active %}<span style="color: green;">Active</span>{% else %}<span style="color: red;">Inactive</span>{% endif %}
+                    </p>
+                    <a href="{% url 'cabinet_schedule_manage_provider' provider.id %}" class="btn-main" style="background: var(--pixel-green); color: black; width: auto; padding: 5px 15px; margin: 0; display: inline-block;">{% trans "Manage Schedule" %}</a>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                <a href="{% url 'booking_edit_provider' provider.id %}" class="btn-main" style="background: var(--pixel-yellow); color: black; width: auto; padding: 5px 15px; margin: 0; height: 35px; display: flex; align-items: center;">{% trans "EDIT" %}</a>
+                <form action="{% url 'booking_delete_provider' provider.id %}" method="POST" onsubmit="return confirm('{% trans "Are you sure you want to delete this provider?" %}');" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-main" style="background: var(--pixel-red); color: white; border: 2px solid var(--pixel-black); width: auto; padding: 0 15px; margin: 0; height: 35px;">{% trans "DELETE" %}</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <div class="pixel-card">
+            <p>{% trans "You have no providers yet." %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

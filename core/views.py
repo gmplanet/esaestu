@@ -1,55 +1,76 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import HttpResponse
 from .models import Page
-from django.core.paginator import Paginator
+from shop_app.models import Product
+from booking_app.models import BookingService
 
-# Инициализируем модель пользователя
 User = get_user_model()
 
 def home_view(request):
-    # Фильтруем продавцов, которые разрешили показ в каталоге
-    # Используем order_by, так как пагинация требует стабильной сортировки
-    user_list = User.objects.filter(groups__name='Seller', show_in_catalog=True).distinct().order_by('-id')
+    query = request.GET.get('q', '').strip()
+    active_filter = request.GET.get('filter', 'all')
     
-    # Настраиваем пагинацию: по 10 карточек на одну порцию
-    paginator = Paginator(user_list, 10)
-    page_number = request.GET.get('page')
-    creators = paginator.get_page(page_number)
+    users_qs = User.objects.all()
+    pages_qs = Page.objects.none()
 
-    # Проверяем, является ли запрос AJAX-запросом от нашего JavaScript
+    if active_filter == 'shop':
+        users_qs = users_qs.filter(Q(groups__name='Seller') | Q(is_superuser=True)).distinct()
+    elif active_filter == 'booking':
+        users_qs = users_qs.filter(Q(groups__name='Booking') | Q(is_superuser=True)).distinct()
+    elif active_filter == 'pages':
+        users_qs = User.objects.none()
+        pages_qs = Page.objects.all()
+    else:
+        users_qs = users_qs.filter(
+            Q(groups__name__in=['Seller', 'Booking', 'Photographer', 'Blogger']) | 
+            Q(is_superuser=True)
+        ).distinct()
+        pages_qs = Page.objects.all()
+
+    if query:
+        users_qs = users_qs.filter(
+            Q(username__icontains=query) |
+            Q(products__title__icontains=query) |
+            Q(products__description__icontains=query) |
+            Q(booking_services__title__icontains=query) |
+            Q(booking_services__description__icontains=query)
+        ).distinct()
+        
+        if active_filter in ['all', 'pages']:
+            pages_qs = Page.objects.filter(
+                Q(title_en__icontains=query) | 
+                Q(content_en__icontains=query) |
+                Q(title_es__icontains=query) | 
+                Q(content_es__icontains=query)
+            ).distinct()
+
+    combined_list = list(users_qs.order_by('-id')) + list(pages_qs.order_by('-id'))
+    
+    paginator = Paginator(combined_list, 7)  # 7 элементов на страницу
+    page_number = request.GET.get('page', 1)
+
+    # Проверяем, является ли запрос AJAX-запросом от скрипта
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        # Если это подгрузка, возвращаем только цикл карточек без базового шаблона
-        return render(request, 'includes/user_card_partial_loop.html', {'creators': creators})
+        try:
+            # Метод page() строго проверяет существование страницы
+            feed_items = paginator.page(page_number)
+            return render(request, 'includes/user_card_partial_loop.html', {'feed_items': feed_items})
+        except (EmptyPage, PageNotAnInteger):
+            # Если страницы нет, отдаем пустой ответ, чтобы скрипт остановился
+            return HttpResponse('')
 
-    # Обычная загрузка страницы (первый заход пользователя)
-    # Используем home.html вместо base.html для правильной структуры блоков
-    return render(request, 'home.html', {'creators': creators})
+    # Обычная загрузка страницы
+    feed_items = paginator.get_page(page_number)
+    
+    return render(request, 'home.html', {
+        'feed_items': feed_items,
+        'active_filter': active_filter,
+        'query': query
+    })
 
 def page_detail(request, slug):
     page = get_object_or_404(Page, Q(slug_en=slug) | Q(slug_es=slug))
     return render(request, 'core/page_detail.html', {'page': page})
-
-def search_view(request):
-    query = request.GET.get('q', '')
-    results_data = []
-    
-    if query:
-        pages = Page.objects.filter(
-            Q(title_en__icontains=query) | Q(content_en__icontains=query) |
-            Q(title_es__icontains=query) | Q(content_es__icontains=query)
-        )
-        
-        for page in pages:
-            if query.lower() in page.title_es.lower() or query.lower() in page.content_es.lower():
-                found_lang = 'es'
-            else:
-                found_lang = 'en'
-            
-            results_data.append({
-                'title': page.title_es if found_lang == 'es' else page.title_en,
-                'url': page.get_url_for_lang(found_lang),
-                'lang': found_lang.upper()
-            })
-    
-    return render(request, 'core/search_results.html', {'results': results_data, 'query': query})

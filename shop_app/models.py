@@ -110,6 +110,18 @@ class Order(models.Model):
     # Дата создания заказа будет использоваться как часть информации для писем
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
 
+    # Расширенный список статусов заказа
+    STATUS_CHOICES = [
+        ('active', 'New'), # Новый заказ (по умолчанию)
+        ('processing', 'Processing'), # Заказ принят в работу продавцом
+        ('completed', 'Completed'), # Заказ успешно завершен
+        ('cancelled_by_buyer', 'Cancelled by Buyer'), # Отменен покупателем
+        ('cancelled_by_seller', 'Cancelled by Seller'), # Отменен продавцом
+    ]
+    
+    # Обновленное поле статуса с привязкой к новым вариантам
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='active', verbose_name="Status")
+
     class Meta:
         verbose_name = "Order"
         verbose_name_plural = "Orders"
@@ -140,3 +152,22 @@ class OrderItem(models.Model):
     @property
     def total_price(self):
         return self.price * self.quantity    
+    
+
+class OrderComment(models.Model):
+    # Привязка комментария к конкретному заказу
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='comments', verbose_name="Order")
+    # Кто именно написал комментарий (продавец или покупатель)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Author")
+    # Текст комментария с жестким ограничением в 250 символов на уровне структуры базы данных
+    text = models.TextField(max_length=250, verbose_name="Comment Text")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+
+    class Meta:
+        # Сортируем комментарии по дате создания (старые сверху, новые снизу)
+        ordering = ['created_at']
+        verbose_name = "Order Comment"
+        verbose_name_plural = "Order Comments"
+
+    def __str__(self):
+        return f"Comment by {self.author.username} on Order #{self.order.id}"    

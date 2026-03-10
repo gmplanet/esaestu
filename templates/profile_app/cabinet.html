@@ -44,6 +44,14 @@
             </button>
         </form>
     </div>
+    
+    <div class="pixel-card" style="margin-bottom: 30px;">
+        <h2 style="margin-top: 0;">{% trans "My Activity" %}</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{% url 'cabinet_my_bookings' %}" class="btn-main" style="display: inline-block; width: auto;">{% trans "My Bookings" %}</a>
+            <a href="{% url 'cabinet_my_orders' %}" class="btn-main" style="display: inline-block; width: auto; background: var(--pixel-yellow); color: black;">{% trans "My Purchases" %}</a>
+        </div>
+    </div>
 
     <hr style="margin: 30px 0; border: 1px dashed #ccc;">
 
@@ -52,10 +60,25 @@
         <div class="pixel-card" style="border-color: var(--pixel-blue);">
             <h2>{% trans "Shop Management" %}</h2>
             <p>{% trans "Manage your products, inventory, and orders." %}</p>
-            <a href="{% url 'cabinet_shop_list' %}" class="btn-main" style="width: auto; text-align: center;">{% trans "Go to Shop" %}</a>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{% url 'cabinet_shop_list' %}" class="btn-main" style="width: auto; text-align: center;">{% trans "Go to Shop" %}</a>
+                <a href="{% url 'cabinet_incoming_orders' %}" class="btn-main" style="width: auto; background: var(--pixel-yellow); color: black; text-align: center;">{% trans "Incoming Orders" %}</a>
+            </div>
         </div>
         {% endif %}
 
+        {% if user.is_booking_provider %}
+        <div class="pixel-card" style="border-color: var(--pixel-blue);">
+            <h2>{% trans "Booking Management" %}</h2>
+            <p>{% trans "Manage your services, providers, schedule, and incoming bookings." %}</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{% url 'cabinet_booking_list' %}" class="btn-main" style="width: auto; text-align: center;">{% trans "Go to Settings" %}</a>
+                <a href="{% url 'cabinet_incoming_bookings' %}" class="btn-main" style="width: auto; background: var(--pixel-yellow); color: black; text-align: center;">{% trans "Incoming Bookings" %}</a>
+            </div>
+        </div>
+        {% endif %}
+
+        
         {% if user.is_blogger %}
         <div class="pixel-card" style="border-color: var(--pixel-yellow);">
             <h2>{% trans "Blog Management" %}</h2>

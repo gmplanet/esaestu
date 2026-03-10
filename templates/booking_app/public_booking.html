@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    /* Стили для кнопок времени должны быть внутри блока, чтобы Django их отрендерил */
+    .slot-btn {
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+        background: var(--pixel-white);
+        border: 2px solid var(--pixel-black);
+        padding: 8px 15px;
+        cursor: pointer;
+        transition: all 0.1s;
+    }
+    .slot-btn:hover {
+        background: var(--pixel-yellow);
+    }
+    .slot-btn.selected {
+        background: var(--pixel-blue);
+        color: white;
+        box-shadow: inset 3px 3px 0px rgba(0,0,0,0.3);
+    }
+
+    .slot-btn.booked {
+        background: #e0e0e0;
+        color: #999;
+        cursor: not-allowed;
+        border-color: #ccc;
+        text-decoration: line-through;
+    }
+    .slot-btn.booked:hover {
+        background: #e0e0e0; /* Убираем желтый ховер для занятых */
+    }
+
+</style>
+
+<div class="content-center">
+    <h1>{% trans "Book a Time with" %} {{ seller.username }}</h1>
+
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'public_profile' slug=seller.slug %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
+            {% trans "Back to Profile" %}
+        </a>
+    </div>
+
+    {% if services %}
+        <div class="pixel-card" style="border-color: var(--pixel-blue);">
+            <h2>1. {% trans "Select Service" %}</h2>
+            <select id="service-select" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); margin-bottom: 20px;">
+                <option value="">-- {% trans "Choose a service" %} --</option>
+                {% for service in services %}
+                    <option value="{{ service.id }}" data-price="{{ service.price }}">{{ service.title }} - ${{ service.price }}</option>
+                {% endfor %}
+            </select>
+
+            <h2>2. {% trans "Select Provider (Optional)" %}</h2>
+            <select id="provider-select" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); margin-bottom: 20px;">
+                <option value="">-- {% trans "Anyone available" %} --</option>
+                {% for provider in providers %}
+                    <option value="{{ provider.id }}">{{ provider.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <h2>3. {% trans "Select Date" %}</h2>
+            <input type="date" id="booking-date" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); margin-bottom: 20px;">
+
+            <div id="slots-container" style="margin-top: 20px; display: none;">
+                <h3>{% trans "Available Time Slots" %}</h3>
+                <div id="time-slots" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;"></div>
+                
+                <div id="booking-summary" style="display: none; padding: 15px; border: 2px dashed var(--pixel-blue); background: #f9f9f9;">
+                    <h4 style="margin-top: 0;">{% trans "Summary" %}</h4>
+                    <p>{% trans "Selected Slots" %}: <span id="summary-count" style="color: var(--pixel-red); font-weight: bold;">0</span></p>
+                    <p>{% trans "Total Price" %}: $<span id="summary-price" style="color: var(--pixel-red); font-weight: bold;">0.00</span></p>
+                    
+                    <label style="display: block; margin-bottom: 5px;">{% trans "Add a comment (optional)" %}:</label>
+                    <textarea id="customer-comment" rows="3" maxlength="250" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; border: 2px solid var(--pixel-black); margin-bottom: 15px;"></textarea>
+                    
+                    <button id="confirm-booking-btn" class="btn-main" style="width: 100%; background: var(--pixel-blue); color: white;">
+                        {% trans "CONFIRM BOOKING" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="pixel-card">
+            <p>{% trans "This user has no active services available for booking at the moment." %}</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Скрипт перенесен внутрь блока content
+    const serviceSelect = document.getElementById('service-select');
+    const providerSelect = document.getElementById('provider-select');
+    const dateInput = document.getElementById('booking-date');
+    const slotsContainer = document.getElementById('slots-container');
+    const timeSlotsDiv = document.getElementById('time-slots');
+    
+    const summaryBlock = document.getElementById('booking-summary');
+    const summaryCount = document.getElementById('summary-count');
+    const summaryPrice = document.getElementById('summary-price');
+
+    let selectedSlots = [];
+    let currentServicePrice = 0;
+
+    // Генерируем правильный URL с учетом текущего языка с помощью Django тега
+    const apiSlotsUrl = "{% url 'api_get_available_slots' %}";
+
+    // Слушаем изменения во всех трех полях
+    [serviceSelect, providerSelect, dateInput].forEach(el => {
+        el.addEventListener('change', fetchSlots);
+    });
+
+    // Функция запроса слотов с сервера
+    async function fetchSlots() {
+        const serviceId = serviceSelect.value;
+        const providerId = providerSelect.value;
+        const dateVal = dateInput.value;
+
+        // Очищаем старые выбранные слоты при любом изменении условий
+        selectedSlots = [];
+        updateSummary();
+
+        // Запрашиваем слоты только если выбрана услуга и дата
+        if (!serviceId || !dateVal) {
+            slotsContainer.style.display = 'none';
+            return;
+        }
+
+        // Запоминаем цену выбранной услуги
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        currentServicePrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+
+        try {
+            timeSlotsDiv.innerHTML = '<p>{% trans "Loading..." %}</p>';
+            slotsContainer.style.display = 'block';
+
+            // Делаем запрос к нашему API используя динамический URL
+            const response = await fetch(`${apiSlotsUrl}?service_id=${serviceId}&provider_id=${providerId}&date=${dateVal}`);
+            const data = await response.json();
+
+            if (data.error) {
+                timeSlotsDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                return;
+            }
+
+            timeSlotsDiv.innerHTML = '';
+            
+            if (data.slots.length === 0) {
+                timeSlotsDiv.innerHTML = '<p>{% trans "No available slots on this date." %}</p>';
+                return;
+            }
+
+            // Отрисовываем кнопки со временем
+            data.slots.forEach(slot => {
+                const btn = document.createElement('button');
+                btn.className = 'slot-btn';
+                btn.innerText = slot.time;
+                btn.dataset.datetime = slot.datetime;
+                
+                if (slot.is_booked) {
+                    // Если слот занят, добавляем класс и блокируем кнопку
+                    btn.classList.add('booked');
+                    btn.disabled = true;
+                } else {
+                    // Если свободен, разрешаем клик
+                    btn.addEventListener('click', () => toggleSlot(btn, slot.datetime));
+                }
+                
+                timeSlotsDiv.appendChild(btn);
+            });
+
+        } catch (error) {
+            timeSlotsDiv.innerHTML = '<p style="color: red;">Error loading slots.</p>';
+            console.error(error);
+        }
+    }
+
+    // Логика выделения слотов мышкой
+    function toggleSlot(btn, datetime) {
+        const index = selectedSlots.indexOf(datetime);
+        if (index > -1) {
+            // Если слот уже был выбран, удаляем его из массива и убираем класс
+            selectedSlots.splice(index, 1);
+            btn.classList.remove('selected');
+        } else {
+            // Иначе добавляем слот в массив и добавляем класс для подсветки
+            selectedSlots.push(datetime);
+            btn.classList.add('selected');
+        }
+        
+        // Сортируем слоты по времени на всякий случай
+        selectedSlots.sort();
+        updateSummary();
+    }
+
+    // Функция обновления итоговой суммы и счетчика слотов
+    function updateSummary() {
+        if (selectedSlots.length > 0) {
+            summaryBlock.style.display = 'block';
+            summaryCount.innerText = selectedSlots.length;
+            summaryPrice.innerText = (selectedSlots.length * currentServicePrice).toFixed(2);
+        } else {
+            summaryBlock.style.display = 'none';
+        }
+    }
+
+
+    // Сохраняем URL для подтверждения
+    const apiConfirmUrl = "{% url 'api_confirm_booking' %}";
+    const confirmBtn = document.getElementById('confirm-booking-btn');
+
+    // Обработчик нажатия на кнопку подтверждения
+    confirmBtn.addEventListener('click', async () => {
+        if (selectedSlots.length === 0) return;
+
+        // Блокируем кнопку, чтобы не было двойных кликов
+        confirmBtn.disabled = true;
+        confirmBtn.innerText = '{% trans "PROCESSING..." %}';
+
+        const serviceId = serviceSelect.value;
+        const providerId = providerSelect.value;
+        const comment = document.getElementById('customer-comment').value;
+
+        try {
+            const response = await fetch(apiConfirmUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    service_id: serviceId,
+                    provider_id: providerId,
+                    slots: selectedSlots,
+                    comment: comment
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                // Если успешно - показываем сообщение и перезагружаем страницу
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert(data.message);
+                confirmBtn.disabled = false;
+                confirmBtn.innerText = '{% trans "CONFIRM BOOKING" %}';
+            }
+        } catch (error) {
+            alert('Error processing booking.');
+            console.error(error);
+            confirmBtn.disabled = false;
+            confirmBtn.innerText = '{% trans "CONFIRM BOOKING" %}';
+        }
+    });
+</script>
+{% endblock %}

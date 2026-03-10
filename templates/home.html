@@ -2,61 +2,106 @@
 {% load i18n %}
 
 {% block content %}
-<div style="margin-top: 30px;">
-    <h2>{% trans "Creators & Services" %}</h2>
-
-    <div id="creators-container" class="creators-container"> 
-        {% if creators %}
-            {% for creator in creators %}
-                {% include "includes/user_card.html" %}
-            {% endfor %}
-        {% else %}
-            <div class="pixel-card">
-                <p>{% trans "There are no creators or services available yet." %}</p>
+<div class="content-center">
+    <div class="pixel-card" style="margin-bottom: 25px; background: var(--pixel-white); padding: 15px; position: sticky; top: 70px; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <form method="GET" action="{% url 'home' %}" style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="hidden" name="filter" value="{{ active_filter }}">
+            
+            <div style="display: flex; border: 2px solid var(--pixel-black); background: white;">
+                <div style="padding: 10px; background: var(--pixel-grey); display: flex; align-items: center; border-right: 2px solid var(--pixel-black);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <input type="text" name="q" value="{{ query }}" placeholder="{% trans 'Search in feed...' %}" style="flex-grow: 1; border: none; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; outline: none; width: 100%;">
+                <button type="submit" class="btn-main" style="width: auto; border: none; border-left: 2px solid var(--pixel-black); margin: 0; box-shadow: none; padding: 0 20px;">{% trans "Search" %}</button>
             </div>
-        {% endif %}
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="?filter=all{% if query %}&q={{ query }}{% endif %}" class="btn-main" style="{% if active_filter == 'all' %}background: var(--pixel-blue); color: white;{% else %}background: var(--pixel-white); color: black;{% endif %} width: auto; margin: 0; padding: 5px 15px;">{% trans "All" %}</a>
+                
+                <a href="?filter=shop{% if query %}&q={{ query }}{% endif %}" class="btn-main" style="{% if active_filter == 'shop' %}background: var(--pixel-blue); color: white;{% else %}background: var(--pixel-white); color: black;{% endif %} width: auto; margin: 0; padding: 5px 15px;">{% trans "Shop" %}</a>
+                
+                <a href="?filter=booking{% if query %}&q={{ query }}{% endif %}" class="btn-main" style="{% if active_filter == 'booking' %}background: var(--pixel-blue); color: white;{% else %}background: var(--pixel-white); color: black;{% endif %} width: auto; margin: 0; padding: 5px 15px;">{% trans "Services" %}</a>
+                
+                <a href="?filter=pages{% if query %}&q={{ query }}{% endif %}" class="btn-main" style="{% if active_filter == 'pages' %}background: var(--pixel-blue); color: white;{% else %}background: var(--pixel-white); color: black;{% endif %} width: auto; margin: 0; padding: 5px 15px;">{% trans "Articles" %}</a>
+            </div>
+        </form>
     </div>
 
-    <div id="loading-sentinel" style="height: 50px; margin-top: 10px;"></div>
+    <div style="margin-top: 30px;">
+        <h2>{% trans "Creators & Services" %}</h2>
+
+        <div id="feed-container" class="cabinet-modules"> 
+            {% if feed_items %}
+                {% include "includes/user_card_partial_loop.html" %}
+            {% else %}
+                <div class="pixel-card">
+                    <p>{% trans "Nothing found." %}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="loading-sentinel" style="height: 50px; margin-top: 10px; text-align: center; font-family: 'VT323', monospace;"></div>
+    </div>
 </div>
 
 <script>
+    // Текущая страница пагинации
     let page = 1;
-    let emptyPage = false;
-    let blockRequest = false;
+    // Флаг, блокирующий отправку множества запросов одновременно
+    let isLoading = false;
 
-    const container = document.getElementById('creators-container');
+    // Находим контейнер для карточек и маркер конца страницы
+    const feedContainer = document.getElementById('feed-container');
     const sentinel = document.getElementById('loading-sentinel');
 
+    // Создаем наблюдатель за маркером
     const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !emptyPage && !blockRequest) {
-            loadMoreCreators();
+        // Если маркер появился на экране и мы сейчас ничего не грузим
+        if (entries[0].isIntersecting && !isLoading) {
+            isLoading = true;
+            sentinel.innerHTML = '<p>{% trans "Loading..." %}</p>';
+
+            // Считываем текущие параметры поиска и фильтра из адресной строки браузера
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeFilter = urlParams.get('filter') || 'all';
+            const currentQuery = urlParams.get('q') || '';
+
+            // Формируем динамический URL для загрузки следующей порции контента
+            const fetchUrl = `/?page=${page + 1}&filter=${activeFilter}&q=${encodeURIComponent(currentQuery)}`;
+
+            // Выполняем AJAX-запрос
+            fetch(fetchUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                if (html.trim() === '') {
+                    // Если сервер прислал пустой ответ, отключаем наблюдатель (лента кончилась)
+                    observer.disconnect();
+                    sentinel.innerHTML = '<p>{% trans "No more content." %}</p>';
+                } else {
+                    // Вставляем новые карточки в конец контейнера
+                    feedContainer.insertAdjacentHTML('beforeend', html);
+                    page += 1;
+                    isLoading = false;
+                    sentinel.innerHTML = '';
+                }
+            }).catch(err => {
+                console.error("Error loading more items:", err);
+                isLoading = false;
+                sentinel.innerHTML = '';
+            });
         }
     }, { threshold: 0.1 });
 
-    observer.observe(sentinel);
-
-    async function loadMoreCreators() {
-        page++;
-        blockRequest = true;
-
-        try {
-            // Отправляем запрос на ту же страницу, но с параметром page
-            const response = await fetch(`?page=${page}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            const html = await response.text();
-
-            if (html.trim() === "") {
-                emptyPage = true; // Если сервер прислал пустоту — карточки кончились
-            } else {
-                container.insertAdjacentHTML('beforeend', html);
-                blockRequest = false;
-            }
-        } catch (err) {
-            console.error("Error loading creators:", err);
-            blockRequest = false;
-        }
+    // Запускаем наблюдение за маркером
+    if (sentinel) {
+        observer.observe(sentinel);
     }
 </script>
 {% endblock %}

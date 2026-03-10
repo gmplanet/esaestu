@@ -20,6 +20,13 @@
                 {# Сообщение для пользователей без роли продавца #}
                 <p style="color: #666;">{% trans "This user has no active storefront." %}</p>
             {% endif %}
+
+            {% if profile_user.is_booking_provider %}
+                <a href="{% url 'public_booking' slug=profile_user.slug %}" class="btn-main" style="text-decoration: none; padding: 10px 15px; display: inline-block; background: var(--pixel-yellow); color: black;">
+                    {% trans "Book a Time" %}
+                </a>
+            {% endif %}
+
         </div>
     </div>
 </div>

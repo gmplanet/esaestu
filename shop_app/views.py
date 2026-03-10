@@ -7,6 +7,10 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.translation import gettext as _
 from django.http import JsonResponse
+from django.utils.html import strip_tags
+from django.views.decorators.http import require_POST
+from .models import Order, OrderComment
+from django.db.models import Q
 
 # Импортируем наши новые модели и форму
 from .models import Product, ProductImage, Cart, CartItem, Order, OrderItem
@@ -300,3 +304,206 @@ def update_cart_quantity(request, product_id):
             # Если дошли до 0, удаляем товар из корзины
             cart_item.delete()
             return JsonResponse({'status': 'deleted'})
+        
+
+
+# Контроллер для отображения покупок клиента (таблица и вкладки)
+@login_required
+def cabinet_my_orders(request):
+    orders = Order.objects.filter(buyer=request.user)
+    
+    # Подсчет количества заказов для каждой вкладки
+    counts = {
+        'new': orders.filter(status='active').count(),
+        'processing': orders.filter(status='processing').count(),
+        'completed': orders.filter(status='completed').count(),
+        'cancelled': orders.filter(status__in=['cancelled_by_buyer', 'cancelled_by_seller']).count(),
+    }
+    
+    # Определение текущей вкладки (по умолчанию 'new')
+    current_tab = request.GET.get('tab', 'new')
+    if current_tab == 'new':
+        orders = orders.filter(status='active')
+    elif current_tab == 'processing':
+        orders = orders.filter(status='processing')
+    elif current_tab == 'completed':
+        orders = orders.filter(status='completed')
+    elif current_tab == 'cancelled':
+        orders = orders.filter(status__in=['cancelled_by_buyer', 'cancelled_by_seller'])
+        
+    # Обработка поиска
+    query = request.GET.get('q', '')
+    if query:
+        orders = orders.filter(
+            Q(id__icontains=query) |
+            Q(seller__username__icontains=query)
+        )
+        
+    # Обработка сортировки
+    sort_by = request.GET.get('sort', '-created_at')
+    if sort_by in ['created_at', '-created_at', 'id', '-id']:
+        orders = orders.order_by(sort_by)
+    else:
+        orders = orders.order_by('-created_at')
+        
+    return render(request, 'shop_app/cabinet_my_orders.html', {
+        'orders': orders,
+        'counts': counts,
+        'current_tab': current_tab,
+        'query': query,
+        'sort_by': sort_by,
+    })
+
+# Контроллер для отображения входящих заказов продавца (таблица и вкладки)
+@login_required
+def cabinet_incoming_orders(request):
+    if not request.user.is_seller:
+        raise PermissionDenied("You do not have permission to access this page.")
+        
+    orders = Order.objects.filter(seller=request.user)
+    
+    counts = {
+        'new': orders.filter(status='active').count(),
+        'processing': orders.filter(status='processing').count(),
+        'completed': orders.filter(status='completed').count(),
+        'cancelled': orders.filter(status__in=['cancelled_by_buyer', 'cancelled_by_seller']).count(),
+    }
+    
+    current_tab = request.GET.get('tab', 'new')
+    if current_tab == 'new':
+        orders = orders.filter(status='active')
+    elif current_tab == 'processing':
+        orders = orders.filter(status='processing')
+    elif current_tab == 'completed':
+        orders = orders.filter(status='completed')
+    elif current_tab == 'cancelled':
+        orders = orders.filter(status__in=['cancelled_by_buyer', 'cancelled_by_seller'])
+        
+    query = request.GET.get('q', '')
+    if query:
+        # Для продавца ищем по имени, email, телефону покупателя или номеру заказа
+        orders = orders.filter(
+            Q(id__icontains=query) |
+            Q(customer_name__icontains=query) |
+            Q(customer_email__icontains=query) |
+            Q(customer_phone__icontains=query)
+        )
+        
+    sort_by = request.GET.get('sort', '-created_at')
+    if sort_by in ['created_at', '-created_at', 'id', '-id']:
+        orders = orders.order_by(sort_by)
+    else:
+        orders = orders.order_by('-created_at')
+        
+    return render(request, 'shop_app/cabinet_incoming_orders.html', {
+        'orders': orders,
+        'counts': counts,
+        'current_tab': current_tab,
+        'query': query,
+        'sort_by': sort_by,
+    })
+
+# Новый контроллер для страницы с деталями конкретного заказа и чатом
+@login_required
+def shop_order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Проверка прав (доступ только для участников сделки)
+    if request.user != order.buyer and request.user != order.seller:
+        raise PermissionDenied("You do not have permission to view this order.")
+        
+    return render(request, 'shop_app/cabinet_order_detail.html', {'order': order})
+
+
+# Новый контроллер для изменения статуса продавцом (в работу / выполнен)
+@require_POST
+@login_required
+def shop_update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    
+    if request.user != order.seller:
+        raise PermissionDenied("Only the seller can change this status.")
+        
+    new_status = request.POST.get('status')
+    if new_status in ['processing', 'completed']:
+        order.status = new_status
+        order.save()
+        
+        # Отправка уведомления покупателю
+        status_text = "Processing" if new_status == 'processing' else "Completed"
+        subject = _("Order Update: #%(id)s is now %(status)s") % {'id': order.id, 'status': status_text}
+        message = _(
+            "Hello %(buyer)s,\n\n"
+            "The status of your order #%(id)s has been updated to: %(status)s.\n\n"
+            "You can view the details in your account."
+        ) % {
+            'buyer': order.buyer.username,
+            'id': order.id,
+            'status': status_text
+        }
+        
+        try:
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [order.buyer.email], fail_silently=True)
+        except Exception:
+            pass
+            
+    return redirect('shop_order_detail', order_id=order.id)
+
+
+# Контроллер для отмены заказа (оставляем старый, но обновляем редирект)
+@require_POST
+@login_required
+def shop_cancel_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    is_buyer = request.user == order.buyer
+    is_seller = request.user == order.seller
+    
+    if not (is_buyer or is_seller):
+        raise PermissionDenied("You cannot cancel this order.")
+        
+    if order.status not in ['active', 'processing']:
+        return redirect('shop_order_detail', order_id=order.id)
+        
+    if is_buyer:
+        order.status = 'cancelled_by_buyer'
+        canceler = "Buyer"
+    else:
+        order.status = 'cancelled_by_seller'
+        canceler = "Seller"
+        
+    order.save()
+    
+    subject = _("Order Cancelled: #%(id)s") % {'id': order.id}
+    message = _("Order #%(id)s has been cancelled by the %(canceler)s.\n\n") % {'id': order.id, 'canceler': canceler}
+    
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [order.buyer.email, order.seller.email], fail_silently=True)
+    except Exception:
+        pass
+        
+    return redirect('shop_order_detail', order_id=order.id)
+
+# Контроллер для добавления комментария (оставляем старый, редирект обновлен)
+@require_POST
+@login_required
+def shop_add_comment(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    
+    if request.user != order.buyer and request.user != order.seller:
+        raise PermissionDenied("You cannot comment on this order.")
+        
+    comment_text = request.POST.get('comment_text', '')
+    safe_comment = strip_tags(comment_text)[:250]
+    
+    if safe_comment:
+        OrderComment.objects.create(order=order, author=request.user, text=safe_comment)
+        recipient_email = order.seller.email if request.user == order.buyer else order.buyer.email
+        subject = _("New comment on Order #%(id)s") % {'id': order.id}
+        message = _("You have a new comment on Order #%(id)s from %(author)s:\n\n%(comment)s") % {'id': order.id, 'author': request.user.username, 'comment': safe_comment}
+        
+        try:
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient_email], fail_silently=True)
+        except Exception:
+            pass
+            
+    return redirect('shop_order_detail', order_id=order.id)      

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <h1>{% trans "Incoming Orders" %}</h1>
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'cabinet' %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
+            {% trans "Back to Dashboard" %}
+        </a>
+    </div>
+
+    <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 4px solid var(--pixel-black); padding-bottom: 0;">
+        <a href="?tab=new" class="btn-main" style="{% if current_tab == 'new' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "New" %} ({{ counts.new }})</a>
+        
+        <a href="?tab=processing" class="btn-main" style="{% if current_tab == 'processing' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "Processing" %} ({{ counts.processing }})</a>
+        
+        <a href="?tab=completed" class="btn-main" style="{% if current_tab == 'completed' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "Completed" %} ({{ counts.completed }})</a>
+        
+        <a href="?tab=cancelled" class="btn-main" style="{% if current_tab == 'cancelled' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "Cancelled" %} ({{ counts.cancelled }})</a>
+    </div>
+
+    <div class="pixel-card" style="padding: 10px; margin-bottom: 20px; background: #f9f9f9;">
+        <form method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <input type="hidden" name="tab" value="{{ current_tab }}">
+            
+            <input type="text" name="q" value="{{ query }}" placeholder="{% trans 'Search by ID, Name, Email or Phone...' %}" style="padding: 8px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); flex-grow: 1; min-width: 250px;">
+            
+            <select name="sort" style="padding: 8px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black);">
+                <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>{% trans "Newest First" %}</option>
+                <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>{% trans "Oldest First" %}</option>
+                <option value="-id" {% if sort_by == '-id' %}selected{% endif %}>{% trans "ID (Desc)" %}</option>
+                <option value="id" {% if sort_by == 'id' %}selected{% endif %}>{% trans "ID (Asc)" %}</option>
+            </select>
+            
+            <button type="submit" class="btn-main" style="width: auto; padding: 5px 15px;">{% trans "Apply" %}</button>
+        </form>
+    </div>
+
+    {% if orders %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-family: 'VT323', monospace; font-size: 1.2rem; border: 3px solid var(--pixel-black);">
+                <thead style="background: var(--pixel-yellow);">
+                    <tr>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">ID</th>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Date" %}</th>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Customer" %}</th>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Total" %}</th>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Action" %}</th>
+                    </tr>
+                </thead>
+                <tbody style="background: var(--pixel-white);">
+                    {% for order in orders %}
+                    <tr style="text-align: center; border-bottom: 2px solid var(--pixel-black);">
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px; font-weight: bold;">#{{ order.id }}</td>
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">{{ order.created_at|date:"Y-m-d" }}</td>
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">{{ order.customer_name }}</td>
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">
+                            {{ order.items.count }} {% trans "items" %}
+                        </td>
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">
+                            <a href="{% url 'shop_order_detail' order.id %}" class="btn-main" style="padding: 5px 10px; display: inline-block; width: auto; font-size: 1rem;">{% trans "Details" %}</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="pixel-card">
+            <p>{% trans "No orders found in this category." %}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

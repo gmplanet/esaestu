@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="content-center">
+    <h1>
+        {% if provider %}
+            {% trans "Schedule for" %}: {{ provider.name }}
+        {% else %}
+            {% trans "General Schedule" %}
+        {% endif %}
+    </h1>
+    
+    <div class="pixel-card" style="border-color: var(--pixel-yellow);">
+        <form method="POST">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                {% for form in formset %}
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px dashed #ccc; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                        
+                        {{ form.id }}
+                        
+                        <div style="font-family: 'Press Start 2P', cursive; font-size: 0.8rem; width: 150px;">
+                            {{ form.instance.get_day_of_week_display }}
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label>{% trans "From" %}:</label>
+                            {{ form.start_time }}
+                            
+                            <label>{% trans "To" %}:</label>
+                            {{ form.end_time }}
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <label style="cursor: pointer; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                                {% trans "Day Off" %}:
+                            </label>
+                            {{ form.is_day_off }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div style="margin-top: 25px;">
+                <button type="submit" class="btn-main" style="background: var(--pixel-blue); color: white;">
+                    {% trans "Save Schedule" %}
+                </button>
+                <a href="{% url 'cabinet_booking_list' %}" style="margin-left: 15px; color: var(--pixel-red); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                    {% trans "Cancel" %}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

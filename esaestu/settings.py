@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'core',
     'profile_app',
     'shop_app',
+    'booking_app',
     
     # Обязательно: admin_interface и его зависимость colorfield должны стоять строго ДО django.contrib.admin
     'admin_interface',
