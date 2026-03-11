@@ -33,4 +33,8 @@ urlpatterns = [
     path('cabinet/incoming-bookings/', views.cabinet_incoming_bookings, name='cabinet_incoming_bookings'),
     # Маршрут-обработчик для отмены бронирования
     path('cabinet/booking/<int:booking_id>/cancel/', views.cancel_booking, name='cancel_booking'),
+    path('cabinet/booking/detail/<uuid:booking_uuid>/', views.booking_detail, name='booking_detail'),
+    
+    path('cabinet/booking/<uuid:booking_uuid>/cancel/', views.cancel_booking, name='cancel_booking'),
+    
 ]

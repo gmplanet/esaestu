@@ -52,12 +52,12 @@
                 <tbody style="background: var(--pixel-white);">
                     {% for order in orders %}
                     <tr style="text-align: center; border-bottom: 2px solid var(--pixel-black);">
-                        <td style="border: 2px solid var(--pixel-black); padding: 10px; font-weight: bold;">#{{ order.id }}</td>
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px; font-weight: bold;">#{{ order.order_number }}</td>
                         <td style="border: 2px solid var(--pixel-black); padding: 10px;">{{ order.created_at|date:"Y-m-d" }}</td>
                         <td style="border: 2px solid var(--pixel-black); padding: 10px;">{{ order.seller.username }}</td>
                         <td style="border: 2px solid var(--pixel-black); padding: 10px;">{{ order.items.count }}</td>
                         <td style="border: 2px solid var(--pixel-black); padding: 10px;">
-                            <a href="{% url 'shop_order_detail' order.id %}" class="btn-main" style="padding: 5px 10px; display: inline-block; width: auto; font-size: 1rem;">{% trans "Details" %}</a>
+                            <a href="{% url 'shop_order_detail' order.uuid %}" class="btn-main" style="padding: 5px 10px; display: inline-block; width: auto; font-size: 1rem;">{% trans "Details" %}</a>
                         </td>
                     </tr>
                     {% endfor %}

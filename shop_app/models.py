@@ -3,6 +3,11 @@ from django.db import models
 from django.contrib.auth import get_user_model
 # ВАЖНО: Добавлен недостающий импорт для работы с картинками
 from PIL import Image
+from core.validators import validate_is_image
+import uuid
+import string
+import secrets
+
 
 # Получаем актуальную модель пользователя, чтобы связать товары с их владельцами
 User = get_user_model()
@@ -31,6 +36,7 @@ class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', verbose_name="Product")
     image = models.ImageField(upload_to='shop_images/%Y/%m/%d/', verbose_name="Image")
     is_main = models.BooleanField(default=False, verbose_name="Main Image")
+    validators=[validate_is_image]
 
     class Meta:
         verbose_name = "Product Image"
@@ -96,30 +102,27 @@ class CartItem(models.Model):
 # НОВЫЕ МОДЕЛИ ДЛЯ ЗАКАЗОВ (Checkout)
 # ==========================================
 class Order(models.Model):
-    # Привязка заказа к покупателю и продавцу для масштабируемости
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    order_number = models.CharField(max_length=12, unique=True, editable=False, null=True)
+    
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders_as_buyer', verbose_name="Buyer")
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders_as_seller', verbose_name="Seller")
 
-    # Контактные данные покупателя из формы оформления
     customer_name = models.CharField(max_length=100, verbose_name="Customer Name")
     customer_phone = models.CharField(max_length=50, verbose_name="Customer Phone")
     customer_email = models.EmailField(verbose_name="Customer Email")
-    # Ограничение в 500 символов реализовано через max_length
     additional_info = models.TextField(max_length=500, blank=True, verbose_name="Additional Info")
 
-    # Дата создания заказа будет использоваться как часть информации для писем
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
 
-    # Расширенный список статусов заказа
     STATUS_CHOICES = [
-        ('active', 'New'), # Новый заказ (по умолчанию)
-        ('processing', 'Processing'), # Заказ принят в работу продавцом
-        ('completed', 'Completed'), # Заказ успешно завершен
-        ('cancelled_by_buyer', 'Cancelled by Buyer'), # Отменен покупателем
-        ('cancelled_by_seller', 'Cancelled by Seller'), # Отменен продавцом
+        ('active', 'New'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('cancelled_by_buyer', 'Cancelled by Buyer'),
+        ('cancelled_by_seller', 'Cancelled by Seller'),
     ]
     
-    # Обновленное поле статуса с привязкой к новым вариантам
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='active', verbose_name="Status")
 
     class Meta:
@@ -128,8 +131,22 @@ class Order(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        # Идентификатор self.id будет выступать в роли номера заказа
-        return f"Order #{self.id} from {self.customer_name}"
+        # Используем order_number, если он есть, иначе старый добрый id
+        return f"Order #{self.order_number or self.id} from {self.customer_name}"
+    
+    def generate_order_number(self):
+        # Генерирует строку типа 'KJ8D32PL91WS'
+        chars = string.ascii_uppercase + string.digits
+        return ''.join(secrets.choice(chars) for _ in range(12))
+
+    def save(self, *args, **kwargs):
+        if not self.order_number:
+            new_number = self.generate_order_number()
+            # Проверка на уникальность
+            while Order.objects.filter(order_number=new_number).exists():
+                new_number = self.generate_order_number()
+            self.order_number = new_number
+        super().save(*args, **kwargs)
 
 class OrderItem(models.Model):
     # Связь конкретной позиции с общим заказом

@@ -5,48 +5,62 @@
 <div class="content-center">
     <h1>{% trans "My Bookings" %}</h1>
     <div style="margin-bottom: 20px;">
-        <a href="{% url 'cabinet' %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
+        <a href="{% url 'cabinet' %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto;">
             {% trans "Back to Dashboard" %}
         </a>
     </div>
 
-    {% if bookings %}
-        <div class="cabinet-modules">
-            {% for booking in bookings %}
-            <div class="pixel-card" style="border-color: {% if booking.status == 'active' %}var(--pixel-blue){% else %}var(--pixel-grey){% endif %};">
-                <h2 style="margin-top: 0;">{{ booking.service.title }}</h2>
-                <p><strong>{% trans "Seller" %}:</strong> {{ booking.service.owner.username }}</p>
-                {% if booking.provider %}
-                    <p><strong>{% trans "Provider" %}:</strong> {{ booking.provider.name }}</p>
-                {% endif %}
-                <p><strong>{% trans "Date" %}:</strong> {{ booking.start_time|date:"Y-m-d" }}</p>
-                <p><strong>{% trans "Time" %}:</strong> {{ booking.start_time|date:"H:i" }} - {{ booking.end_time|date:"H:i" }}</p>
-                <p><strong>{% trans "Status" %}:</strong>
-                    {% if booking.status == 'active' %}
-                        <span style="color: green;">{% trans "Active" %}</span>
-                    {% elif booking.status == 'cancelled_by_customer' %}
-                        <span style="color: red;">{% trans "Cancelled by You" %}</span>
-                    {% else %}
-                        <span style="color: red;">{% trans "Cancelled by Seller" %}</span>
-                    {% endif %}
-                </p>
+    <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 4px solid var(--pixel-black);">
+        <a href="?tab=new" class="btn-main" style="{% if current_tab == 'new' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "New" %} ({{ counts.new }})</a>
+        <a href="?tab=completed" class="btn-main" style="{% if current_tab == 'completed' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "Completed" %} ({{ counts.completed }})</a>
+        <a href="?tab=cancelled" class="btn-main" style="{% if current_tab == 'cancelled' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "Cancelled" %} ({{ counts.cancelled }})</a>
+    </div>
 
-                {% if booking.status == 'active' %}
-                <div style="margin-top: 15px;">
-                    <form action="{% url 'cancel_booking' booking.id %}" method="POST" onsubmit="return confirm('{% trans "Are you sure you want to cancel this booking?" %}');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-main" style="background: var(--pixel-red); color: white; border: 2px solid var(--pixel-black); font-size: 1rem; padding: 5px 15px; width: auto;">
-                            {% trans "Cancel Booking" %}
-                        </button>
-                    </form>
-                </div>
-                {% endif %}
-            </div>
-            {% endfor %}
+    <div class="pixel-card" style="padding: 10px; margin-bottom: 20px; background: #f9f9f9;">
+        <form method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <input type="hidden" name="tab" value="{{ current_tab }}">
+            <input type="text" name="q" value="{{ query }}" placeholder="{% trans 'Search by ID or Seller...' %}" style="padding: 8px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); flex-grow: 1;">
+            
+            <select name="sort" style="padding: 8px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black);">
+                <option value="-start_time" {% if sort_by == '-start_time' %}selected{% endif %}>{% trans "Soonest First" %}</option>
+                <option value="start_time" {% if sort_by == 'start_time' %}selected{% endif %}>{% trans "Oldest First" %}</option>
+            </select>
+            <button type="submit" class="btn-main" style="width: auto; padding: 5px 15px;">{% trans "Apply" %}</button>
+        </form>
+    </div>
+
+    {% if bookings %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-family: 'VT323', monospace; font-size: 1.2rem; border: 3px solid var(--pixel-black);">
+                <thead style="background: var(--pixel-yellow);">
+                    <tr>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">ID</th>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Date & Time" %}</th>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Seller" %}</th>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Service" %}</th>
+                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Action" %}</th>
+                    </tr>
+                </thead>
+                <tbody style="background: var(--pixel-white);">
+                    {% for booking in bookings %}
+                    <tr style="text-align: center; border-bottom: 2px solid var(--pixel-black);">
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px; font-weight: bold;">#{{ booking.reservation_number }}</td>
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">
+                            {{ booking.start_time|date:"Y-m-d" }}<br>{{ booking.start_time|date:"H:i" }}
+                        </td>
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">{{ booking.service.owner.username }}</td>
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">{{ booking.service.title }}</td>
+                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">
+                             <a href="{% url 'booking_detail' booking.uuid %}" class="btn-main" style="padding: 5px 10px; display: inline-block; width: auto; font-size: 1rem;">{% trans "Details" %}</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     {% else %}
         <div class="pixel-card">
-            <p>{% trans "You have no bookings yet." %}</p>
+            <p>{% trans "You have no bookings here." %}</p>
         </div>
     {% endif %}
 </div>

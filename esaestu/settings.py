@@ -29,9 +29,34 @@ SECRET_KEY = env.str('SECRET_KEY')
 # Настройка хостов
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 
+
+if DEBUG:
+    # Локально: используем простую базу SQLite для задач
+    HUEY = {
+        'huey_class': 'huey.SqliteHuey',
+        'name': 'esaestu_tasks',
+        'filename': BASE_DIR / 'huey_tasks.db',
+        'immediate': False,
+        'consumer': {'workers': 2},
+    }
+else:
+    # Продакшн (Postgres + Redis): используем быстрый Redis
+    # Убедись, что REDIS_URL есть в .env на сервере
+    HUEY = {
+        'huey_class': 'huey.RedisHuey',
+        'name': 'esaestu_tasks_prod',
+        'url': env.str('REDIS_URL', default='redis://127.0.0.1:6379/0'),
+        'immediate': False,
+        'consumer': {'workers': 4},
+    }
+
+
 # 3. Определение приложений
 INSTALLED_APPS = [
+     
     'core',
+    # Асинхронные задачи с Huey 
+    'huey.contrib.djhuey',
     'profile_app',
     'shop_app',
     'booking_app',
@@ -45,6 +70,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+     
+    
     
     # Ваша новая Google капча
     'django_recaptcha',
@@ -327,3 +354,5 @@ CKEDITOR_5_CONFIGS = {
         },
     }
 }
+
+

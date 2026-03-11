@@ -5,6 +5,7 @@ from PIL import Image
 import os
 # Импортируем функцию slugify для преобразования обычного текста в URL-безопасный формат
 from django.utils.text import slugify
+from core.validators import validate_is_image  # Импортируем нашу кастомную функцию валидации
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
@@ -14,7 +15,13 @@ class CustomUser(AbstractUser):
     sku_limit = models.PositiveIntegerField(default=10, verbose_name="SKU Limit")
     show_in_catalog = models.BooleanField(default=False, verbose_name="Show in Catalog")
     
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name="Avatar")
+    avatar = models.ImageField(
+    upload_to='avatars/', 
+    blank=True, 
+    null=True, 
+    verbose_name="Avatar",
+    validators=[validate_is_image] # <--- Добавь это
+)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

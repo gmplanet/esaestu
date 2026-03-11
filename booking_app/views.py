@@ -14,9 +14,11 @@ import json
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
 from django.utils.dateparse import parse_datetime
-from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.translation import gettext as _
+from django_ratelimit.decorators import ratelimit
+from django.db.models import Q
+from core.tasks import send_async_email
 
 
 
@@ -223,6 +225,7 @@ def api_get_available_slots(request):
 
     return JsonResponse({'slots': slots})
 
+@ratelimit(key='ip', rate='3/m', method='POST', block=True)
 @require_POST
 @login_required
 def api_confirm_booking(request):
@@ -338,8 +341,8 @@ def api_confirm_booking(request):
         }
 
         try:
-            send_mail(buyer_subject, buyer_message, settings.DEFAULT_FROM_EMAIL, [buyer.email], fail_silently=True)
-            send_mail(seller_subject, seller_message, settings.DEFAULT_FROM_EMAIL, [seller.email], fail_silently=True)
+            send_async_email(buyer_subject, buyer_message, settings.DEFAULT_FROM_EMAIL, [buyer.email], fail_silently=True)
+            send_async_email(seller_subject, seller_message, settings.DEFAULT_FROM_EMAIL, [seller.email], fail_silently=True)
         except Exception:
             pass # Игнорируем ошибки отправки почты, чтобы не прерывать процесс для пользователя
 
@@ -353,76 +356,144 @@ def api_confirm_booking(request):
 
 @login_required
 def cabinet_my_bookings(request):
-    # Получаем все бронирования, где текущий пользователь является клиентом
-    # order_by('-start_time') сортирует список от новых к старым
-    bookings = Reservation.objects.filter(customer=request.user).order_by('-start_time')
-    return render(request, 'booking_app/cabinet_my_bookings.html', {'bookings': bookings})
+    # Начальный запрос: бронирования текущего пользователя как клиента
+    bookings = Reservation.objects.filter(customer=request.user)
+    
+    # Подсчет для вкладок
+    counts = {
+        'new': bookings.filter(status='active').count(),
+        'completed': bookings.filter(status='completed').count(),
+        'cancelled': bookings.filter(status__in=['cancelled_by_customer', 'cancelled_by_seller']).count(),
+    }
+    
+    # Фильтрация по вкладкам
+    current_tab = request.GET.get('tab', 'new')
+    if current_tab == 'new':
+        bookings = bookings.filter(status='active')
+    elif current_tab == 'completed':
+        bookings = bookings.filter(status='completed')
+    elif current_tab == 'cancelled':
+        bookings = bookings.filter(status__in=['cancelled_by_customer', 'cancelled_by_seller'])
+        
+    # Поиск по номеру бронирования или названию услуги/имени продавца
+    query = request.GET.get('q', '')
+    if query:
+        bookings = bookings.filter(
+            Q(reservation_number__icontains=query) |
+            Q(service__title__icontains=query) |
+            Q(service__owner__username__icontains=query)
+        ).distinct()
+        
+    # Сортировка
+    sort_by = request.GET.get('sort', '-start_time')
+    bookings = bookings.order_by(sort_by)
+        
+    return render(request, 'booking_app/cabinet_my_bookings.html', {
+        'bookings': bookings,
+        'counts': counts,
+        'current_tab': current_tab,
+        'query': query,
+        'sort_by': sort_by,
+    })
 
 @login_required
 def cabinet_incoming_bookings(request):
-    # Проверяем наличие прав продавца услуг
     if not request.user.groups.filter(name='Booking').exists():
         raise PermissionDenied("You do not have permission to access this module.")
+        
+    # Бронирования услуг, принадлежащих текущему пользователю
+    bookings = Reservation.objects.filter(service__owner=request.user)
     
-    # Получаем все бронирования, где текущий пользователь является владельцем услуги
-    bookings = Reservation.objects.filter(service__owner=request.user).order_by('-start_time')
-    return render(request, 'booking_app/cabinet_incoming_bookings.html', {'bookings': bookings})
+    counts = {
+        'new': bookings.filter(status='active').count(),
+        'completed': bookings.filter(status='completed').count(),
+        'cancelled': bookings.filter(status__in=['cancelled_by_customer', 'cancelled_by_seller']).count(),
+    }
+    
+    current_tab = request.GET.get('tab', 'new')
+    if current_tab == 'new':
+        bookings = bookings.filter(status='active')
+    elif current_tab == 'completed':
+        bookings = bookings.filter(status='completed')
+    elif current_tab == 'cancelled':
+        bookings = bookings.filter(status__in=['cancelled_by_customer', 'cancelled_by_seller'])
+        
+    query = request.GET.get('q', '')
+    if query:
+        bookings = bookings.filter(
+            Q(reservation_number__icontains=query) |
+            Q(customer__username__icontains=query) |
+            Q(customer__email__icontains=query)
+        ).distinct()
+        
+    sort_by = request.GET.get('sort', '-start_time')
+    bookings = bookings.order_by(sort_by)
+        
+    return render(request, 'booking_app/cabinet_incoming_bookings.html', {
+        'bookings': bookings,
+        'counts': counts,
+        'current_tab': current_tab,
+        'query': query,
+        'sort_by': sort_by,
+    })
 
 @require_POST
 @login_required
-def cancel_booking(request, booking_id):
-    # Находим конкретную запись в базе данных
-    reservation = get_object_or_404(Reservation, id=booking_id)
+def cancel_booking(request, booking_uuid): # Принимаем uuid как в urls.py
+    # Находим бронирование по UUID
+    reservation = get_object_or_404(Reservation, uuid=booking_uuid)
     
-    # Проверяем, имеет ли текущий пользователь право отменять эту запись
+    # Проверяем права доступа
     is_customer = request.user == reservation.customer
     is_seller = request.user == reservation.service.owner
     
     if not (is_customer or is_seller):
         raise PermissionDenied("You cannot cancel this booking.")
         
-    # Если бронь уже отменена, ничего не делаем и возвращаем обратно
-    if reservation.status != 'active':
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+    # Отменяем только если бронь в статусе "active" (New)
+    if reservation.status == 'active':
+        if is_customer:
+            reservation.status = 'cancelled_by_customer'
+            canceler_name = request.user.username
+            canceler_type = _("Customer")
+        else:
+            reservation.status = 'cancelled_by_seller'
+            canceler_name = request.user.username
+            canceler_type = _("Seller")
+            
+        reservation.save()
         
-    # Меняем статус в зависимости от того, кто нажал кнопку отмены
-    if is_customer:
-        reservation.status = 'cancelled_by_customer'
-        canceler = "Customer"
-    else:
-        reservation.status = 'cancelled_by_seller'
-        canceler = "Seller"
+        # ФОРМИРОВАНИЕ ПИСЬМА (по аналогии с магазином)
+        subject = _("Booking Cancelled: #%(number)s") % {'number': reservation.reservation_number}
         
-    # Сохраняем новый статус в базу данных
-    reservation.save()
-    
-    # ФОРМИРОВАНИЕ ПИСЕМ ОБ ОТМЕНЕ
-    subject = _("Booking Cancelled: %(service)s") % {'service': reservation.service.title}
-    message = _(
-        "The booking for %(service)s on %(date)s at %(time)s has been cancelled by the %(canceler)s.\n\n"
-        "Booking ID: %(id)s"
-    ) % {
-        'service': reservation.service.title,
-        'date': reservation.start_time.strftime('%Y-%m-%d'),
-        'time': reservation.start_time.strftime('%H:%M'),
-        'canceler': canceler,
-        'id': reservation.id
-    }
-    
-    # Отправляем одно и то же письмо сразу обоим участникам (клиенту и продавцу)
-    try:
-        send_mail(
-            subject, 
-            message, 
-            settings.DEFAULT_FROM_EMAIL, 
-            [reservation.customer.email, reservation.service.owner.email], 
-            fail_silently=True
-        )
-    except Exception:
-        pass
-        
-    # Возвращаем пользователя на ту страницу, с которой он нажал кнопку отмены
-    return redirect(request.META.get('HTTP_REFERER', '/'))    
+        message = _(
+            "The booking #%(number)s for %(service)s on %(date)s at %(time)s has been cancelled by the %(canceler_type)s (%(canceler_name)s).\n\n"
+            "Booking details:\n"
+            "• Service: %(service)s\n"
+            "• Time: %(date)s %(time)s - %(end_time)s\n"
+            "• Status: %(status)s"
+        ) % {
+            'number': reservation.reservation_number,
+            'service': reservation.service.title,
+            'date': reservation.start_time.strftime('%Y-%m-%d'),
+            'time': reservation.start_time.strftime('%H:%M'),
+            'end_time': reservation.end_time.strftime('%H:%M'),
+            'canceler_type': canceler_type,
+            'canceler_name': canceler_name,
+            'status': reservation.get_status_display()
+        }
+
+        try:
+            send_async_email(
+                subject, 
+                message, 
+                [reservation.customer.email, reservation.service.owner.email]
+            )
+        except Exception:
+            pass
+            
+    # Редирект на страницу деталей этого бронирования
+    return redirect('booking_detail', booking_uuid=reservation.uuid)
 
 # Контроллер для редактирования услуги
 @login_required
@@ -483,3 +554,13 @@ def booking_delete_provider(request, provider_id):
         
     provider.delete()
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+def booking_detail(request, booking_uuid):
+    booking = get_object_or_404(Reservation, uuid=booking_uuid)
+    
+    # Доступ только участникам
+    if request.user != booking.customer and request.user != booking.service.owner:
+        raise PermissionDenied()
+        
+    return render(request, 'booking_app/cabinet_booking_detail.html', {'booking': booking})
