@@ -14,3 +14,6 @@ plan.md
 .gitignore
 .nginx/
 media/
+project_data.sql
+db.sqlite3BAK
+*.sql
