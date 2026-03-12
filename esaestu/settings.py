@@ -361,4 +361,12 @@ CKEDITOR_5_CONFIGS = {
     }
 }
 
-RATELIMIT_IP_META_KEY = 'HTTP_X_FORWARDED_FOR'
+if DEBUG:
+    # Настройки для локальной разработки (твоя текущая рабочая версия)
+    RATELIMIT_IP_META_PRECEDENCE = ('HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR')
+    RATELIMIT_USE_X_FORWARDED_FOR = True
+else:
+    # Настройки для сервера (PRODUCTION)
+    # Используем проверенный ключ, который работает через сокеты Nginx
+    RATELIMIT_IP_META_KEY = 'HTTP_X_FORWARDED_FOR'
+    RATELIMIT_USE_X_FORWARDED_FOR = True
