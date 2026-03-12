@@ -14,7 +14,7 @@ def send_async_email(subject, message, recipient_list, from_email=None, fail_sil
 
     # Идеально правильное формирование заголовка по стандарту RFC 5322
     # Функция formataddr сама подставит нужные скобки и безопасно обработает текст
-    sender = formataddr(('Esaestu', 'info@esaestu.casa'))
+    sender = formataddr(('EsaEsTuCasa', 'info@esaestu.casa'))
 
     try:
         # Создаем письмо с нашим гарантированно правильным отправителем
