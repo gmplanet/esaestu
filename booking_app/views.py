@@ -350,7 +350,22 @@ def api_confirm_booking(request):
             # Выводим ошибку в лог сервера, чтобы она не пропадала бесследно
             print(f"Booking confirmation email error: {e}") 
 
-        return JsonResponse({'status': 'success', 'message': _('Booking confirmed successfully!')})
+        success_message = _(
+            "Booking confirmed successfully!\n\n"
+            "Service: %(service)s%(provider)s\n"
+            "Reserved time:\n%(details)s"
+        ) % {
+            'service': service.title, # Подставляем название забронированной услуги
+            'provider': provider_info, # Подставляем имя мастера, если он был выбран
+            'details': booking_details # Подставляем готовый список дат и времени
+        }
+
+        # Возвращаем браузеру статус успеха и расширенный текст уведомления
+        return JsonResponse({'status': 'success', 'message': success_message})
+
+    except Exception as e:
+        # Отлов непредвиденных системных ошибок функции и возврат кода 500
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
