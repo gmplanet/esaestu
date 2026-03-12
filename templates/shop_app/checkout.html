@@ -19,22 +19,42 @@
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Full Name" %} *</label>
                     {{ form.customer_name }}
+                    {% if form.customer_name.errors %}
+                        <div style="color: var(--pixel-red); font-size: 0.85rem; margin-top: 5px;">
+                            {{ form.customer_name.errors|striptags }}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Phone Number" %} *</label>
                     {{ form.customer_phone }}
+                    {% if form.customer_phone.errors %}
+                        <div style="color: var(--pixel-red); font-size: 0.85rem; margin-top: 5px;">
+                            {{ form.customer_phone.errors|striptags }}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Email Address" %} *</label>
                     {{ form.customer_email }}
+                    {% if form.customer_email.errors %}
+                        <div style="color: var(--pixel-red); font-size: 0.85rem; margin-top: 5px;">
+                            {{ form.customer_email.errors|striptags }}
+                        </div>
+                    {% endif %}
                 </div>
                 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Additional Information" %}</label>
                     {{ form.additional_info }}
                     <p style="font-size: 0.8rem; color: #666; margin-top: 2px;">{% trans "Maximum 500 characters." %}</p>
+                    {% if form.additional_info.errors %}
+                        <div style="color: var(--pixel-red); font-size: 0.85rem; margin-top: 5px;">
+                            {{ form.additional_info.errors|striptags }}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <button type="submit" class="btn-main" style="width: 100%; background: var(--pixel-blue); color: white; text-transform: uppercase; font-size: 1.2rem;">
