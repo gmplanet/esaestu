@@ -13,6 +13,8 @@ from django.db.models import Q
 from django_ratelimit.decorators import ratelimit
 from .models import Product, ProductImage, Cart, CartItem, Order, OrderItem, OrderComment
 from .forms import ProductForm, CheckoutForm
+from django.contrib import messages
+
 
 User = get_user_model()
 
@@ -234,6 +236,21 @@ def checkout_view(request, slug):
                 send_async_email(seller_subject, seller_message, [seller.email])
             except Exception as e:
                 print(f"Checkout email error: {e}") 
+
+            # --- ФОРМИРУЕМ РАСШИРЕННОЕ СООБЩЕНИЕ ДЛЯ БРАУЗЕРА ---
+            success_msg = _(
+                "Order #%(order_id)s confirmed successfully!\n\n"
+                "Items:\n%(items)s\n"
+                "Total Amount: $%(total)s"
+            ) % {
+                'order_id': order.order_number,
+                'items': order_details_text,
+                'total': cart_total
+            }
+            
+            # Добавляем сообщение в систему Django messages, 
+            # чтобы оно отобразилось на странице после редиректа
+            messages.success(request, success_msg)    
                 
             return redirect('public_shop', slug=slug)
     else:
