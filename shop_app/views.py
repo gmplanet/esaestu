@@ -186,15 +186,15 @@ def checkout_view(request, slug):
             
             cart_items.delete()
             
-            # Уведомления (используем order.uuid для ссылок в будущем или order_number для текста)
             buyer_subject = _("Your order #%(order_id)s from %(seller)s") % {'order_id': order.order_number, 'seller': seller.username}
             buyer_message = _("Hello! Your order #%(order_id)s has been sent to %(seller)s.") % {'order_id': order.order_number, 'seller': seller.username}
             
+            # ИСПРАВЛЕНИЕ: Оставляем try..except, но убираем лишние аргументы, если они были
             try:
                 send_async_email(buyer_subject, buyer_message, [order.customer_email])
                 send_async_email(_("New order #%(id)s") % {'id': order.order_number}, "New order details...", [seller.email])
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Checkout email error: {e}") # Выводим ошибку в консоль сервера для отладки
                 
             return redirect('public_shop', slug=slug)
     else:
@@ -304,10 +304,11 @@ def shop_update_order_status(request, order_uuid):
         order.status = new_status
         order.save()
         
+        # ИСПРАВЛЕНИЕ: удалены лишние аргументы, добавлен вывод ошибки в лог
         try:
             send_async_email(_("Order Update"), f"Status: {new_status}", [order.buyer.email])
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Update status email error: {e}")
             
     return redirect('shop_order_detail', order_uuid=order.uuid)
 
@@ -320,19 +321,15 @@ def shop_cancel_order(request, order_uuid):
         raise PermissionDenied()
         
     if order.status in ['active', 'processing']:
-        # Определяем, кто отменил заказ для уведомления
         is_buyer = request.user == order.buyer
         order.status = 'cancelled_by_buyer' if is_buyer else 'cancelled_by_seller'
         order.save()
         
-        # 1. Формируем список товаров для письма
         items_list = ""
         for item in order.items.all():
             items_list += f"• {item.product_name} x {item.quantity}\n"
             
-        # 2. Подготавливаем данные для письма
         subject = _("Order Cancelled: #%(number)s") % {'number': order.order_number}
-        
         canceler_text = _("buyer") if is_buyer else _("seller")
         
         message = _(
@@ -348,16 +345,15 @@ def shop_cancel_order(request, order_uuid):
             'status': order.get_status_display()
         }
 
+        # ИСПРАВЛЕНИЕ: Удалены settings.DEFAULT_FROM_EMAIL и fail_silently=True
         try:
             send_async_email(
                 subject, 
                 message, 
-                settings.DEFAULT_FROM_EMAIL, 
-                [order.buyer.email, order.seller.email], 
-                fail_silently=True
+                [order.buyer.email, order.seller.email]
             )
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Cancel order email error: {e}")
             
     return redirect('shop_order_detail', order_uuid=order.uuid)
 
@@ -374,9 +370,11 @@ def shop_add_comment(request, order_uuid):
     if safe_comment:
         OrderComment.objects.create(order=order, author=request.user, text=safe_comment)
         recipient = order.seller.email if request.user == order.buyer else order.buyer.email
+        
+        # ИСПРАВЛЕНИЕ: Удалены settings.DEFAULT_FROM_EMAIL и fail_silently=True
         try:
-            send_async_email(_("New Message"), safe_comment, settings.DEFAULT_FROM_EMAIL, [recipient], fail_silently=True)
-        except Exception:
-            pass
+            send_async_email(_("New Message"), safe_comment, [recipient])
+        except Exception as e:
+            print(f"Add comment email error: {e}")
             
     return redirect('shop_order_detail', order_uuid=order.uuid)
