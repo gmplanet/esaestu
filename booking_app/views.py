@@ -260,10 +260,8 @@ def api_confirm_booking(request):
         # Алгоритм склеивания подряд идущих 15-минутных слотов в одну длинную запись
         for slot in parsed_slots[1:]:
             if slot == current_end:
-                # Если следующий слот начинается ровно там, где заканчивается предыдущий - продлеваем время окончания
                 current_end = slot + timedelta(minutes=15)
             else:
-                # Если цепочка прервалась, сохраняем накопленный блок как отдельную запись
                 reservations_to_create.append(Reservation(
                     service=service,
                     provider=provider,
@@ -272,11 +270,9 @@ def api_confirm_booking(request):
                     end_time=current_end,
                     customer_comment=safe_comment
                 ))
-                # Начинаем собирать новый блок
                 current_start = slot
                 current_end = slot + timedelta(minutes=15)
 
-        # Добавляем последний собранный блок
         reservations_to_create.append(Reservation(
             service=service,
             provider=provider,
@@ -288,7 +284,6 @@ def api_confirm_booking(request):
 
         # Сохраняем все сформированные бронирования в базу данных
         for res in reservations_to_create:
-            # Двойная проверка, чтобы два человека одновременно не заняли одно место
             conflict = Reservation.objects.filter(
                 service=service,
                 provider=provider,
@@ -302,20 +297,23 @@ def api_confirm_booking(request):
             
             res.save()
 
-        # ФОРМИРОВАНИЕ И ОТПРАВКА EMAIL УВЕДОМЛЕНИЙ
+        # --- ФОРМИРОВАНИЕ И ОТПРАВКА EMAIL УВЕДОМЛЕНИЙ ---
         buyer = request.user
         seller = service.owner
         
+        # Формируем имя мастера, если он выбран
         provider_info = f" ({provider.name})" if provider else ""
-        booking_details = "\n".join([f"• {r.start_time.strftime('%Y-%m-%d %H:%M')} - {r.end_time.strftime('%H:%M')}" for r in reservations_to_create])
+        # Собираем все забронированные слоты в красивый список
+        booking_details = "\n".join([f"• {r.start_time.strftime('%Y-%m-%d')} | {r.start_time.strftime('%H:%M')} - {r.end_time.strftime('%H:%M')}" for r in reservations_to_create])
         
-        # Письмо покупателю
+        # Подготовка подробного письма покупателю (клиенту)
         buyer_subject = _("Booking Confirmed: %(service)s") % {'service': service.title}
         buyer_message = _(
-            "Hello %(buyer)s,\n\n"
-            "Your booking for %(service)s%(provider)s is confirmed!\n\n"
-            "Time slots:\n%(details)s\n\n"
-            "Total slots booked: %(count)s\n"
+            "Hello %(buyer)s!\n\n"
+            "Your booking for %(service)s%(provider)s is confirmed.\n\n"
+            "Reservation Details:\n%(details)s\n\n"
+            "Total slots booked: %(count)s\n\n"
+            "Thank you for your reservation!"
         ) % {
             'buyer': buyer.username,
             'service': service.title,
@@ -324,32 +322,37 @@ def api_confirm_booking(request):
             'count': len(slots)
         }
 
-        # Письмо продавцу (исполнителю)
+        # Подготовка подробного письма продавцу (владельцу сервиса)
         seller_subject = _("New Booking: %(service)s") % {'service': service.title}
         seller_message = _(
-            "Hello %(seller)s,\n\n"
-            "You have a new booking from %(buyer)s for %(service)s%(provider)s.\n\n"
-            "Time slots:\n%(details)s\n\n"
-            "Customer comment: %(comment)s\n"
+            "Hello %(seller)s!\n\n"
+            "You have a new reservation from %(buyer)s for %(service)s%(provider)s.\n\n"
+            "Customer Information:\n"
+            "Email: %(email)s\n\n"
+            "Reservation Details:\n%(details)s\n\n"
+            "Customer comment: %(comment)s\n\n"
+            "Please check your personal cabinet to manage this booking."
         ) % {
             'seller': seller.username,
             'buyer': buyer.username,
+            'email': buyer.email, # Добавлена почта клиента для связи
             'service': service.title,
             'provider': provider_info,
             'details': booking_details,
             'comment': safe_comment if safe_comment else _("No comment provided")
         }
 
+        # Отправляем задачи в очередь Redis (строго 3 аргумента)
         try:
-            send_async_email(buyer_subject, buyer_message, settings.DEFAULT_FROM_EMAIL, [buyer.email], fail_silently=True)
-            send_async_email(seller_subject, seller_message, settings.DEFAULT_FROM_EMAIL, [seller.email], fail_silently=True)
-        except Exception:
-            pass # Игнорируем ошибки отправки почты, чтобы не прерывать процесс для пользователя
+            send_async_email(buyer_subject, buyer_message, [buyer.email])
+            send_async_email(seller_subject, seller_message, [seller.email])
+        except Exception as e:
+            # Выводим ошибку в лог сервера, чтобы она не пропадала бесследно
+            print(f"Booking confirmation email error: {e}") 
 
         return JsonResponse({'status': 'success', 'message': _('Booking confirmed successfully!')})
 
     except Exception as e:
-        
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     
 
@@ -439,18 +442,15 @@ def cabinet_incoming_bookings(request):
 
 @require_POST
 @login_required
-def cancel_booking(request, booking_uuid): # Принимаем uuid как в urls.py
-    # Находим бронирование по UUID
+def cancel_booking(request, booking_uuid):
     reservation = get_object_or_404(Reservation, uuid=booking_uuid)
     
-    # Проверяем права доступа
     is_customer = request.user == reservation.customer
     is_seller = request.user == reservation.service.owner
     
     if not (is_customer or is_seller):
         raise PermissionDenied("You cannot cancel this booking.")
         
-    # Отменяем только если бронь в статусе "active" (New)
     if reservation.status == 'active':
         if is_customer:
             reservation.status = 'cancelled_by_customer'
@@ -463,15 +463,18 @@ def cancel_booking(request, booking_uuid): # Принимаем uuid как в u
             
         reservation.save()
         
-        # ФОРМИРОВАНИЕ ПИСЬМА (по аналогии с магазином)
+        # --- ФОРМИРОВАНИЕ ПИСЬМА ОБ ОТМЕНЕ ---
         subject = _("Booking Cancelled: #%(number)s") % {'number': reservation.reservation_number}
         
+        # Улучшенное форматирование письма об отмене
         message = _(
-            "The booking #%(number)s for %(service)s on %(date)s at %(time)s has been cancelled by the %(canceler_type)s (%(canceler_name)s).\n\n"
-            "Booking details:\n"
+            "Hello!\n\n"
+            "The booking #%(number)s for %(service)s has been cancelled by the %(canceler_type)s (%(canceler_name)s).\n\n"
+            "Cancelled Booking Details:\n"
             "• Service: %(service)s\n"
-            "• Time: %(date)s %(time)s - %(end_time)s\n"
-            "• Status: %(status)s"
+            "• Date: %(date)s\n"
+            "• Time: %(time)s - %(end_time)s\n"
+            "• Final Status: %(status)s"
         ) % {
             'number': reservation.reservation_number,
             'service': reservation.service.title,
@@ -483,16 +486,16 @@ def cancel_booking(request, booking_uuid): # Принимаем uuid как в u
             'status': reservation.get_status_display()
         }
 
+        # Отправляем задачи в очередь и ловим возможные сбои
         try:
             send_async_email(
                 subject, 
                 message, 
                 [reservation.customer.email, reservation.service.owner.email]
             )
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Cancel booking email error: {e}")
             
-    # Редирект на страницу деталей этого бронирования
     return redirect('booking_detail', booking_uuid=reservation.uuid)
 
 # Контроллер для редактирования услуги
