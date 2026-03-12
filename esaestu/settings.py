@@ -179,13 +179,19 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
+    # Читаем адрес почтового сервера из файла .env
+    EMAIL_HOST = env.str('EMAIL_HOST')
+    # Читаем порт из .env (и преобразуем текстовое значение в целое число)
+    EMAIL_PORT = env.int('EMAIL_PORT')
+    # Читаем флаг шифрования TLS из .env (по умолчанию True)
+    EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+    # Логин от почтового сервиса (Brevo)
     EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
+    # SMTP-ключ от почтового сервиса
     EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
 
-DEFAULT_FROM_EMAIL = env.str('EMAIL_HOST_USER', default='webmaster@localhost')
+# Устанавливаем ящик отправителя по умолчанию (читаем из .env, например info@esaestu.casa)
+DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL')
 
 # === ФИНАЛЬНЫЙ БЛОК БЕЗОПАСНОСТИ ===
 
