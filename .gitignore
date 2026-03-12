@@ -17,3 +17,4 @@ media/
 project_data.sql
 db.sqlite3BAK
 *.sql
+*.db
