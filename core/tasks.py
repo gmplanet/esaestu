@@ -1,39 +1,36 @@
 # core/tasks.py
-from huey.contrib.djhuey import task  # Импортируем декоратор для превращения функции в фоновую задачу
-from django.core.mail import EmailMessage  # Используем класс EmailMessage для гибкого управления заголовками письма
-from django.conf import settings  # Импортируем глобальные настройки проекта
-import logging  # Импортируем встроенную библиотеку логирования
+from huey.contrib.djhuey import task  # Декоратор для фоновых задач
+from django.core.mail import EmailMessage  # Класс для работы с почтой
+from django.conf import settings  # Доступ к настройкам проекта
+import logging  # Модуль для записи логов
 
-# Создаем объект логгера для текущего модуля
 logger = logging.getLogger(__name__)
 
-@task()  # Указываем Huey, что эта функция должна выполняться асинхронно в фоновом режиме
+@task()
 def send_async_email(subject, message, recipient_list, from_email=None, fail_silently=False, **kwargs):
-    # Проверяем, передан ли получатель как строка, и преобразуем в список, если это так
+    # Если передан один адрес строкой, делаем из него список
     if isinstance(recipient_list, str):
         recipient_list = [recipient_list]
 
-    # Определяем адрес отправителя: берем переданный в функцию или используем глобальный из настроек
-    sender = from_email or settings.DEFAULT_FROM_EMAIL
+    # Получаем чистый адрес из настроек (например, info@esaestu.casa)
+    raw_email = from_email or settings.DEFAULT_FROM_EMAIL
+    # На всякий случай счищаем случайные кавычки
+    clean_email = raw_email.replace('"', '').replace("'", "")
 
-    # Очищаем строку от лишних кавычек, которые могли буквально прочитаться из файла .env
-    if isinstance(sender, str):
-        sender = sender.replace('"', '').replace("'", "")
+    # ЖЕСТКО ПРОПИСЫВАЕМ ИМЯ ОТПРАВИТЕЛЯ ЗДЕСЬ
+    # Собираем строку вида: Esaestu <info@esaestu.casa>
+    sender = f"Esaestu <{clean_email}>"
 
     try:
-        # Инициализируем объект письма с необходимыми параметрами
+        # Создаем письмо с нашим форматированным отправителем
         email = EmailMessage(
-            subject=subject,  # Заголовок письма
-            body=message,  # Основной текстовый контент письма
-            from_email=sender,  # Адрес и имя отправителя в формате Имя <email>
-            to=recipient_list,  # Список адресов получателей
+            subject=subject,
+            body=message,
+            from_email=sender,
+            to=recipient_list,
         )
-
-        # Выполняем физическую отправку письма через SMTP-сервер
+        # Отправляем письмо
         email.send(fail_silently=fail_silently)
-
-        # Записываем в системный журнал информацию об успешной отправке
         logger.info(f"Email sent to {recipient_list}")
     except Exception as e:
-        # Если произошла ошибка, записываем её в лог для последующего анализа
         logger.error(f"Failed to send email to {recipient_list}: {str(e)}")
