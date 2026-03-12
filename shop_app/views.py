@@ -168,6 +168,7 @@ def checkout_view(request, slug):
             order.seller = seller
             order.save()
             
+            # Собираем список товаров в виде текста для добавления в письмо
             order_details_text = ""
             for item in cart_items:
                 actual_quantity = min(item.quantity, item.product.stock)
@@ -182,19 +183,57 @@ def checkout_view(request, slug):
                         price=item.product.price,
                         quantity=actual_quantity
                     )
-                    order_details_text += f" - {item.product.title}: {actual_quantity} шт.\n"
+                    # Формируем строчку с названием и количеством для каждого товара
+                    order_details_text += f" - {item.product.title}: {actual_quantity} шт. (по ${item.product.price})\n"
             
             cart_items.delete()
             
+            # --- ФОРМИРУЕМ ПИСЬМО ДЛЯ ПОКУПАТЕЛЯ ---
             buyer_subject = _("Your order #%(order_id)s from %(seller)s") % {'order_id': order.order_number, 'seller': seller.username}
-            buyer_message = _("Hello! Your order #%(order_id)s has been sent to %(seller)s.") % {'order_id': order.order_number, 'seller': seller.username}
+            # Переменные: buyer_name - имя клиента, order_id - номер заказа, seller - продавец, items - список товаров, total - сумма
+            buyer_message = _(
+                "Hello %(buyer_name)s!\n\n"
+                "Your order #%(order_id)s has been successfully placed and sent to %(seller)s.\n\n"
+                "Order Details:\n"
+                "%(items)s\n"
+                "Total Price: $%(total)s\n\n"
+                "Thank you for your purchase!"
+            ) % {
+                'buyer_name': order.customer_name,
+                'order_id': order.order_number,
+                'seller': seller.username,
+                'items': order_details_text,
+                'total': cart_total
+            }
             
-            # ИСПРАВЛЕНИЕ: Оставляем try..except, но убираем лишние аргументы, если они были
+            # --- ФОРМИРУЕМ ПИСЬМО ДЛЯ ПРОДАВЦА ---
+            seller_subject = _("New order #%(id)s from %(buyer)s") % {'id': order.order_number, 'buyer': order.customer_name}
+            # Переменные: seller_name - имя продавца, order_id - номер заказа, buyer_name/email - данные клиента, items - товары, total - сумма
+            seller_message = _(
+                "Hello %(seller_name)s!\n\n"
+                "You have received a new order #%(order_id)s.\n\n"
+                "Customer Information:\n"
+                "Name: %(buyer_name)s\n"
+                "Email: %(buyer_email)s\n\n"
+                "Order Details:\n"
+                "%(items)s\n"
+                "Total Amount: $%(total)s\n\n"
+                "Please check your personal cabinet to process this order."
+            ) % {
+                'seller_name': seller.username,
+                'order_id': order.order_number,
+                'buyer_name': order.customer_name,
+                'buyer_email': order.customer_email,
+                'items': order_details_text,
+                'total': cart_total
+            }
+            
+            # Отправляем письма
             try:
                 send_async_email(buyer_subject, buyer_message, [order.customer_email])
-                send_async_email(_("New order #%(id)s") % {'id': order.order_number}, "New order details...", [seller.email])
+                send_async_email(seller_subject, seller_message, [seller.email])
             except Exception as e:
-                print(f"Checkout email error: {e}") # Выводим ошибку в консоль сервера для отладки
+                print(f"Checkout email error: {e}") 
                 
             return redirect('public_shop', slug=slug)
     else:
@@ -304,9 +343,21 @@ def shop_update_order_status(request, order_uuid):
         order.status = new_status
         order.save()
         
-        # ИСПРАВЛЕНИЕ: удалены лишние аргументы, добавлен вывод ошибки в лог
+        # --- ФОРМИРУЕМ ПИСЬМО О СМЕНЕ СТАТУСА ---
+        subject = _("Order #%(id)s Status Update") % {'id': order.order_number}
+        # Используем get_status_display() для получения человекочитаемого статуса вместо технического кода
+        message = _(
+            "Hello %(buyer_name)s!\n\n"
+            "The status of your order #%(order_id)s has been updated to: %(status)s.\n\n"
+            "Thank you!"
+        ) % {
+            'buyer_name': order.customer_name,
+            'order_id': order.order_number,
+            'status': order.get_status_display()
+        }
+        
         try:
-            send_async_email(_("Order Update"), f"Status: {new_status}", [order.buyer.email])
+            send_async_email(subject, message, [order.buyer.email])
         except Exception as e:
             print(f"Update status email error: {e}")
             
@@ -329,14 +380,16 @@ def shop_cancel_order(request, order_uuid):
         for item in order.items.all():
             items_list += f"• {item.product_name} x {item.quantity}\n"
             
+        # --- ФОРМИРУЕМ ПИСЬМО ОБ ОТМЕНЕ ЗАКАЗА ---
         subject = _("Order Cancelled: #%(number)s") % {'number': order.order_number}
         canceler_text = _("buyer") if is_buyer else _("seller")
         
         message = _(
+            "Hello!\n\n"
             "Order #%(number)s from %(date)s has been cancelled by the %(canceler)s.\n\n"
             "Order details:\n"
             "%(items)s\n"
-            "Status: %(status)s"
+            "Final Status: %(status)s"
         ) % {
             'number': order.order_number,
             'date': order.created_at.strftime('%Y-%m-%d'),
@@ -345,7 +398,6 @@ def shop_cancel_order(request, order_uuid):
             'status': order.get_status_display()
         }
 
-        # ИСПРАВЛЕНИЕ: Удалены settings.DEFAULT_FROM_EMAIL и fail_silently=True
         try:
             send_async_email(
                 subject, 
@@ -371,9 +423,21 @@ def shop_add_comment(request, order_uuid):
         OrderComment.objects.create(order=order, author=request.user, text=safe_comment)
         recipient = order.seller.email if request.user == order.buyer else order.buyer.email
         
-        # ИСПРАВЛЕНИЕ: Удалены settings.DEFAULT_FROM_EMAIL и fail_silently=True
+        # --- ФОРМИРУЕМ ПИСЬМО О НОВОМ КОММЕНТАРИИ ---
+        subject = _("New comment on order #%(id)s") % {'id': order.order_number}
+        message = _(
+            "Hello!\n\n"
+            "A new comment has been added to order #%(order_id)s by %(author)s:\n\n"
+            "\"%(comment)s\"\n\n"
+            "Please check your personal cabinet to view and reply."
+        ) % {
+            'order_id': order.order_number,
+            'author': request.user.username,
+            'comment': safe_comment
+        }
+        
         try:
-            send_async_email(_("New Message"), safe_comment, [recipient])
+            send_async_email(subject, message, [recipient])
         except Exception as e:
             print(f"Add comment email error: {e}")
             
