@@ -1,8 +1,8 @@
 # core/tasks.py
 from huey.contrib.djhuey import task  # Декоратор для фоновых задач
 from django.core.mail import EmailMessage  # Класс для работы с почтой
-from django.conf import settings  # Доступ к настройкам проекта
 import logging  # Модуль для записи логов
+from email.utils import formataddr  # Официальная библиотека Python для сборки email-заголовков
 
 logger = logging.getLogger(__name__)
 
@@ -12,17 +12,12 @@ def send_async_email(subject, message, recipient_list, from_email=None, fail_sil
     if isinstance(recipient_list, str):
         recipient_list = [recipient_list]
 
-    # Получаем чистый адрес из настроек (например, info@esaestu.casa)
-    raw_email = from_email or settings.DEFAULT_FROM_EMAIL
-    # На всякий случай счищаем случайные кавычки
-    clean_email = raw_email.replace('"', '').replace("'", "")
-
-    # ЖЕСТКО ПРОПИСЫВАЕМ ИМЯ ОТПРАВИТЕЛЯ ЗДЕСЬ
-    # Собираем строку вида: Esaestu <info@esaestu.casa>
-    sender = f"Esaestu <{clean_email}>"
+    # Идеально правильное формирование заголовка по стандарту RFC 5322
+    # Функция formataddr сама подставит нужные скобки и безопасно обработает текст
+    sender = formataddr(('Esaestu', 'info@esaestu.casa'))
 
     try:
-        # Создаем письмо с нашим форматированным отправителем
+        # Создаем письмо с нашим гарантированно правильным отправителем
         email = EmailMessage(
             subject=subject,
             body=message,
