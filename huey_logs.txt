@@ -1,0 +1,10 @@
+nohup: ignoring input
+[2026-03-12 15:51:28,153] INFO:huey.consumer:MainThread:Huey consumer started with 4 thread, PID 2204296 at 2026-03-12 15:51:28.153351
+[2026-03-12 15:51:28,153] INFO:huey.consumer:MainThread:Scheduler runs every 1 second(s).
+[2026-03-12 15:51:28,153] INFO:huey.consumer:MainThread:Periodic tasks are enabled.
+[2026-03-12 15:51:28,153] INFO:huey.consumer:MainThread:The following commands are available:
++ core.tasks.send_async_email
+[2026-03-12 15:51:37,005] INFO:huey:Worker-4:Executing core.tasks.send_async_email: 9cf54bd1-2a44-4eec-bce1-37de0a66c56a
+[2026-03-12 15:51:37,012] INFO:huey:Worker-1:Executing core.tasks.send_async_email: faaf9cf5-0cc8-44d9-b29b-84f0ecfb310a
+[2026-03-12 15:51:37,654] INFO:huey:Worker-1:core.tasks.send_async_email: faaf9cf5-0cc8-44d9-b29b-84f0ecfb310a executed in 0.641s
+[2026-03-12 15:51:37,668] INFO:huey:Worker-4:core.tasks.send_async_email: 9cf54bd1-2a44-4eec-bce1-37de0a66c56a executed in 0.663s
