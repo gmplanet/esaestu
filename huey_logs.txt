@@ -8,3 +8,28 @@ nohup: ignoring input
 [2026-03-12 15:51:37,012] INFO:huey:Worker-1:Executing core.tasks.send_async_email: faaf9cf5-0cc8-44d9-b29b-84f0ecfb310a
 [2026-03-12 15:51:37,654] INFO:huey:Worker-1:core.tasks.send_async_email: faaf9cf5-0cc8-44d9-b29b-84f0ecfb310a executed in 0.641s
 [2026-03-12 15:51:37,668] INFO:huey:Worker-4:core.tasks.send_async_email: 9cf54bd1-2a44-4eec-bce1-37de0a66c56a executed in 0.663s
+[2026-03-12 15:58:02,950] INFO:huey:Worker-4:Executing core.tasks.send_async_email: 24522726-2d64-44a5-af60-ddf6b69f7596
+[2026-03-12 15:58:02,951] INFO:huey:Worker-1:Executing core.tasks.send_async_email: ec10e775-37be-44af-b4d4-b06fd5683e89
+[2026-03-12 15:58:03,592] INFO:huey:Worker-4:core.tasks.send_async_email: 24522726-2d64-44a5-af60-ddf6b69f7596 executed in 0.642s
+[2026-03-12 15:58:03,637] INFO:huey:Worker-1:core.tasks.send_async_email: ec10e775-37be-44af-b4d4-b06fd5683e89 executed in 0.687s
+[2026-03-12 15:58:26,886] INFO:huey:Worker-3:Executing core.tasks.send_async_email: c7151374-b321-401d-aca8-020472004c17
+[2026-03-12 15:58:26,886] INFO:huey:Worker-2:Executing core.tasks.send_async_email: a31acf30-c913-462b-a523-0e1e1b39ffa1
+[2026-03-12 15:58:27,544] INFO:huey:Worker-3:core.tasks.send_async_email: c7151374-b321-401d-aca8-020472004c17 executed in 0.658s
+[2026-03-12 15:58:27,577] INFO:huey:Worker-2:core.tasks.send_async_email: a31acf30-c913-462b-a523-0e1e1b39ffa1 executed in 0.691s
+[2026-03-12 16:18:10,459] INFO:huey:Worker-3:Executing core.tasks.send_async_email: 6a12d5eb-e96f-425f-b068-6b347bb8fb99
+[2026-03-12 16:18:10,463] INFO:huey:Worker-2:Executing core.tasks.send_async_email: de531ed6-9f4f-4d45-97ea-64686eedfc3a
+[2026-03-12 16:18:11,107] INFO:huey:Worker-2:core.tasks.send_async_email: de531ed6-9f4f-4d45-97ea-64686eedfc3a executed in 0.643s
+[2026-03-12 16:18:11,111] INFO:huey:Worker-3:core.tasks.send_async_email: 6a12d5eb-e96f-425f-b068-6b347bb8fb99 executed in 0.651s
+[2026-03-12 16:27:38,378] INFO:huey.consumer:MainThread:Received SIGHUP, will restart
+[2026-03-12 16:27:38,448] INFO:huey.consumer:MainThread:Shutting down gracefully...
+[2026-03-12 16:27:39,353] INFO:huey.consumer:MainThread:All workers have stopped.
+[2026-03-12 16:27:39,353] INFO:huey.consumer:MainThread:Consumer will restart.
+[2026-03-12 16:27:40,201] INFO:huey.consumer:MainThread:Huey consumer started with 4 thread, PID 2204296 at 2026-03-12 16:27:40.201397
+[2026-03-12 16:27:40,201] INFO:huey.consumer:MainThread:Scheduler runs every 1 second(s).
+[2026-03-12 16:27:40,201] INFO:huey.consumer:MainThread:Periodic tasks are enabled.
+[2026-03-12 16:27:40,201] INFO:huey.consumer:MainThread:The following commands are available:
++ core.tasks.send_async_email
+[2026-03-12 16:28:23,962] INFO:huey:Worker-3:Executing core.tasks.send_async_email: f781c5d2-e990-45f4-a947-f7aa227933aa
+[2026-03-12 16:28:23,968] INFO:huey:Worker-1:Executing core.tasks.send_async_email: a1ee53f7-700a-4768-8b05-818db9e1bc7b
+[2026-03-12 16:28:24,651] INFO:huey:Worker-1:core.tasks.send_async_email: a1ee53f7-700a-4768-8b05-818db9e1bc7b executed in 0.682s
+[2026-03-12 16:28:24,742] INFO:huey:Worker-3:core.tasks.send_async_email: f781c5d2-e990-45f4-a947-f7aa227933aa executed in 0.779s
