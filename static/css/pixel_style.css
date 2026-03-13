@@ -339,3 +339,57 @@ button {
     color: white;
     box-shadow: inset 3px 3px 0px rgba(0,0,0,0.3);
 }
+
+
+/* Адаптация для мобильных экранов (ширина менее 768px) */
+@media screen and (max-width: 768px) {
+    /* Растягиваем карточку на всю ширину с небольшими отступами */
+    .pixel-card {
+        padding: 15px !important;
+        margin: 10px !important;
+        width: auto !important;
+    }
+
+    /* Делаем все выпадающие списки и поля ввода на всю ширину */
+    .pixel-input, 
+    select, 
+    input[type="text"], 
+    input[type="number"], 
+    input[type="time"] {
+        width: 100% !important;
+        box-sizing: border-box !important; /* Чтобы padding не увеличивал ширину */
+        font-size: 16px !important; /* Предотвращает автоматическое увеличение в iOS */
+        height: 45px; /* Удобный размер для нажатия пальцем */
+        margin-bottom: 15px;
+    }
+
+    /* Стилизуем блок с кнопкой назад */
+    .pixel-back-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 12px 0;
+    }
+
+    /* Исправляем заголовки этапов (1. SELECT SERVICE и т.д.) */
+    h1, h2 {
+        font-size: 1.5rem !important;
+        word-wrap: break-word;
+    }
+
+    /* Выравниваем блок резюме и итоговую цену */
+    .resumen-block {
+        text-align: left;
+        padding: 10px;
+        border-top: 2px solid var(--pixel-black);
+        margin-top: 20px;
+    }
+    
+    /* Убеждаемся, что изображения (заглушки) не ломают верстку */
+    .service-image-placeholder, 
+    .provider-avatar-placeholder {
+        max-width: 100%;
+        height: auto;
+        margin: 10px 0;
+    }
+}

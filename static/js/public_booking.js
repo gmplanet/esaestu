@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (currentServicePrice > 0) {
                     summaryPriceContainer.innerHTML = `<span id="summary-currency">${sellerCurrency}</span> <span id="summary-price">${(selectedSlots.length * currentServicePrice).toFixed(2)}</span>`;
                 } else {
-                    summaryPriceContainer.innerText = "Price not specified, payment upon service completion";
+                    summaryPriceContainer.innerText = "Price not specified";
                 }
             }
         } else if (currentBookingType === 'exact_time') {
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (currentServicePrice > 0) {
                     summaryPriceContainer.innerHTML = `<span id="summary-currency">${sellerCurrency}</span> <span id="summary-price">${(blocksCount * currentServicePrice).toFixed(2)}</span>`;
                 } else {
-                    summaryPriceContainer.innerText = "Price not specified, payment upon service completion";
+                    summaryPriceContainer.innerText = "Price not specified";
                 }
             }
         }
