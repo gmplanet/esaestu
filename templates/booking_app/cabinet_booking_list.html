@@ -30,7 +30,7 @@
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <h3 style="margin: 0 0 10px 0; font-size: 1.4rem; text-transform: uppercase;">{{ service.title }}</h3>
-                    <p style="margin: 0 0 5px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">Price: ${{ service.price }}</p>
+                    <p style="margin: 0 0 5px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">Price: {{ request.user.currency }} {{ service.price }}</p>
                     <p style="margin: 0 0 10px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">Status: 
                         {% if service.is_active %}<span style="color: green;">Active</span>{% else %}<span style="color: red;">Inactive</span>{% endif %}
                     </p>

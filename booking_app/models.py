@@ -29,6 +29,12 @@ class Provider(models.Model):
 
 
 class BookingService(models.Model):
+    # Обновляем описание для точного времени
+    BOOKING_TYPE_CHOICES = [
+        ('slots', _('15-minute Slots')),
+        ('exact_time', _('Exact Time (Start and End)')),
+    ]
+
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
@@ -37,7 +43,13 @@ class BookingService(models.Model):
     )
     title = models.CharField(_("Title"), max_length=200)
     description = models.TextField(_("Description"), blank=True)
-    price = models.DecimalField(_("Price"), max_digits=10, decimal_places=2)
+    price = models.DecimalField(_("Price"), max_digits=10, decimal_places=2, null=True, blank=True)
+    booking_type = models.CharField(
+        _("Booking Type"),
+        max_length=20,
+        choices=BOOKING_TYPE_CHOICES,
+        default='slots'
+    )
     is_active = models.BooleanField(_("Active"), default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(
@@ -48,12 +60,19 @@ class BookingService(models.Model):
         validators=[validate_is_image]
     )
 
+    # НОВОЕ ПОЛЕ: Связь с исполнителями
+    providers = models.ManyToManyField(
+        Provider,
+        blank=True,
+        related_name='services',
+        verbose_name=_("Providers")
+    )
+
     def __str__(self):
         return f"{self.title} ({self.owner.username})"
 
 
 class Reservation(models.Model):
-    # Технические поля для безопасности и красоты
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     reservation_number = models.CharField(max_length=14, unique=True, editable=False, null=True)
 
@@ -86,7 +105,10 @@ class Reservation(models.Model):
     )
     
     start_time = models.DateTimeField(_("Start Time"))
-    end_time = models.DateTimeField(_("End Time"))
+    
+    # Делаем время окончания необязательным, так как для брони 'на конкретное время' его может не быть
+    end_time = models.DateTimeField(_("End Time"), null=True, blank=True)
+    
     customer_comment = models.TextField(_("Customer Comment"), blank=True, max_length=500)
     status = models.CharField(_("Status"), max_length=30, choices=STATUS_CHOICES, default='active')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -102,7 +124,6 @@ class Reservation(models.Model):
     def save(self, *args, **kwargs):
         if not self.reservation_number:
             new_number = self.generate_reservation_number()
-            # Используем self.__class__ для избежания проблем с регистрацией модели
             while self.__class__.objects.filter(reservation_number=new_number).exists():
                 new_number = self.generate_reservation_number()
             self.reservation_number = new_number

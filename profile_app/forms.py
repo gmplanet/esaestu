@@ -3,15 +3,19 @@ from allauth.account.forms import SignupForm
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
 from django import forms
-# Импортируем функцию для получения активной модели пользователя
 from django.contrib.auth import get_user_model
 
-# Инициализируем модель пользователя
 User = get_user_model()
 
-# Твоя существующая форма регистрации (остается без изменений)
 class CustomSignupForm(SignupForm):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox(), label='Captcha')
+    
+    # Добавляем поле выбора валюты при регистрации
+    currency = forms.ChoiceField(
+        choices=User.CURRENCY_CHOICES,
+        initial='EUR',
+        widget=forms.Select(attrs={'class': 'pixel-input'})
+    )
 
     def __init__(self, *args, **kwargs):
         super(CustomSignupForm, self).__init__(*args, **kwargs)
@@ -19,12 +23,24 @@ class CustomSignupForm(SignupForm):
         self.fields['username'].placeholder = 'YourNickname'
 
     def save(self, request):
+        # Вызываем стандартное сохранение пользователя
         user = super(CustomSignupForm, self).save(request)
+        
+        # Извлекаем выбранную валюту из очищенных данных формы
+        # и записываем ее в профиль нового пользователя
+        user.currency = self.cleaned_data.get('currency')
+        user.save()
+        
         return user
 
-# Наша новая форма для настроек профиля (аватар и чекбокс)
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        # Разрешаем пользователю менять только эти два поля
-        fields = ['avatar', 'show_in_catalog']
+        fields = ['avatar', 'show_in_catalog', 'currency']
+        
+        # Используем только CSS-классы
+        widgets = {
+            'currency': forms.Select(attrs={'class': 'pixel-input'}),
+            'show_in_catalog': forms.CheckboxInput(attrs={'class': 'pixel-checkbox'}),
+            'avatar': forms.ClearableFileInput(attrs={'class': 'pixel-file-input'}),
+        }

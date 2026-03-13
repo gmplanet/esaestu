@@ -1,17 +1,71 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block content %}
 <div class="content-center">
     <h1>{% trans "Edit Service" %}</h1>
-    <div class="pixel-card">
-        <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 15px;">
+
+    <div class="mb-20">
+        <a href="{% url 'cabinet_booking_list' %}" class="btn-main pixel-back-btn">
+            {% trans "Back to List" %}
+        </a>
+    </div>
+
+    <div class="pixel-card pixel-border-blue text-left">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button type="submit" class="btn-main" style="width: auto; padding: 5px 20px;">{% trans "Save Changes" %}</button>
-                <a href="{% url 'cabinet_booking_list' %}" class="btn-main" style="width: auto; padding: 5px 20px; background: var(--pixel-grey); color: black; text-align: center; text-decoration: none;">{% trans "Cancel" %}</a>
+            
+            <div class="mb-15">
+                <label class="bold-label">{{ form.title.label }}</label>
+                {{ form.title }}
+                {{ form.title.errors }}
             </div>
+
+            <div class="mb-15">
+                <label class="bold-label">{{ form.description.label }}</label>
+                {{ form.description }}
+                {{ form.description.errors }}
+            </div>
+
+            <div class="mb-15">
+                <label class="bold-label">{{ form.price.label }}</label>
+                {{ form.price }}
+                {{ form.price.errors }}
+            </div>
+
+            <div class="mb-15">
+                <label class="bold-label">{{ form.booking_type.label }}</label>
+                {{ form.booking_type }}
+                {{ form.booking_type.errors }}
+            </div>
+
+            <div class="mb-15">
+                <label class="bold-label">{{ form.providers.label }}</label>
+                {% if form.providers.help_text %}
+                    <p class="pixel-help-text">{{ form.providers.help_text }}</p>
+                {% endif %}
+                
+                {{ form.providers }}
+                {{ form.providers.errors }}
+            </div>
+
+            <div class="mb-15">
+                <label class="bold-label checkbox-label-flex">
+                    {{ form.is_active }}
+                    {{ form.is_active.label }}
+                </label>
+                {{ form.is_active.errors }}
+            </div>
+
+            <div class="mb-20">
+                <label class="bold-label">{{ form.image.label }}</label>
+                {{ form.image }}
+                {{ form.image.errors }}
+            </div>
+
+            <button type="submit" class="btn-main pixel-blue-bg w-100">
+                {% trans "SAVE CHANGES" %}
+            </button>
         </form>
     </div>
 </div>

@@ -6,8 +6,20 @@ import os
 # Импортируем функцию slugify для преобразования обычного текста в URL-безопасный формат
 from django.utils.text import slugify
 from core.validators import validate_is_image  # Импортируем нашу кастомную функцию валидации
+from django.utils.translation import gettext_lazy as _
+
+
 
 class CustomUser(AbstractUser):
+    # Задаем список доступных валют для выбора.
+    # Если понадобится добавить новую, просто допиши строку в этот массив.
+    CURRENCY_CHOICES = [
+        ('EUR', 'Euro (€)'),
+        ('USD', 'US Dollar ($)'),        
+        ('ARS', 'Argentine Peso (ARS$)'),
+    ]
+
+    
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
     slug = models.SlugField(max_length=255, unique=True, verbose_name="Slug")
@@ -15,13 +27,33 @@ class CustomUser(AbstractUser):
     sku_limit = models.PositiveIntegerField(default=10, verbose_name="SKU Limit")
     show_in_catalog = models.BooleanField(default=False, verbose_name="Show in Catalog")
     
+    # Добавляем новое поле для хранения валюты пользователя.
+    # По умолчанию устанавливаем 'EUR'.
+    currency = models.CharField(
+        max_length=3, 
+        choices=CURRENCY_CHOICES, 
+        default='EUR', 
+        verbose_name="Currency"
+    )
+    
     avatar = models.ImageField(
-    upload_to='avatars/', 
-    blank=True, 
-    null=True, 
-    verbose_name="Avatar",
-    validators=[validate_is_image] # <--- Добавь это
-)
+        upload_to='avatars/', 
+        blank=True, 
+        null=True, 
+        verbose_name="Avatar",
+        validators=[validate_is_image]
+    )
+    
+    max_services = models.IntegerField(
+        _("Maximum Services"), 
+        default=3,
+        help_text=_("Maximum number of services this user can create.")
+    )
+    max_providers = models.IntegerField(
+        _("Maximum Providers"), 
+        default=3,
+        help_text=_("Maximum number of providers this user can create.")
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -43,7 +75,6 @@ class CustomUser(AbstractUser):
         # Проверяет, состоит ли пользователь в группе Booking, которую назначает администратор
         return self.groups.filter(name='Booking').exists()
     
-    
     def save(self, *args, **kwargs):
         # Шаг 0: Автоматическая генерация слага, если он пустой (срабатывает для новых пользователей)
         if not self.slug:
@@ -59,7 +90,7 @@ class CustomUser(AbstractUser):
                 self.slug = f"{base_slug}-{counter}"
                 counter += 1
 
-        # Шаг 1: Проверка и физическое удаление старого аватара (твой существующий код)
+        # Шаг 1: Проверка и физическое удаление старого аватара 
         if self.pk:
             try:
                 old_user = CustomUser.objects.get(pk=self.pk)
@@ -72,7 +103,7 @@ class CustomUser(AbstractUser):
         # Шаг 2: Стандартное сохранение в базу данных
         super().save(*args, **kwargs)
 
-        # Шаг 3: Обрезка и оптимизация нового аватара (твой существующий код)
+        # Шаг 3: Обрезка и оптимизация нового аватара 
         if self.avatar:
             img = Image.open(self.avatar.path)
             if img.width != 100 or img.height != 100:

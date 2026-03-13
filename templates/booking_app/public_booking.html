@@ -1,98 +1,103 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block content %}
-<style>
-    /* Стили для кнопок времени должны быть внутри блока, чтобы Django их отрендерил */
-    .slot-btn {
-        font-family: 'VT323', monospace;
-        font-size: 1.2rem;
-        background: var(--pixel-white);
-        border: 2px solid var(--pixel-black);
-        padding: 8px 15px;
-        cursor: pointer;
-        transition: all 0.1s;
-    }
-    .slot-btn:hover {
-        background: var(--pixel-yellow);
-    }
-    .slot-btn.selected {
-        background: var(--pixel-blue);
-        color: white;
-        box-shadow: inset 3px 3px 0px rgba(0,0,0,0.3);
-    }
-
-    .slot-btn.booked {
-        background: #e0e0e0;
-        color: #999;
-        cursor: not-allowed;
-        border-color: #ccc;
-        text-decoration: line-through;
-    }
-    .slot-btn.booked:hover {
-        background: #e0e0e0; /* Убираем желтый ховер для занятых */
-    }
-
-</style>
-
 <div class="content-center">
-    <h1>{% trans "Book a Time with" %} {{ seller.username }}</h1> public booking
+    <h1>{% trans "Book a Time with" %} {{ seller.username }}</h1>
 
-    <div style="margin-bottom: 20px;">
-        <a href="{% url 'public_profile' slug=seller.slug %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
+    <div class="mb-20">
+        <a href="{% url 'public_profile' slug=seller.slug %}" class="btn-main pixel-back-btn">
             {% trans "Back to Profile" %}
         </a>
     </div>
 
     {% if services %}
-        <div class="pixel-card" style="border-color: var(--pixel-blue);">
+        <div id="booking-data" 
+             data-slots-url="{% url 'api_get_available_slots' %}" 
+             data-confirm-url="{% url 'api_confirm_booking' %}" 
+             data-csrf="{{ csrf_token }}"
+             style="display: none;">
+        </div>
+
+        <div class="pixel-card pixel-border-blue">
             
-            <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
-                <div style="flex-grow: 1;">
+            <div class="booking-flex-row">
+                <div class="flex-grow">
                     <h2>1. {% trans "Select Service" %}</h2>
-                    <select id="service-select" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black);">
-                        <option value="" data-image="">-- {% trans "Choose a service" %} --</option>
-                        {% for service in services %}
-                            <option value="{{ service.id }}" data-price="{{ service.price }}" data-image="{% if service.image %}{{ service.image.url }}{% endif %}">{{ service.title }} - ${{ service.price }}</option>
-                        {% endfor %}
-                    </select>
+                        <select id="service-select" class="pixel-input">
+                            <option value="" data-image="" data-price="0" data-providers="">-- {% trans "Choose a service" %} --</option>
+                            {% for service in services %}
+                                <option value="{{ service.id }}" 
+                                        data-price="{{ service.price|default_if_none:0 }}" 
+                                        data-image="{% if service.image %}{{ service.image.url }}{% endif %}"
+                                        data-providers="{% for p in service.providers.all %}{{ p.id }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                                    {{ service.title }} - {% if service.price %}{{ seller.currency }} {{ service.price }}{% else %}{% trans "Price not specified; payment upon service completion" %}{% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
                 </div>
-                <div id="service-image-container" style="width: 100px; height: 100px; flex-shrink: 0; border: 2px solid var(--pixel-black); background: #e0e0e0; display: none; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; margin-top: 40px;">
-                    <img id="service-image" src="" alt="Service Image" style="width: 100%; height: 100%; object-fit: cover;">
+                <div id="service-image-container" class="pixel-img-box hidden">
+                    <img id="service-image" src="" alt="Service Image" class="cover-img">
                 </div>
             </div>
 
-            <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
-                <div style="flex-grow: 1;">
+            <div class="booking-flex-row">
+                <div class="flex-grow">
                     <h2>2. {% trans "Select Provider (Optional)" %}</h2>
-                    <select id="provider-select" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black);">
+                    <select id="provider-select" class="pixel-input">
                         <option value="" data-image="">-- {% trans "Anyone available" %} --</option>
                         {% for provider in providers %}
                             <option value="{{ provider.id }}" data-image="{% if provider.avatar %}{{ provider.avatar.url }}{% endif %}">{{ provider.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div id="provider-image-container" style="width: 100px; height: 100px; flex-shrink: 0; border: 2px solid var(--pixel-black); background: #e0e0e0; display: none; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; margin-top: 40px;">
-                    <img id="provider-image" src="" alt="Provider Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                <div id="provider-image-container" class="pixel-img-box round hidden">
+                    <img id="provider-image" src="" alt="Provider Avatar" class="cover-img">
                 </div>
             </div>
             
             <h2>3. {% trans "Select Date" %}</h2>
-            <input type="date" id="booking-date" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); margin-bottom: 20px;">
+            <input type="date" id="booking-date" class="pixel-input mb-20">
 
-            <div id="slots-container" style="margin-top: 20px; display: none;">
-                <h3>{% trans "Available Time Slots" %}</h3>
-                <div id="time-slots" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;"></div>
+            <div id="slots-container" class="hidden mt-20">
                 
-                <div id="booking-summary" style="display: none; padding: 15px; border: 2px dashed var(--pixel-blue); background: #f9f9f9;">
-                    <h4 style="margin-top: 0;">{% trans "Summary" %}</h4>
-                    <p>{% trans "Selected Slots" %}: <span id="summary-count" style="color: var(--pixel-red); font-weight: bold;">0</span></p>
-                    <p>{% trans "Total Price" %}: $<span id="summary-price" style="color: var(--pixel-red); font-weight: bold;">0.00</span></p>
+                <div id="slots-mode-container" class="hidden">
+                    <h3>{% trans "Available Time Slots" %}</h3>
+                    <div id="time-slots" class="slots-wrapper mb-20"></div>
+                </div>
+
+                <div id="exact-time-mode-container" class="hidden mb-20">
+                    <h3>{% trans "Available Free Blocks" %}</h3>
+                    <ul id="free-blocks-list" class="pixel-list mb-20"></ul>
                     
-                    <label style="display: block; margin-bottom: 5px;">{% trans "Add a comment (optional)" %}:</label>
-                    <textarea id="customer-comment" rows="3" maxlength="250" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; border: 2px solid var(--pixel-black); margin-bottom: 15px;"></textarea>
+                    <div class="booking-flex-row">
+                        <div>
+                            <label class="bold-label">{% trans "Start Time" %}:</label>
+                            <select id="exact-time-start" class="pixel-input width-auto">
+                                <option value="">-- : --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="bold-label">{% trans "End Time" %}:</label>
+                            <select id="exact-time-end" class="pixel-input width-auto" disabled>
+                                <option value="">-- : --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="booking-summary" class="hidden summary-box">
+                    <h4 class="mt-0">{% trans "Summary" %}</h4>
                     
-                    <button id="confirm-booking-btn" class="btn-main" style="width: 100%; background: var(--pixel-blue); color: white;">
+                    <p id="summary-slots-row" class="hidden">{% trans "Selected Slots" %}: <span id="summary-count" class="pixel-red-text">0</span></p>
+                    <p id="summary-exact-row" class="hidden">{% trans "Selected Time" %}: <span id="summary-exact-time" class="pixel-red-text">-</span></p>
+                    
+                    <p id="price-display-row">{% trans "Total Price" %}: <span id="summary-price-container" class="pixel-red-text"><span id="summary-currency">{{ seller.currency }}</span> <span id="summary-price">0.00</span></span></p>
+                    
+                    <label class="block-label">{% trans "Add a comment (optional)" %}:</label>
+                    <textarea id="customer-comment" rows="3" maxlength="250" class="pixel-input mb-15"></textarea>
+                    
+                    <button id="confirm-booking-btn" class="btn-main pixel-blue-bg w-100">
                         {% trans "CONFIRM BOOKING" %}
                     </button>
                 </div>
@@ -105,198 +110,5 @@
     {% endif %}
 </div>
 
-<script>
-    // Скрипт перенесен внутрь блока content
-    const serviceSelect = document.getElementById('service-select');
-    const providerSelect = document.getElementById('provider-select');
-    const dateInput = document.getElementById('booking-date');
-    const slotsContainer = document.getElementById('slots-container');
-    const timeSlotsDiv = document.getElementById('time-slots');
-    
-    const summaryBlock = document.getElementById('booking-summary');
-    const summaryCount = document.getElementById('summary-count');
-    const summaryPrice = document.getElementById('summary-price');
-
-    let selectedSlots = [];
-    let currentServicePrice = 0;
-
-    // Генерируем правильный URL с учетом текущего языка с помощью Django тега
-    const apiSlotsUrl = "{% url 'api_get_available_slots' %}";
-
-    // Слушаем изменения во всех трех полях
-    [serviceSelect, providerSelect, dateInput].forEach(el => {
-        el.addEventListener('change', fetchSlots);
-    });
-
-
-    // === НОВЫЙ КОД ДЛЯ ОТОБРАЖЕНИЯ КАРТИНОК ===
-    function updateImagePreview(selectElement, containerId, imageId) {
-        // Получаем выбранную опцию (<option>)
-        const selectedOption = selectElement.options[selectElement.selectedIndex];
-        // Достаем из неё ссылку на картинку
-        const imageUrl = selectedOption.getAttribute('data-image');
-        
-        const container = document.getElementById(containerId);
-        const image = document.getElementById(imageId);
-
-        // Если картинка есть, показываем блок, иначе скрываем
-        if (imageUrl && imageUrl.trim() !== '') {
-            image.src = imageUrl;
-            container.style.display = 'flex'; // Показываем как flex-элемент
-        } else {
-            container.style.display = 'none'; // Прячем пустой квадрат
-        }
-    }
-
-    // Добавляем слушателей событий специально для смены картинок
-    serviceSelect.addEventListener('change', () => updateImagePreview(serviceSelect, 'service-image-container', 'service-image'));
-    providerSelect.addEventListener('change', () => updateImagePreview(providerSelect, 'provider-image-container', 'provider-image'));
-    // ==========================================
-
-    // Функция запроса слотов с сервера
-    async function fetchSlots() {
-        const serviceId = serviceSelect.value;
-        const providerId = providerSelect.value;
-        const dateVal = dateInput.value;
-
-        // Очищаем старые выбранные слоты при любом изменении условий
-        selectedSlots = [];
-        updateSummary();
-
-        // Запрашиваем слоты только если выбрана услуга и дата
-        if (!serviceId || !dateVal) {
-            slotsContainer.style.display = 'none';
-            return;
-        }
-
-        // Запоминаем цену выбранной услуги
-        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-        currentServicePrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
-
-        try {
-            timeSlotsDiv.innerHTML = '<p>{% trans "Loading..." %}</p>';
-            slotsContainer.style.display = 'block';
-
-            // Делаем запрос к нашему API используя динамический URL
-            const response = await fetch(`${apiSlotsUrl}?service_id=${serviceId}&provider_id=${providerId}&date=${dateVal}`);
-            const data = await response.json();
-
-            if (data.error) {
-                timeSlotsDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
-                return;
-            }
-
-            timeSlotsDiv.innerHTML = '';
-            
-            if (data.slots.length === 0) {
-                timeSlotsDiv.innerHTML = '<p>{% trans "No available slots on this date." %}</p>';
-                return;
-            }
-
-            // Отрисовываем кнопки со временем
-            data.slots.forEach(slot => {
-                const btn = document.createElement('button');
-                btn.className = 'slot-btn';
-                btn.innerText = slot.time;
-                btn.dataset.datetime = slot.datetime;
-                
-                if (slot.is_booked) {
-                    // Если слот занят, добавляем класс и блокируем кнопку
-                    btn.classList.add('booked');
-                    btn.disabled = true;
-                } else {
-                    // Если свободен, разрешаем клик
-                    btn.addEventListener('click', () => toggleSlot(btn, slot.datetime));
-                }
-                
-                timeSlotsDiv.appendChild(btn);
-            });
-
-        } catch (error) {
-            timeSlotsDiv.innerHTML = '<p style="color: red;">Error loading slots.</p>';
-            console.error(error);
-        }
-    }
-
-    // Логика выделения слотов мышкой
-    function toggleSlot(btn, datetime) {
-        const index = selectedSlots.indexOf(datetime);
-        if (index > -1) {
-            // Если слот уже был выбран, удаляем его из массива и убираем класс
-            selectedSlots.splice(index, 1);
-            btn.classList.remove('selected');
-        } else {
-            // Иначе добавляем слот в массив и добавляем класс для подсветки
-            selectedSlots.push(datetime);
-            btn.classList.add('selected');
-        }
-        
-        // Сортируем слоты по времени на всякий случай
-        selectedSlots.sort();
-        updateSummary();
-    }
-
-    // Функция обновления итоговой суммы и счетчика слотов
-    function updateSummary() {
-        if (selectedSlots.length > 0) {
-            summaryBlock.style.display = 'block';
-            summaryCount.innerText = selectedSlots.length;
-            summaryPrice.innerText = (selectedSlots.length * currentServicePrice).toFixed(2);
-        } else {
-            summaryBlock.style.display = 'none';
-        }
-    }
-
-
-    // Сохраняем URL для подтверждения
-    const apiConfirmUrl = "{% url 'api_confirm_booking' %}";
-    const confirmBtn = document.getElementById('confirm-booking-btn');
-
-    // Обработчик нажатия на кнопку подтверждения
-    confirmBtn.addEventListener('click', async () => {
-        if (selectedSlots.length === 0) return;
-
-        // Блокируем кнопку, чтобы не было двойных кликов
-        confirmBtn.disabled = true;
-        confirmBtn.innerText = '{% trans "PROCESSING..." %}';
-
-        const serviceId = serviceSelect.value;
-        const providerId = providerSelect.value;
-        const comment = document.getElementById('customer-comment').value;
-
-        try {
-            const response = await fetch(apiConfirmUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({
-                    service_id: serviceId,
-                    provider_id: providerId,
-                    slots: selectedSlots,
-                    comment: comment
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.status === 'success') {
-                // Если успешно - показываем сообщение и перезагружаем страницу
-                alert(data.message);
-                window.location.reload();
-            } else {
-                alert(data.message);
-                confirmBtn.disabled = false;
-                confirmBtn.innerText = '{% trans "CONFIRM BOOKING" %}';
-            }
-        } catch (error) {
-            alert('Error processing booking.');
-            console.error(error);
-            confirmBtn.disabled = false;
-            confirmBtn.innerText = '{% trans "CONFIRM BOOKING" %}';
-        }
-    });
-</script>
+<script src="{% static 'js/public_booking.js' %}"></script>
 {% endblock %}

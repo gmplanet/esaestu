@@ -19,8 +19,10 @@ from django.utils.translation import gettext as _
 from django_ratelimit.decorators import ratelimit
 from django.db.models import Q
 from core.tasks import send_async_email
-
-
+from django.core.cache import cache
+from django.contrib import messages
+from django.db import transaction
+from django.contrib.auth import get_user_model
 
 # Контроллер для отображения главной страницы управления бронированием в личном кабинете
 @login_required
@@ -44,47 +46,95 @@ def cabinet_booking_list(request):
 # Контроллер для добавления новой услуги через личный кабинет
 @login_required
 def cabinet_service_add(request):
-    # Повторная проверка прав доступа для безопасности маршрута
     if not request.user.groups.filter(name='Booking').exists():
         raise PermissionDenied("You do not have permission to access this module.")
         
-    # Если метод POST, значит пользователь нажал кнопку отправки заполненной формы
     if request.method == 'POST':
-        form = BookingServiceForm(request.POST)
-        # Проверяем правильность введенных данных (типы полей, обязательность)
-        if form.is_valid():
-            # Создаем объект услуги, но пока откладываем сохранение в базу (commit=False)
-            service = form.save(commit=False)
-            # Присваиваем текущего пользователя как владельца услуги
-            service.owner = request.user
-            # Теперь окончательно сохраняем запись в базу данных
-            service.save()
-            # Перенаправляем обратно к общему списку услуг и исполнителей
-            return redirect('cabinet_booking_list')
-    # Если метод GET (обычный переход по ссылке), просто показываем пустую форму
+        # Открываем атомарную транзакцию. Все операции внутри блока выполняются как единое целое.
+        with transaction.atomic():
+            User = get_user_model()
+            # Блокируем строку текущего пользователя в базе данных до конца транзакции.
+            # Другие параллельные запросы для этого же пользователя будут ждать здесь.
+            locked_user = User.objects.select_for_update().get(id=request.user.id)
+            
+            # Подсчитываем услуги, используя заблокированного пользователя
+            current_services_count = BookingService.objects.filter(owner=locked_user).count()
+            
+            if current_services_count >= locked_user.max_services:
+                messages.error(request, _("You have reached the maximum number of services allowed for your account."))
+                return redirect('cabinet_booking_list')
+                
+            form = BookingServiceForm(request.POST, request.FILES, user=request.user)
+            if form.is_valid():
+                service = form.save(commit=False)
+                service.owner = request.user
+                service.save()
+                form.save_m2m()
+                return redirect('cabinet_booking_list')
     else:
-        form = BookingServiceForm()
+        # Для GET-запроса (просто открытие страницы) делаем легкую проверку без блокировки
+        current_services_count = BookingService.objects.filter(owner=request.user).count()
+        if current_services_count >= request.user.max_services:
+            messages.error(request, _("You have reached the maximum number of services allowed for your account."))
+            return redirect('cabinet_booking_list')
+            
+        form = BookingServiceForm(user=request.user)
         
     return render(request, 'booking_app/cabinet_service_add.html', {
         'form': form
     })
 
+# Контроллер для редактирования услуги
+@login_required
+def booking_edit_service(request, service_id):
+    service = get_object_or_404(BookingService, id=service_id)
+    
+    if service.owner != request.user:
+        raise PermissionDenied("You do not have permission to edit this service.")
+        
+    if request.method == 'POST':
+        # Передаем пользователя при сохранении изменений
+        form = BookingServiceForm(request.POST, request.FILES, instance=service, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('cabinet_booking_list')
+    else:
+        # ОБЯЗАТЕЛЬНО передаем пользователя при простом открытии страницы
+        form = BookingServiceForm(instance=service, user=request.user)
+        
+    return render(request, 'booking_app/edit_service.html', {'form': form, 'service': service})
+
+
 # Контроллер для добавления нового исполнителя (мастера)
 @login_required
 def cabinet_provider_add(request):
-    # Ограничение доступа только для провайдеров услуг
     if not request.user.groups.filter(name='Booking').exists():
         raise PermissionDenied("You do not have permission to access this module.")
         
     if request.method == 'POST':
-        form = ProviderForm(request.POST)
-        if form.is_valid():
-            provider = form.save(commit=False)
-            # Жестко привязываем создаваемого исполнителя к текущему пользователю-владельцу
-            provider.owner = request.user
-            provider.save()
-            return redirect('cabinet_booking_list')
+        with transaction.atomic():
+            User = get_user_model()
+            # Блокируем строку пользователя для безопасной проверки лимитов
+            locked_user = User.objects.select_for_update().get(id=request.user.id)
+            
+            current_providers_count = Provider.objects.filter(owner=locked_user).count()
+            
+            if current_providers_count >= locked_user.max_providers:
+                messages.error(request, _("You have reached the maximum number of providers allowed for your account."))
+                return redirect('cabinet_booking_list')
+                
+            form = ProviderForm(request.POST)
+            if form.is_valid():
+                provider = form.save(commit=False)
+                provider.owner = request.user
+                provider.save()
+                return redirect('cabinet_booking_list')
     else:
+        current_providers_count = Provider.objects.filter(owner=request.user).count()
+        if current_providers_count >= request.user.max_providers:
+            messages.error(request, _("You have reached the maximum number of providers allowed for your account."))
+            return redirect('cabinet_booking_list')
+            
         form = ProviderForm()
         
     return render(request, 'booking_app/cabinet_provider_add.html', {
@@ -158,89 +208,134 @@ def api_get_available_slots(request):
     if not service_id or not date_str:
         return JsonResponse({'error': 'Missing parameters'}, status=400)
 
+    # Формируем уникальный текстовый ключ для кеша на основе параметров запроса
+    # Пример ключа: booking_slots_5_None_2026-03-15
+    cache_key = f"booking_slots_{service_id}_{provider_id}_{date_str}"
+    
+    # Пытаемся получить готовые данные из оперативной памяти
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        # Если данные найдены в кеше, мгновенно отдаем их браузеру, пропуская обращения к БД
+        return JsonResponse(cached_data)
+
     try:
         # Преобразуем строку даты (YYYY-MM-DD) в объект Python
         target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
     except ValueError:
         return JsonResponse({'error': 'Invalid date format'}, status=400)
 
-    # Определяем день недели (0 - Понедельник, 6 - Воскресенье)
     weekday = target_date.weekday()
 
     service = BookingService.objects.filter(id=service_id).first()
     if not service:
         return JsonResponse({'error': 'Service not found'}, status=404)
 
-    # Если передан ID исполнителя, ищем его, иначе None (общее расписание)
     provider = None
     if provider_id:
         provider = Provider.objects.filter(id=provider_id).first()
 
-    # Ищем настроенные рабочие часы для этого дня недели
     working_hours = WorkingHours.objects.filter(
         owner=service.owner,
         provider=provider,
         day_of_week=weekday
     ).first()
 
-    # Если расписание не настроено или стоит галочка "Выходной" - отдаем пустой список
     if not working_hours or working_hours.is_day_off:
-        return JsonResponse({'slots': []})
+        empty_response = {'booking_type': service.booking_type, 'slots': [], 'free_blocks': []}
+        # Кешируем пустой ответ на 5 минут (300 секунд)
+        cache.set(cache_key, empty_response, 300)
+        return JsonResponse(empty_response)
 
-    # Создаем точные объекты времени начала и конца рабочего дня (с учетом часового пояса сервера)
     start_dt = timezone.make_aware(datetime.combine(target_date, working_hours.start_time))
     end_dt = timezone.make_aware(datetime.combine(target_date, working_hours.end_time))
 
-    # Достаем из базы ВСЕ активные бронирования на этот день для этого мастера
     reservations = Reservation.objects.filter(
         service=service,
         provider=provider,
         start_time__lt=end_dt,
-        end_time__gt=start_dt,
         status='active'
-    )
+    ).order_by('start_time')
 
-    slots = []
-    current_dt = start_dt
+    # --- ЛОГИКА ДЛЯ 15-МИНУТНЫХ СЛОТОВ ---
+    if service.booking_type == 'slots':
+        slots = []
+        current_dt = start_dt
 
-    # Цикл: шагаем по 15 минут от начала до конца рабочего дня
-    while current_dt + timedelta(minutes=15) <= end_dt:
-        slot_end = current_dt + timedelta(minutes=15)
-        is_booked = False
-        
-        # Проверяем, не пересекается ли наш 15-минутный слот с какой-либо существующей бронью
-        for res in reservations:
-            if max(current_dt, res.start_time) < min(slot_end, res.end_time):
-                is_booked = True
-                break
-                
-        # Теперь мы добавляем ВСЕ слоты, но передаем флаг is_booked
-        slots.append({
-            'time': current_dt.strftime('%H:%M'),
-            'datetime': current_dt.isoformat(),
-            'is_booked': is_booked
-        })
+        while current_dt + timedelta(minutes=15) <= end_dt:
+            slot_end = current_dt + timedelta(minutes=15)
+            is_booked = False
             
-        current_dt += timedelta(minutes=15)
+            for res in reservations:
+                res_end = res.end_time if res.end_time else res.start_time + timedelta(minutes=15)
+                if max(current_dt, res.start_time) < min(slot_end, res_end):
+                    is_booked = True
+                    break
+                    
+            slots.append({
+                'time': current_dt.strftime('%H:%M'),
+                'datetime': current_dt.isoformat(),
+                'is_booked': is_booked
+            })
+                
+            current_dt += timedelta(minutes=15)
 
-    return JsonResponse({'slots': slots})
+        response_data = {'booking_type': 'slots', 'slots': slots}
+        # Сохраняем вычисленные слоты в кеш на 5 минут
+        cache.set(cache_key, response_data, 300)
+        return JsonResponse(response_data)
+
+    # --- ЛОГИКА ДЛЯ ТОЧНОГО ВРЕМЕНИ (СВОБОДНЫЕ БЛОКИ) ---
+    else:
+        free_blocks = []
+        current_dt = start_dt
+        
+        for res in reservations:
+            res_start = max(start_dt, res.start_time)
+            res_end = res.end_time if res.end_time else res.start_time + timedelta(minutes=15)
+            
+            if current_dt < res_start:
+                free_blocks.append({
+                    'start_time': current_dt.strftime('%H:%M'),
+                    'end_time': res_start.strftime('%H:%M'),
+                    'start_datetime': current_dt.isoformat(),
+                    'end_datetime': res_start.isoformat(),
+                })
+            current_dt = max(current_dt, res_end)
+            
+        if current_dt < end_dt:
+            free_blocks.append({
+                'start_time': current_dt.strftime('%H:%M'),
+                'end_time': end_dt.strftime('%H:%M'),
+                'start_datetime': current_dt.isoformat(),
+                'end_datetime': end_dt.isoformat(),
+            })
+            
+        response_data = {'booking_type': 'exact_time', 'free_blocks': free_blocks}
+        # Сохраняем вычисленные блоки в кеш на 5 минут
+        cache.set(cache_key, response_data, 300)
+        return JsonResponse(response_data)
 
 @ratelimit(key='ip', rate='3/m', method='POST', block=True)
 @require_POST
 @login_required
 def api_confirm_booking(request):
     try:
-        # Получаем данные от JavaScript
+        # Считываем данные из тела запроса
         data = json.loads(request.body)
         service_id = data.get('service_id')
         provider_id = data.get('provider_id')
         slots = data.get('slots', [])
+        
+        # Получаем параметры для точного времени
+        exact_start_str = data.get('exact_start')
+        exact_end_str = data.get('exact_end')
+        
         comment = data.get('comment', '')
 
-        if not slots or not service_id:
+        if not service_id:
             return JsonResponse({'status': 'error', 'message': _('Invalid data')}, status=400)
 
-        # БЕЗОПАСНОСТЬ: Очищаем комментарий от HTML/JS тегов и жестко обрезаем до 250 символов
+        # Очищаем комментарий от HTML-тегов
         safe_comment = strip_tags(comment)[:250]
 
         service = BookingService.objects.filter(id=service_id).first()
@@ -249,80 +344,117 @@ def api_confirm_booking(request):
 
         provider = Provider.objects.filter(id=provider_id).first() if provider_id else None
 
-        # Преобразуем текстовые даты в объекты datetime и сортируем их
-        parsed_slots = sorted([parse_datetime(s) for s in slots])
-
         reservations_to_create = []
-        current_start = parsed_slots[0]
-        # Задаем конец первого слота (+ 15 минут)
-        current_end = current_start + timedelta(minutes=15)
 
-        # Алгоритм склеивания подряд идущих 15-минутных слотов в одну длинную запись
-        for slot in parsed_slots[1:]:
-            if slot == current_end:
-                current_end = slot + timedelta(minutes=15)
-            else:
-                reservations_to_create.append(Reservation(
-                    service=service,
-                    provider=provider,
-                    customer=request.user,
-                    start_time=current_start,
-                    end_time=current_end,
-                    customer_comment=safe_comment
-                ))
-                current_start = slot
-                current_end = slot + timedelta(minutes=15)
+        # --- ЛОГИКА ДЛЯ 15-МИНУТНЫХ СЛОТОВ ---
+        if service.booking_type == 'slots':
+            if not slots:
+                return JsonResponse({'status': 'error', 'message': _('No slots selected')}, status=400)
 
-        reservations_to_create.append(Reservation(
-            service=service,
-            provider=provider,
-            customer=request.user,
-            start_time=current_start,
-            end_time=current_end,
-            customer_comment=safe_comment
-        ))
+            parsed_slots = sorted([parse_datetime(s) for s in slots])
+            current_start = parsed_slots[0]
+            current_end = current_start + timedelta(minutes=15)
 
-        # Сохраняем все сформированные бронирования в базу данных
-        for res in reservations_to_create:
-            conflict = Reservation.objects.filter(
+            for slot in parsed_slots[1:]:
+                if slot == current_end:
+                    current_end = slot + timedelta(minutes=15)
+                else:
+                    reservations_to_create.append(Reservation(
+                        service=service,
+                        provider=provider,
+                        customer=request.user,
+                        start_time=current_start,
+                        end_time=current_end,
+                        customer_comment=safe_comment
+                    ))
+                    current_start = slot
+                    current_end = slot + timedelta(minutes=15)
+
+            reservations_to_create.append(Reservation(
                 service=service,
                 provider=provider,
-                start_time__lt=res.end_time,
-                end_time__gt=res.start_time,
-                status='active'
-            ).exists()
+                customer=request.user,
+                start_time=current_start,
+                end_time=current_end,
+                customer_comment=safe_comment
+            ))
+
+        # --- ЛОГИКА ДЛЯ ТОЧНОГО ВРЕМЕНИ (ДИАПАЗОН) ---
+        elif service.booking_type == 'exact_time':
+            if not exact_start_str or not exact_end_str:
+                return JsonResponse({'status': 'error', 'message': _('No exact time provided')}, status=400)
             
-            if conflict:
-                return JsonResponse({'status': 'error', 'message': _('Some slots were already booked. Please refresh the page.')}, status=400)
+            parsed_start = parse_datetime(exact_start_str)
+            parsed_end = parse_datetime(exact_end_str)
+            
+            # Проверка логики: начало должно быть раньше конца
+            if parsed_start >= parsed_end:
+                return JsonResponse({'status': 'error', 'message': _('Invalid time range')}, status=400)
+            
+            reservations_to_create.append(Reservation(
+                service=service,
+                provider=provider,
+                customer=request.user,
+                start_time=parsed_start,
+                end_time=parsed_end,
+                customer_comment=safe_comment
+            ))
+
+        # --- ПРОВЕРКА КОНФЛИКТОВ И СОХРАНЕНИЕ ---
+        for res in reservations_to_create:
+            res_start = res.start_time
+            res_end = res.end_time
+
+            conflict_query = Reservation.objects.filter(
+                service=service,
+                provider=provider,
+                start_time__lt=res_end,
+                status='active'
+            )
+            
+            for existing_res in conflict_query:
+                existing_end = existing_res.end_time if existing_res.end_time else existing_res.start_time + timedelta(minutes=15)
+                if max(res_start, existing_res.start_time) < min(res_end, existing_end):
+                    return JsonResponse({'status': 'error', 'message': _('Time is already booked. Please refresh the page.')}, status=400)
             
             res.save()
 
-        # --- ФОРМИРОВАНИЕ И ОТПРАВКА EMAIL УВЕДОМЛЕНИЙ ---
+        # --- ОЧИСТКА КЕША ---
+        from django.core.cache import cache
+        target_date_str = reservations_to_create[0].start_time.strftime('%Y-%m-%d')
+        cache_key = f"booking_slots_{service_id}_{provider_id}_{target_date_str}"
+        cache.delete(cache_key)
+
+        # --- ФОРМИРОВАНИЕ ПИСЕМ ---
         buyer = request.user
         seller = service.owner
-        
-        # Формируем имя мастера, если он выбран
         provider_info = f" ({provider.name})" if provider else ""
-        # Собираем все забронированные слоты в красивый список
-        booking_details = "\n".join([f"• {r.start_time.strftime('%Y-%m-%d')} | {r.start_time.strftime('%H:%M')} - {r.end_time.strftime('%H:%M')}" for r in reservations_to_create])
         
-        # Подготовка подробного письма покупателю (клиенту)
+        if service.booking_type == 'slots':
+            booking_details = "\n".join([f"• {r.start_time.strftime('%Y-%m-%d')} | {r.start_time.strftime('%H:%M')} - {r.end_time.strftime('%H:%M')}" for r in reservations_to_create])
+            count_info = len(slots)
+        else:
+            r = reservations_to_create[0]
+            booking_details = f"• {r.start_time.strftime('%Y-%m-%d')} | {r.start_time.strftime('%H:%M')} - {r.end_time.strftime('%H:%M')}"
+            # Подсчет количества 15-минутных интервалов
+            diff_ms = (r.end_time - r.start_time).total_seconds()
+            count_info = int(diff_ms / 900)
+        
         buyer_subject = _("Booking Confirmed: %(service)s") % {'service': service.title}
         buyer_message = _(
             "Hello %(buyer)s!\n\n"
             "Your booking for %(service)s%(provider)s is confirmed.\n\n"
             "Reservation Details:\n%(details)s\n\n"
-            "Total slots booked: %(count)s\n\n"
+            "Total items booked: %(count)s\n\n"
             "Thank you for your reservation!"
         ) % {
             'buyer': buyer.username,
             'service': service.title,
             'provider': provider_info,
             'details': booking_details,
-            'count': len(slots)
+            'count': count_info
         }
 
-        # Подготовка подробного письма продавцу (владельцу сервиса)
         seller_subject = _("New Booking: %(service)s") % {'service': service.title}
         seller_message = _(
             "Hello %(seller)s!\n\n"
@@ -335,19 +467,17 @@ def api_confirm_booking(request):
         ) % {
             'seller': seller.username,
             'buyer': buyer.username,
-            'email': buyer.email, # Добавлена почта клиента для связи
+            'email': buyer.email,
             'service': service.title,
             'provider': provider_info,
             'details': booking_details,
             'comment': safe_comment if safe_comment else _("No comment provided")
         }
 
-        # Отправляем задачи в очередь Redis (строго 3 аргумента)
         try:
             send_async_email(buyer_subject, buyer_message, [buyer.email])
             send_async_email(seller_subject, seller_message, [seller.email])
         except Exception as e:
-            # Выводим ошибку в лог сервера, чтобы она не пропадала бесследно
             print(f"Booking confirmation email error: {e}") 
 
         success_message = _(
@@ -355,17 +485,12 @@ def api_confirm_booking(request):
             "Service: %(service)s%(provider)s\n"
             "Reserved time:\n%(details)s"
         ) % {
-            'service': service.title, # Подставляем название забронированной услуги
-            'provider': provider_info, # Подставляем имя мастера, если он был выбран
-            'details': booking_details # Подставляем готовый список дат и времени
+            'service': service.title,
+            'provider': provider_info,
+            'details': booking_details
         }
 
-        # Возвращаем браузеру статус успеха и расширенный текст уведомления
         return JsonResponse({'status': 'success', 'message': success_message})
-
-    except Exception as e:
-        # Отлов непредвиденных системных ошибок функции и возврат кода 500
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -513,23 +638,6 @@ def cancel_booking(request, booking_uuid):
             
     return redirect('booking_detail', booking_uuid=reservation.uuid)
 
-# Контроллер для редактирования услуги
-@login_required
-def booking_edit_service(request, service_id):
-    service = get_object_or_404(BookingService, id=service_id)
-    
-    if service.owner != request.user:
-        raise PermissionDenied("You do not have permission to edit this service.")
-        
-    if request.method == 'POST':
-        form = BookingServiceForm(request.POST, request.FILES, instance=service)
-        if form.is_valid():
-            form.save()
-            return redirect('cabinet_booking_list')
-    else:
-        form = BookingServiceForm(instance=service)
-        
-    return render(request, 'booking_app/edit_service.html', {'form': form, 'service': service})
 
 # Контроллер для удаления услуги
 @require_POST

@@ -165,3 +165,177 @@ button {
         font-family: 'VT323', monospace;
     }
 }
+
+
+
+
+/* Базовые стили для пиксельных форм ввода */
+.pixel-input,
+.pixel-file-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    border: 2px solid var(--pixel-black);
+    box-sizing: border-box;
+}
+
+.pixel-checkbox {
+    margin-bottom: 10px;
+}
+
+
+/* Базовые утилиты для public_booking */
+.pixel-back-btn { background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase; }
+.pixel-border-blue { border-color: var(--pixel-blue); }
+.booking-flex-row { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; }
+.flex-grow { flex-grow: 1; }
+.pixel-img-box { width: 100px; height: 100px; flex-shrink: 0; border: 2px solid var(--pixel-black); background: #e0e0e0; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 40px; }
+.pixel-img-box.round { border-radius: 50%; }
+.cover-img { width: 100%; height: 100%; object-fit: cover; }
+.hidden { display: none !important; }
+.mb-20 { margin-bottom: 20px; }
+.mt-20 { margin-top: 20px; }
+.mt-40 { margin-top: 40px; }
+.mb-15 { margin-bottom: 15px; }
+.mt-0 { margin-top: 0; }
+.w-100 { width: 100%; }
+.width-auto { width: auto; min-width: 150px; }
+.slots-wrapper { display: flex; flex-wrap: wrap; gap: 10px; }
+.pixel-list { font-family: 'VT323', monospace; font-size: 1.2rem; color: var(--pixel-blue); padding-left: 20px; }
+.bold-label { display: block; font-weight: bold; margin-bottom: 5px; }
+.block-label { display: block; margin-bottom: 5px; }
+.summary-box { padding: 15px; border: 2px dashed var(--pixel-blue); background: #f9f9f9; }
+.pixel-red-text { color: var(--pixel-red); font-weight: bold; }
+.pixel-blue-bg { background: var(--pixel-blue); color: white; }
+
+/* Стили для кнопок времени */
+.slot-btn { font-family: 'VT323', monospace; font-size: 1.2rem; background: var(--pixel-white); border: 2px solid var(--pixel-black); padding: 8px 15px; cursor: pointer; transition: all 0.1s; }
+.slot-btn:hover { background: var(--pixel-yellow); }
+.slot-btn.selected { background: var(--pixel-blue); color: white; box-shadow: inset 3px 3px 0px rgba(0,0,0,0.3); }
+.slot-btn.booked { background: #e0e0e0; color: #999; cursor: not-allowed; border-color: #ccc; text-decoration: line-through; }
+.slot-btn.booked:hover { background: #e0e0e0; }
+
+/* Стили для превращения чекбоксов исполнителей в пиксельные кнопки */
+#id_providers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+    margin-bottom: 10px;
+}
+
+#id_providers div {
+    margin: 0;
+}
+
+/* Стилизуем текст (label) как кнопку */
+#id_providers label {
+    display: inline-block;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    background: var(--pixel-white);
+    border: 2px solid var(--pixel-black);
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: all 0.1s;
+    user-select: none; /* Запрещаем выделение текста при двойном клике */
+}
+
+#id_providers label:hover {
+    background: var(--pixel-yellow);
+}
+
+/* Полностью скрываем системный квадратный чекбокс */
+#id_providers input[type="checkbox"] {
+    display: none; 
+}
+
+/* Применяем стили нажатой кнопки, если чекбокс внутри label отмечен */
+#id_providers label:has(input[type="checkbox"]:checked) {
+    background: var(--pixel-blue);
+    color: white;
+    box-shadow: inset 3px 3px 0px rgba(0,0,0,0.3);
+}
+
+
+
+/* Вспомогательные классы для форм */
+.pixel-help-text {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    color: var(--pixel-black);
+}
+
+.checkbox-label-flex {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Стили для кнопок выбора исполнителей в edit_service.html */
+
+
+/* Возвращаем пиксельный шрифт для всех заголовков полей */
+.bold-label {
+    display: block;
+    font-weight: bold;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.pixel-help-text {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    color: var(--pixel-black);
+    font-family: 'VT323', monospace;
+}
+
+.checkbox-label-flex {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Превращаем чекбоксы исполнителей в пиксельные кнопки */
+#id_providers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+    margin-bottom: 10px;
+    list-style: none; /* Защита, если Django выведет список как ul */
+}
+
+#id_providers div, #id_providers li {
+    margin: 0;
+    list-style: none;
+}
+
+#id_providers label {
+    display: inline-block;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    background: var(--pixel-white);
+    border: 2px solid var(--pixel-black);
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: all 0.1s;
+    user-select: none;
+}
+
+#id_providers label:hover {
+    background: var(--pixel-yellow);
+}
+
+#id_providers input[type="checkbox"] {
+    display: none; 
+}
+
+#id_providers label:has(input[type="checkbox"]:checked) {
+    background: var(--pixel-blue);
+    color: white;
+    box-shadow: inset 3px 3px 0px rgba(0,0,0,0.3);
+}

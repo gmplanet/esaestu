@@ -1,23 +1,50 @@
 from django import forms
 from .models import WorkingHours 
 from .models import BookingService, Provider
+from django.utils.translation import gettext_lazy as _
 
-# Форма для создания и редактирования услуги
+
+from django import forms
+from .models import BookingService, Provider
+
 class BookingServiceForm(forms.ModelForm):
+    # Используем чекбоксы вместо выпадающего списка
+    providers = forms.ModelMultipleChoiceField(
+        queryset=Provider.objects.none(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+        help_text=_("Select providers who can perform this service. Leave unselected if anyone can do this.")
+    )
+
     class Meta:
         model = BookingService
-        # Добавляем 'image' в список полей, которые пользователь будет заполнять
-        fields = ['title', 'description', 'price', 'is_active', 'image']
+        fields = ['title', 'description', 'price', 'booking_type', 'providers', 'is_active', 'image']
         
-        # Применяем CSS-стили напрямую к HTML-элементам формы
         widgets = {
-            'title': forms.TextInput(attrs={'style': 'width: 100%; padding: 8px; margin-bottom: 10px;'}),
-            'description': forms.Textarea(attrs={'style': 'width: 100%; padding: 8px; margin-bottom: 10px;', 'rows': 5}),
-            'price': forms.NumberInput(attrs={'style': 'width: 100%; padding: 8px; margin-bottom: 10px;'}),
-            'is_active': forms.CheckboxInput(attrs={'style': 'margin-bottom: 10px;'}),
-            # Добавляем виджет загрузки файла с пиксельным шрифтом
-            'image': forms.ClearableFileInput(attrs={'style': 'margin-bottom: 10px; font-family: "VT323", monospace; font-size: 1.2rem;'}),
+            'title': forms.TextInput(attrs={'class': 'pixel-input'}),
+            'description': forms.Textarea(attrs={'class': 'pixel-input', 'rows': 5}),
+            'price': forms.NumberInput(attrs={
+                'class': 'pixel-input',
+                'placeholder': 'Leave empty if price is not fixed'
+            }),
+            'booking_type': forms.Select(attrs={'class': 'pixel-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'pixel-checkbox'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'pixel-file-input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(BookingServiceForm, self).__init__(*args, **kwargs)
+        
+        if user:
+            # Загружаем только исполнителей текущего пользователя
+            user_providers = Provider.objects.filter(owner=user)
+            self.fields['providers'].queryset = user_providers
+            
+            # Если исполнителей нет, меняем текст подсказки
+            if not user_providers.exists():
+                self.fields['providers'].help_text = _("No providers yet. Please Add Providers first.")
+
 
 # Форма для добавления и редактирования исполнителя
 class ProviderForm(forms.ModelForm):
