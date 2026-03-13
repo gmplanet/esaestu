@@ -371,12 +371,7 @@ button {
         padding: 12px 0;
     }
 
-    /* Исправляем заголовки этапов (1. SELECT SERVICE и т.д.) */
-    h1, h2 {
-        font-size: 1.5rem !important;
-        word-wrap: break-word;
-    }
-
+ 
     /* Выравниваем блок резюме и итоговую цену */
     .resumen-block {
         text-align: left;
