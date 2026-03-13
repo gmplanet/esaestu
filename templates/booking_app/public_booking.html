@@ -36,7 +36,7 @@
 </style>
 
 <div class="content-center">
-    <h1>{% trans "Book a Time with" %} {{ seller.username }}</h1>
+    <h1>{% trans "Book a Time with" %} {{ seller.username }}</h1> public booking
 
     <div style="margin-bottom: 20px;">
         <a href="{% url 'public_profile' slug=seller.slug %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
@@ -46,21 +46,36 @@
 
     {% if services %}
         <div class="pixel-card" style="border-color: var(--pixel-blue);">
-            <h2>1. {% trans "Select Service" %}</h2>
-            <select id="service-select" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); margin-bottom: 20px;">
-                <option value="">-- {% trans "Choose a service" %} --</option>
-                {% for service in services %}
-                    <option value="{{ service.id }}" data-price="{{ service.price }}">{{ service.title }} - ${{ service.price }}</option>
-                {% endfor %}
-            </select>
+            
+            <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
+                <div style="flex-grow: 1;">
+                    <h2>1. {% trans "Select Service" %}</h2>
+                    <select id="service-select" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black);">
+                        <option value="" data-image="">-- {% trans "Choose a service" %} --</option>
+                        {% for service in services %}
+                            <option value="{{ service.id }}" data-price="{{ service.price }}" data-image="{% if service.image %}{{ service.image.url }}{% endif %}">{{ service.title }} - ${{ service.price }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div id="service-image-container" style="width: 100px; height: 100px; flex-shrink: 0; border: 2px solid var(--pixel-black); background: #e0e0e0; display: none; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; margin-top: 40px;">
+                    <img id="service-image" src="" alt="Service Image" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+            </div>
 
-            <h2>2. {% trans "Select Provider (Optional)" %}</h2>
-            <select id="provider-select" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); margin-bottom: 20px;">
-                <option value="">-- {% trans "Anyone available" %} --</option>
-                {% for provider in providers %}
-                    <option value="{{ provider.id }}">{{ provider.name }}</option>
-                {% endfor %}
-            </select>
+            <div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px;">
+                <div style="flex-grow: 1;">
+                    <h2>2. {% trans "Select Provider (Optional)" %}</h2>
+                    <select id="provider-select" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black);">
+                        <option value="" data-image="">-- {% trans "Anyone available" %} --</option>
+                        {% for provider in providers %}
+                            <option value="{{ provider.id }}" data-image="{% if provider.avatar %}{{ provider.avatar.url }}{% endif %}">{{ provider.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div id="provider-image-container" style="width: 100px; height: 100px; flex-shrink: 0; border: 2px solid var(--pixel-black); background: #e0e0e0; display: none; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; margin-top: 40px;">
+                    <img id="provider-image" src="" alt="Provider Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+            </div>
             
             <h2>3. {% trans "Select Date" %}</h2>
             <input type="date" id="booking-date" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); margin-bottom: 20px;">
@@ -112,6 +127,31 @@
     [serviceSelect, providerSelect, dateInput].forEach(el => {
         el.addEventListener('change', fetchSlots);
     });
+
+
+    // === НОВЫЙ КОД ДЛЯ ОТОБРАЖЕНИЯ КАРТИНОК ===
+    function updateImagePreview(selectElement, containerId, imageId) {
+        // Получаем выбранную опцию (<option>)
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        // Достаем из неё ссылку на картинку
+        const imageUrl = selectedOption.getAttribute('data-image');
+        
+        const container = document.getElementById(containerId);
+        const image = document.getElementById(imageId);
+
+        // Если картинка есть, показываем блок, иначе скрываем
+        if (imageUrl && imageUrl.trim() !== '') {
+            image.src = imageUrl;
+            container.style.display = 'flex'; // Показываем как flex-элемент
+        } else {
+            container.style.display = 'none'; // Прячем пустой квадрат
+        }
+    }
+
+    // Добавляем слушателей событий специально для смены картинок
+    serviceSelect.addEventListener('change', () => updateImagePreview(serviceSelect, 'service-image-container', 'service-image'));
+    providerSelect.addEventListener('change', () => updateImagePreview(providerSelect, 'provider-image-container', 'provider-image'));
+    // ==========================================
 
     // Функция запроса слотов с сервера
     async function fetchSlots() {
