@@ -5,7 +5,10 @@ from core.validators import validate_is_image
 import uuid
 import string
 import secrets
-
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+import os
 
 class Provider(models.Model):
     owner = models.ForeignKey(
@@ -26,6 +29,30 @@ class Provider(models.Model):
     
     def __str__(self):
         return f"{self.name} ({self.owner.username})"
+
+    # ... внутри класса Provider ...
+    def save(self, *args, **kwargs):
+        if self.avatar:
+            # Открываем изображение через Pillow
+            img = Image.open(self.avatar)
+            
+            # Проверяем, нужно ли уменьшение
+            if img.height > 100 or img.width > 100:
+                output_size = (100, 100)
+                # Ресайзим изображение. Метод LANCZOS обеспечивает лучшее качество при уменьшении
+                img.thumbnail(output_size, Image.Resampling.LANCZOS)
+                
+                # Создаем временный буфер в памяти для сохранения
+                buffer = BytesIO()
+                # Определяем формат (чтобы сохранить прозрачность для PNG, используем оригинальный формат или переводим в нужный)
+                img_format = img.format if img.format else 'JPEG'
+                img.save(buffer, format=img_format, quality=85)
+                
+                # Обновляем поле avatar новым содержимым без сохранения в БД (пока)
+                file_name = os.path.basename(self.avatar.name)
+                self.avatar.save(file_name, ContentFile(buffer.getvalue()), save=False)
+        
+        super().save(*args, **kwargs)    
 
 
 class BookingService(models.Model):
@@ -70,6 +97,24 @@ class BookingService(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.owner.username})"
+    
+    # ... внутри класса BookingService ...
+    def save(self, *args, **kwargs):
+        if self.image:
+            img = Image.open(self.image)
+            
+            if img.height > 100 or img.width > 100:
+                output_size = (100, 100)
+                img.thumbnail(output_size, Image.Resampling.LANCZOS)
+                
+                buffer = BytesIO()
+                img_format = img.format if img.format else 'JPEG'
+                img.save(buffer, format=img_format, quality=85)
+                
+                file_name = os.path.basename(self.image.name)
+                self.image.save(file_name, ContentFile(buffer.getvalue()), save=False)
+        
+        super().save(*args, **kwargs)
 
 
 class Reservation(models.Model):
