@@ -33,7 +33,7 @@ class CheckoutForm(forms.ModelForm):
             'customer_phone': forms.TextInput(attrs={
                 'style': 'width: 100%; padding: 8px; margin-bottom: 10px;', 
                 'required': True,
-                'pattern': '^\+?[0-9]{7,15}$',
+                'pattern': r'^\+?[0-9]{7,15}$',
                 'title': 'Введите номер телефона (только цифры, можно начать с +)'
             }),
             'customer_email': forms.EmailInput(attrs={'style': 'width: 100%; padding: 8px; margin-bottom: 10px;', 'required': True}),
