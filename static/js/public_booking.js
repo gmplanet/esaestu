@@ -1,11 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const dataContainer = document.getElementById('booking-data');
-    if (!dataContainer) return;
+    // 1. Извлекаем данные из json_script
+    const configElement = document.getElementById('js-config');
+    if (!configElement) return;
 
-    const apiSlotsUrl = dataContainer.getAttribute('data-slots-url');
-    const apiConfirmUrl = dataContainer.getAttribute('data-confirm-url');
-    const csrfToken = dataContainer.getAttribute('data-csrf');
+    const config = JSON.parse(configElement.textContent);
+    
+    // Ссылки и токены
+    const apiSlotsUrl = config.apiSlotsUrl;
+    const apiConfirmUrl = config.apiConfirmUrl;
+    const csrfToken = config.csrfToken;
+    
+    // Словарь переводов
+    const T = config.translations;
 
+    // Элементы интерфейса
     const serviceSelect = document.getElementById('service-select');
     const providerSelect = document.getElementById('provider-select');
     const dateInput = document.getElementById('booking-date');
@@ -31,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentServicePrice = 0;
     let currentBookingType = 'slots';
     
-    // Сохраняем исходную валюту при загрузке страницы
     let sellerCurrency = '';
     const currencyEl = document.getElementById('summary-currency');
     if (currencyEl) {
@@ -52,18 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- ЛОГИКА ФИЛЬТРАЦИИ ИСПОЛНИТЕЛЕЙ ---
     serviceSelect.addEventListener('change', () => {
         updateImagePreview(serviceSelect, 'service-image-container', 'service-image');
-        
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
         const allowedProvidersStr = selectedOption.getAttribute('data-providers');
         const allowedProviders = allowedProvidersStr ? allowedProvidersStr.split(',') : [];
 
-        // Перебираем всех мастеров и скрываем тех, кто не привязан к услуге
         Array.from(providerSelect.options).forEach(option => {
             if (option.value === "") {
-                option.style.display = 'block'; // Всегда показываем опцию "Любой свободный"
+                option.style.display = 'block';
             } else if (allowedProviders.includes(option.value)) {
                 option.style.display = 'block';
             } else {
@@ -71,12 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Если выбранный мастер был скрыт, сбрасываем выбор
         if (providerSelect.value !== "" && !allowedProviders.includes(providerSelect.value)) {
             providerSelect.value = "";
             updateImagePreview(providerSelect, 'provider-image-container', 'provider-image');
         }
-        
         fetchAvailability();
     });
 
@@ -108,8 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             slotsContainer.classList.remove('hidden');
-            timeSlotsDiv.innerHTML = '<p>Loading...</p>';
-            freeBlocksList.innerHTML = '<p>Loading...</p>';
+            timeSlotsDiv.innerHTML = `<p>${T.loading}</p>`;
+            freeBlocksList.innerHTML = `<p>${T.loading}</p>`;
             
             const response = await fetch(`${apiSlotsUrl}?service_id=${serviceId}&provider_id=${providerId}&date=${dateVal}`);
             const data = await response.json();
@@ -132,14 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         } catch (error) {
-            console.error('Error fetching availability:', error);
+            console.error(T.errorFetching, error);
         }
     }
 
     function renderSlots(slots) {
         timeSlotsDiv.innerHTML = '';
         if (!slots || slots.length === 0) {
-            timeSlotsDiv.innerHTML = '<p>No available slots on this date.</p>';
+            timeSlotsDiv.innerHTML = `<p>${T.noSlots}</p>`;
             return;
         }
 
@@ -172,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSummary();
     }
 
-    // --- ЛОГИКА ГЕНЕРАЦИИ СЕТКИ 15 МИНУТ ДЛЯ ТОЧНОГО ВРЕМЕНИ ---
     function renderFreeBlocks(blocks) {
         freeBlocksList.innerHTML = '';
         exactTimeStart.innerHTML = '<option value="">-- : --</option>';
@@ -180,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         exactTimeEnd.disabled = true;
 
         if (!blocks || blocks.length === 0) {
-            freeBlocksList.innerHTML = '<li>No free time available on this date.</li>';
+            freeBlocksList.innerHTML = `<li>${T.noFreeTime}</li>`;
             exactTimeStart.disabled = true;
             return;
         }
@@ -191,52 +192,41 @@ document.addEventListener('DOMContentLoaded', () => {
             li.innerText = `${block.start_time} - ${block.end_time}`;
             freeBlocksList.appendChild(li);
 
-            // Заполняем список возможного времени начала с шагом 15 минут
             let current = new Date(block.start_datetime);
             const end = new Date(block.end_datetime);
 
             while (current < end) {
                 const option = document.createElement('option');
                 option.value = current.toISOString();
-                
                 let hours = current.getHours().toString().padStart(2, '0');
                 let mins = current.getMinutes().toString().padStart(2, '0');
                 option.text = `${hours}:${mins}`;
-                
                 option.dataset.blockEnd = block.end_datetime;
                 exactTimeStart.appendChild(option);
-
                 current.setMinutes(current.getMinutes() + 15);
             }
         });
     }
 
-    // Обработка выбора времени начала (заполняем список времени окончания)
     exactTimeStart.addEventListener('change', function() {
         exactTimeEnd.innerHTML = '<option value="">-- : --</option>';
-        
         if (!this.value) {
             exactTimeEnd.disabled = true;
             updateSummary();
             return;
         }
-
         exactTimeEnd.disabled = false;
         const selectedOption = this.options[this.selectedIndex];
-        
         let current = new Date(this.value);
-        current.setMinutes(current.getMinutes() + 15); // Окончание минимум через 15 минут
+        current.setMinutes(current.getMinutes() + 15);
         const maxEnd = new Date(selectedOption.dataset.blockEnd);
 
-        // Генерируем опции до конца доступного свободного блока
         while (current <= maxEnd) {
             const option = document.createElement('option');
             option.value = current.toISOString();
-            
             let hours = current.getHours().toString().padStart(2, '0');
             let mins = current.getMinutes().toString().padStart(2, '0');
             option.text = `${hours}:${mins}`;
-            
             exactTimeEnd.appendChild(option);
             current.setMinutes(current.getMinutes() + 15);
         }
@@ -245,53 +235,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     exactTimeEnd.addEventListener('change', updateSummary);
 
-    // --- ОБНОВЛЕНИЕ БЛОКА ИТОГОВ И ПРОВЕРКА ЦЕНЫ ---
     function updateSummary() {
         let isReadyToBook = false;
-
         if (currentBookingType === 'slots') {
             if (selectedSlots.length > 0) {
                 isReadyToBook = true;
                 summaryCountRow.classList.remove('hidden');
                 summaryExactRow.classList.add('hidden');
                 summaryCount.innerText = selectedSlots.length;
-                
                 if (currentServicePrice > 0) {
                     summaryPriceContainer.innerHTML = `<span id="summary-currency">${sellerCurrency}</span> <span id="summary-price">${(selectedSlots.length * currentServicePrice).toFixed(2)}</span>`;
                 } else {
-                    summaryPriceContainer.innerText = "Price not specified";
+                    summaryPriceContainer.innerText = T.priceNotSpecified;
                 }
             }
         } else if (currentBookingType === 'exact_time') {
             const startVal = exactTimeStart.value;
             const endVal = exactTimeEnd.value;
-            
             if (startVal && endVal) {
                 isReadyToBook = true;
                 summaryCountRow.classList.add('hidden');
                 summaryExactRow.classList.remove('hidden');
-                
                 const startObj = new Date(startVal);
                 const endObj = new Date(endVal);
-                
                 const startStr = `${startObj.getHours().toString().padStart(2, '0')}:${startObj.getMinutes().toString().padStart(2, '0')}`;
                 const endStr = `${endObj.getHours().toString().padStart(2, '0')}:${endObj.getMinutes().toString().padStart(2, '0')}`;
-                
                 summaryExactTime.innerText = `${startStr} - ${endStr}`;
-                
-                // Считаем количество 15-минутных отрезков для расчета цены
                 const diffMs = endObj - startObj;
-                const diffMins = Math.round(diffMs / 60000);
-                const blocksCount = diffMins / 15;
-                
+                const blocksCount = Math.round(diffMs / 60000) / 15;
                 if (currentServicePrice > 0) {
                     summaryPriceContainer.innerHTML = `<span id="summary-currency">${sellerCurrency}</span> <span id="summary-price">${(blocksCount * currentServicePrice).toFixed(2)}</span>`;
                 } else {
-                    summaryPriceContainer.innerText = "Price not specified";
+                    summaryPriceContainer.innerText = T.priceNotSpecified;
                 }
             }
         }
-
         if (isReadyToBook) {
             summaryBlock.classList.remove('hidden');
         } else {
@@ -301,22 +279,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     confirmBtn.addEventListener('click', async () => {
         confirmBtn.disabled = true;
-        confirmBtn.innerText = 'PROCESSING...';
-
-        const serviceId = serviceSelect.value;
-        const providerId = providerSelect.value;
-        const comment = document.getElementById('customer-comment').value;
+        confirmBtn.innerText = T.processing;
 
         const payload = {
-            service_id: serviceId,
-            provider_id: providerId,
-            comment: comment
+            service_id: serviceSelect.value,
+            provider_id: providerSelect.value,
+            comment: document.getElementById('customer-comment').value
         };
 
         if (currentBookingType === 'slots') {
             payload.slots = selectedSlots;
         } else if (currentBookingType === 'exact_time') {
-            // Передаем на сервер точное время начала и окончания
             payload.exact_start = exactTimeStart.value;
             payload.exact_end = exactTimeEnd.value;
         }
@@ -340,13 +313,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 alert(data.message);
                 confirmBtn.disabled = false;
-                confirmBtn.innerText = 'CONFIRM BOOKING';
+                confirmBtn.innerText = T.confirmBtn;
             }
         } catch (error) {
-            alert('Error processing booking.');
+            alert(T.errorProcessing);
             console.error(error);
             confirmBtn.disabled = false;
-            confirmBtn.innerText = 'CONFIRM BOOKING';
+            confirmBtn.innerText = T.confirmBtn;
         }
     });
 });

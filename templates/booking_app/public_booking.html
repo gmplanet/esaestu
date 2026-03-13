@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="content-center">
-    <h1>{% trans "Book a Time with" %} {{ seller.username }}</h1>
+    <h1>{% trans "Book a Time with" %} {{ seller.username }}</h1> public_booking
 
     <div class="mb-20">
         <a href="{% url 'public_profile' slug=seller.slug %}" class="btn-main pixel-back-btn">
@@ -12,12 +12,9 @@
     </div>
 
     {% if services %}
-        <div id="booking-data" 
-             data-slots-url="{% url 'api_get_available_slots' %}" 
-             data-confirm-url="{% url 'api_confirm_booking' %}" 
-             data-csrf="{{ csrf_token }}"
-             style="display: none;">
-        </div>
+
+         {{ js_config|json_script:"js-config" }}
+
 
         <div class="pixel-card pixel-border-blue">
             
@@ -110,5 +107,10 @@
     {% endif %}
 </div>
 
+
+
+
+
+<script src="{% static 'js/booking_logic.js' %}"></script>
 <script src="{% static 'js/public_booking.js' %}"></script>
 {% endblock %}

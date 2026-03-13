@@ -23,6 +23,8 @@ from django.core.cache import cache
 from django.contrib import messages
 from django.db import transaction
 from django.contrib.auth import get_user_model
+from django.urls import reverse
+from django.middleware.csrf import get_token
 
 # Контроллер для отображения главной страницы управления бронированием в личном кабинете
 @login_required
@@ -184,17 +186,35 @@ def public_booking_view(request, slug):
     from django.contrib.auth import get_user_model
     User = get_user_model()
     
-    # Находим продавца по слагу. Если его нет или он не в группе Booking, вернется 404
+    # Находим продавца по слагу
     seller = get_object_or_404(User, slug=slug, groups__name='Booking')
     
-    # Получаем только активные услуги и активных исполнителей
+    # Получаем активные услуги и исполнителей
     services = BookingService.objects.filter(owner=seller, is_active=True)
     providers = Provider.objects.filter(owner=seller, is_active=True)
+
+    # ПОДГОТОВКА JSON_SCRIPT: Ссылки, токен и переводы
+    js_config = {
+        'apiSlotsUrl': reverse('api_get_available_slots'),
+        'apiConfirmUrl': reverse('api_confirm_booking'),
+        'csrfToken': get_token(request),
+        'translations': {
+            'priceNotSpecified': str(_('Price not specified; payment upon service completion')),
+            'loading': str(_('Loading...')),
+            'noSlots': str(_('No available slots on this date.')),
+            'noFreeTime': str(_('No free time available on this date.')),
+            'processing': str(_('PROCESSING...')),
+            'confirmBtn': str(_('CONFIRM BOOKING')),
+            'errorProcessing': str(_('Error processing booking.')),
+            'errorFetching': str(_('Error fetching availability:'))
+        }
+    }
 
     return render(request, 'booking_app/public_booking.html', {
         'seller': seller,
         'services': services,
         'providers': providers,
+        'js_config': js_config, 
     })
 
 

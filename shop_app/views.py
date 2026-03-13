@@ -186,7 +186,7 @@ def checkout_view(request, slug):
                         quantity=actual_quantity
                     )
                     # Формируем строчку с названием и количеством для каждого товара
-                    order_details_text += f" - {item.product.title}: {actual_quantity} шт. (по ${item.product.price})\n"
+                    order_details_text += f" - {item.product.title}: {actual_quantity} unit (for ${item.product.price})\n"
             
             cart_items.delete()
             

@@ -3,15 +3,7 @@
 
 {% block content %}
 
-{% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
-            {{ message|linebreaksbr }}
-        </li>
-        {% endfor %}
-    </ul>
-{% endif %}
+
 
 <div class="content-center">
     <h1>{% trans "Shop by" %} {{ shop_owner.username }}</h1>
