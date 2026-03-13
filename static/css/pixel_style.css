@@ -382,9 +382,7 @@ button {
         width: 350px;
     }
 
-    h1 {
-        font-size: 0.9rem;
-    }
+    
 
     .creators-container {
         display: flex;
