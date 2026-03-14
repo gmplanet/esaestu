@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
@@ -7,14 +7,20 @@ from .models import Page
 from shop_app.models import Product
 from booking_app.models import BookingService
 
+
 User = get_user_model()
 
 def home_view(request):
     query = request.GET.get('q', '').strip()
     active_filter = request.GET.get('filter', 'all')
     
-    users_qs = User.objects.all()
+    # Оптимизируем запрос: заранее грузим только АКТИВНЫЕ товары и услуги
+    users_qs = User.objects.prefetch_related(
+        Prefetch('products', queryset=Product.objects.filter(is_active=True)),
+        'booking_services'
+    )
     pages_qs = Page.objects.none()
+    
 
     if active_filter == 'shop':
         users_qs = users_qs.filter(Q(groups__name='Seller') | Q(is_superuser=True)).distinct()

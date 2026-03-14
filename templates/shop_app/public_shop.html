@@ -1,93 +1,83 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block content %}
-
-
-
 <div class="content-center">
-    <h1>{% trans "Shop by" %} {{ shop_owner.username }}</h1>
 
-    <div style="margin-bottom: 20px;">
-        <a href="{% url 'public_profile' slug=shop_owner.slug %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
-            {% trans "Back to Profile" %}
-        </a>
-    </div>
+    <div class="shop-sticky-header">
+        <a href="{% url 'public_profile' slug=shop_owner.slug %}" class="pixel-btn-rainbow">
+            {% trans "SHOP BY" %} {{ shop_owner.username }}
+        </a>public_shop
 
-    {% if user.is_authenticated %}
-    <div id="cart-container" class="pixel-card" style="position: sticky; top: 70px; z-index: 100; background: white; border-color: var(--pixel-blue); margin-bottom: 30px;">
-        <h2 style="margin-top: 0; color: var(--pixel-blue); text-transform: uppercase;">{% trans "Your Cart in this Shop" %}</h2>
-        
-        <div id="cart-content">
-        {% if cart_items %}
-            <ul style="list-style: none; padding: 0; margin: 0 0 15px 0;">
-                {% for item in cart_items %}
-                    <li id="cart-item-{{ item.product.id }}" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #ccc; padding: 8px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">
-                        <span style="flex-grow: 1;">{{ item.product.title }}</span>
-                        
-                        <div style="display: flex; align-items: center; gap: 10px; margin-right: 20px;">
-                            <button onclick="updateQuantity({{ item.product.id }}, {{ item.quantity|add:'-1' }})" class="btn-main" style="height: 25px; width: 25px; padding: 0; line-height: 1; min-width: 25px; background: var(--pixel-grey);">-</button>
-                            
-                            <strong id="qty-{{ item.product.id }}" style="color: var(--pixel-red); min-width: 20px; text-align: center;">{{ item.quantity }}</strong>
-                            
-                            <button onclick="updateQuantity({{ item.product.id }}, {{ item.quantity|add:'1' }})" class="btn-main" style="height: 25px; width: 25px; padding: 0; line-height: 1; min-width: 25px; background: var(--pixel-grey);">+</button>
-                        </div>
-
-                        <span id="price-{{ item.product.id }}" style="min-width: 70px; text-align: right;">${{ item.total_price }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-            <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-family: 'VT323', monospace; font-size: 1.5rem; text-transform: uppercase;">
-                <span>{% trans "Total" %}:</span>
-                <span id="cart-total-display">${{ cart_total }}</span>
-            </div>
-            
-            <a href="{% url 'checkout' slug=shop_owner.slug %}" class="btn-main" style="display: block; text-align: center; text-decoration: none; width: auto; margin-top: 15px; background: var(--pixel-blue); color: white; font-family: 'VT323', monospace; font-size: 1.2rem; text-transform: uppercase;">
-                {% trans "Proceed to Checkout" %}
+        {% if user.is_authenticated %}
+            <a href="{% url 'shop_cart' slug=shop_owner.slug %}" class="header-cart-btn">
+                {% if cart_items_count > 0 %}
+                    <span class="cart-badge">{{ cart_items_count }}</span>
+                {% endif %}
+                <svg class="pixel-svg-cart" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="18" width="4" height="4" fill="#555" stroke="#000" stroke-width="2"/>
+                    <rect x="16" y="18" width="4" height="4" fill="#555" stroke="#000" stroke-width="2"/>
+                    <path d="M2 3h3v4h3" fill="none" stroke="#000" stroke-width="2"/>
+                    <polygon points="6,7 22,7 20,16 8,16" fill="#8bc34a" stroke="#000" stroke-width="2"/>
+                </svg>
             </a>
-        {% else %}
-            <p style="margin: 0; color: #555; font-family: 'VT323', monospace; font-size: 1.2rem;">{% trans "Your cart is empty." %}</p>
         {% endif %}
-        </div>
     </div>
-    {% endif %}
 
     {% if products %}
         <div class="cabinet-modules">
             {% for product in products %}
-            <div class="pixel-card" style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
-                <div style="flex-shrink: 0; width: 100px;">
+            <div class="pixel-card cabinet-item-card">
+                
+                <div class="cabinet-item-img">
                     {% with main_image=product.images.all|first %}
                         {% if main_image %}
-                            <img src="{{ main_image.image.url }}" alt="{{ product.title }}" 
-                                 style="width: 100px; height: auto; object-fit: contain; border: 3px solid var(--pixel-black); cursor: pointer;"
-                                 onclick="openImagePopup('{{ main_image.image.url }}')">
+                            <img src="{{ main_image.image.url }}" alt="{{ product.title }}" class="product-img-frame" onclick="openImagePopup('{{ main_image.image.url }}')">
                         {% else %}
-                            <div style="width: 100px; height: 100px; background: #eee; border: 3px solid var(--pixel-black); display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8rem; font-family: 'VT323', monospace;">No Image</div>
+                            <div class="product-no-img">NO IMAGE</div>
                         {% endif %}
                     {% endwith %}
                 </div>
 
-                <div style="flex-grow: 1; min-width: 250px;">
-                    <h2 style="margin-top: 0;">{{ product.title }}</h2>
+                <div class="cabinet-item-info">
+                    <a href="{% url 'public_product_detail' product_id=product.id %}" class="product-title-link">
+                        <h3 style="margin: 0;">{{ product.title }}</h3>
+                    </a>
+
+                    {% if product.description %}
+                        <div class="product-desc-preview">
+                            {{ product.description|truncatechars:120 }}
+                        </div>
+                    {% endif %}
+
                     <p>{% trans "Price" %}: ${{ product.price }}</p>
                     
                     {% if product.stock > 0 %}
-                        <p style="color: green; font-family: 'VT323', monospace; font-size: 1.2rem;">{% trans "In Stock" %}</p>
+                        <p class="status-active">{% trans "In Stock" %}</p>
+                        <div class="profile-actions">
                         {% if user.is_authenticated %}
-                            <form method="POST" action="{% url 'add_to_cart' product_id=product.id %}" style="margin: 0;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 35px; padding: 0 15px; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; cursor: pointer;">
-                                    {% trans "Add to Cart" %}
-                                </button>
-                            </form>
+                            
+                            {% if product.options.all %}
+                                <a href="{% url 'public_product_detail' product_id=product.id %}" class="btn-main pixel-btn-action pixel-btn-blue">
+                                    {% trans "Choose Options" %}
+                                </a>
+                            {% else %}
+                                <form method="POST" action="{% url 'add_to_cart' product_id=product.id %}" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-main pixel-btn-action">
+                                        {% trans "Add to Cart" %}
+                                    </button>
+                                </form>
+                            {% endif %}
+
                         {% else %}
-                            <a href="{% url 'account_login' %}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 35px; padding: 0 15px; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; text-decoration: none; color: black;">
+                            <a href="{% url 'account_login' %}" class="btn-main pixel-btn-action">
                                 {% trans "Log in to Buy" %}
                             </a>
                         {% endif %}
+                        </div>
                     {% else %}
-                        <p style="color: red; font-family: 'VT323', monospace; font-size: 1.2rem;">{% trans "Out of Stock" %}</p>
+                        <p class="status-inactive">{% trans "Out of Stock" %}</p>
                     {% endif %}
                 </div>
             </div>
@@ -100,53 +90,16 @@
     {% endif %}
 </div>
 
-<div id="imagePopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;" onclick="closeImagePopup()">
-    <div style="position: relative; max-width: 90%; text-align: center;">
-        <img id="popupImage" src="" alt="Popup" style="width: 100%; max-width: 400px; border: 4px solid var(--pixel-white); background: white;">
-        <p style="color: white; font-family: 'VT323', monospace; font-size: 1.5rem; margin-top: 10px;">{% trans "Click anywhere to close" %}</p>
+<div id="imagePopup" class="image-popup-overlay" style="display: none;" onclick="closeImagePopup()">
+    <div class="popup-content">
+        <img id="popupImage" src="" alt="Popup" class="popup-img">
+        <p class="popup-hint">{% trans "Click anywhere to close" %}</p>
     </div>
 </div>
 
-
+{{ js_config|json_script:"js-config" }}
+<script src="{% static 'js/shop_logic.js' %}"></script>
 <script>
-    // AJAX обновление количества
-    async function updateQuantity(productId, newQty) {
-        try {
-            const response = await fetch(`/cart/update/${productId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({ quantity: newQty })
-            });
-
-            const data = await response.json();
-
-            if (data.status === 'success') {
-                // Обновляем количество на лету
-                document.getElementById(`qty-${productId}`).innerText = newQty;
-                // Обновляем цену за позицию
-                document.getElementById(`price-${productId}`).innerText = `$${data.item_total}`;
-                // Обновляем общую сумму корзины
-                document.getElementById('cart-total-display').innerText = `$${data.cart_total}`;
-                
-                // Обновляем кнопки, чтобы они передавали актуальное количество при следующем нажатии
-                const buttons = document.querySelectorAll(`#cart-item-${productId} button`);
-                buttons[0].setAttribute('onclick', `updateQuantity(${productId}, ${newQty - 1})`);
-                buttons[1].setAttribute('onclick', `updateQuantity(${productId}, ${newQty + 1})`);
-            } else if (data.status === 'deleted') {
-                // Если количество 0 — удаляем строку
-                location.reload(); // Проще всего перезагрузить для обновления состояния "Empty cart"
-            } else if (data.status === 'error') {
-                alert(data.message);
-            }
-        } catch (error) {
-            console.error('Error updating cart:', error);
-        }
-    }
-
     function openImagePopup(imageUrl) {
         document.getElementById('popupImage').src = imageUrl;
         document.getElementById('imagePopup').style.display = 'flex';
@@ -155,18 +108,5 @@
     function closeImagePopup() {
         document.getElementById('imagePopup').style.display = 'none';
     }
-
-    // Сохранение скролла при перезагрузках
-    window.addEventListener('beforeunload', function() {
-        sessionStorage.setItem('scrollPosition', window.scrollY);
-    });
-
-    window.addEventListener('load', function() {
-        const scrollPosition = sessionStorage.getItem('scrollPosition');
-        if (scrollPosition !== null) {
-            window.scrollTo(0, parseInt(scrollPosition, 10));
-            sessionStorage.removeItem('scrollPosition');
-        }
-    });
 </script>
 {% endblock %}

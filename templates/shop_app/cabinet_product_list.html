@@ -3,20 +3,20 @@
 
 {% block content %}
 <div class="content-center">
-    <h1>{% trans "Shop Management" %}</h1>
+    <h1>{% trans "Shop Management" %}</h1> cabinet_product_list
     
-    <div style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+    <div class="management-top-bar">
         {% if products|length < user.sku_limit %}
-            <a href="{% url 'cabinet_shop_add' %}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 20px; text-decoration: none; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
+            <a href="{% url 'cabinet_shop_add' %}" class="btn-main pixel-btn-action">
                 {% trans "Add New Product" %}
             </a>
         {% else %}
-            <button class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 20px; background: var(--pixel-grey); cursor: not-allowed; border: 2px solid var(--pixel-black); width: auto; font-family: 'VT323', monospace; text-transform: uppercase;" disabled>
+            <button class="btn-main pixel-btn-action btn-disabled" disabled>
                 {% trans "SKU Limit Reached" %} ({{ user.sku_limit }})
             </button>
         {% endif %}
         
-        <a href="{% url 'cabinet' %}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 20px; background: var(--pixel-grey); text-decoration: none; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
+        <a href="{% url 'cabinet' %}" class="btn-main pixel-btn-action pixel-btn-grey">
             {% trans "Back to Dashboard" %}
         </a>
     </div>
@@ -24,35 +24,35 @@
     {% if products %}
         <div class="cabinet-modules">
             {% for product in products %}
-            <div class="pixel-card" style="display: flex; gap: 20px; align-items: flex-start;">
+            <div class="pixel-card product-list-card">
                 
-                <div style="flex-shrink: 0;">
+                <div class="product-list-img-wrap">
                     {% with main_image=product.images.all|first %}
                         {% if main_image %}
-                            <img src="{{ main_image.image.url }}" alt="{{ product.title }}" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid var(--pixel-black);">
+                            <img src="{{ main_image.image.url }}" alt="{{ product.title }}" class="product-list-img">
                         {% else %}
-                            <div style="width: 150px; height: 150px; background: #eee; border: 3px solid var(--pixel-black); display: flex; align-items: center; justify-content: center; color: #999; font-family: 'VT323', monospace;">No Image</div>
+                            <div class="product-list-no-img">NO IMAGE</div>
                         {% endif %}
                     {% endwith %}
                 </div>
 
-                <div style="flex-grow: 1;">
-                    <h2 style="margin-top: 0;">{{ product.title }}</h2>
+                <div class="product-list-info">
+                    <h2 class="product-title">{{ product.title }}</h2>
                     <p>{% trans "Price" %}: ${{ product.price }} | {% trans "Stock" %}: <strong>{{ product.stock }}</strong></p>
                     <p>
                         {% trans "Status" %}: 
                         {% if product.is_active %}
-                            <span style="color: green;">{% trans "Active" %}</span>
+                            <span class="status-text-green">{% trans "Active" %}</span>
                         {% else %}
-                            <span style="color: red;">{% trans "Hidden" %}</span>
+                            <span class="status-text-red">{% trans "Hidden" %}</span>
                         {% endif %}
                     </p>
                     
-                    <div style="margin-top: 15px; display: flex; justify-content: flex-start; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div class="product-list-actions">
                         
-                        <form action="{% url 'cabinet_shop_toggle_active' product.id %}" method="POST" style="margin: 0; padding: 0; display: inline-block;">
+                        <form action="{% url 'cabinet_shop_toggle_active' product.id %}" method="POST" class="product-toggle-form">
                             {% csrf_token %}
-                            <button type="submit" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 35px; padding: 0 15px; background: {% if product.is_active %}var(--pixel-grey){% else %}var(--pixel-yellow){% endif %}; color: black; font-size: 1.1rem; border: 2px solid var(--pixel-black); cursor: pointer; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; margin: 0;">
+                            <button type="submit" class="btn-main pixel-btn-action {% if product.is_active %}pixel-btn-grey{% else %}pixel-btn-yellow{% endif %}">
                                 {% if product.is_active %}
                                     {% trans "Deactivate" %}
                                 {% else %}
@@ -61,11 +61,11 @@
                             </button>
                         </form>
 
-                        <a href="{% url 'cabinet_shop_edit' product.id %}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 35px; padding: 0 15px; background: var(--pixel-blue); text-decoration: none; font-size: 1.1rem; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; margin: 0;">
+                        <a href="{% url 'cabinet_shop_edit' product.id %}" class="btn-main pixel-btn-action pixel-btn-blue">
                             {% trans "Edit" %}
                         </a>
                         
-                        <a href="{% url 'cabinet_shop_delete' product.id %}" class="btn-main" style="display: inline-flex; align-items: center; justify-content: center; height: 35px; padding: 0 15px; background: var(--pixel-red); text-decoration: none; font-size: 1.1rem; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; margin: 0;">
+                        <a href="{% url 'cabinet_shop_delete' product.id %}" class="btn-main pixel-btn-action pixel-btn-red">
                             {% trans "Delete" %}
                         </a>
                     </div>

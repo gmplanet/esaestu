@@ -3,55 +3,67 @@
 
 {% block content %}
 <div class="content-center">
-    <h1>{% trans "Incoming Bookings" %}</h1>
-    <div style="margin-bottom: 20px;">
-        <a href="{% url 'cabinet' %}" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto;">
+    <div class="bookings-header">
+        <h1>{% trans "Incoming Bookings" %}</h1>
+        <a href="{% url 'cabinet' %}" class="btn-main pixel-btn-action pixel-btn-grey">
             {% trans "Back to Dashboard" %}
+        </a> cabinet_incoming_bookings
+    </div>
+
+    <div class="tabs-nav">
+        <a href="?tab=new" class="btn-main pixel-btn-action tab-btn {% if current_tab == 'new' %}active{% endif %}">
+            {% trans "New" %} ({{ counts.new }})
+        </a>
+        <a href="?tab=completed" class="btn-main pixel-btn-action tab-btn {% if current_tab == 'completed' %}active{% endif %}">
+            {% trans "Completed" %} ({{ counts.completed }})
+        </a>
+        <a href="?tab=cancelled" class="btn-main pixel-btn-action tab-btn {% if current_tab == 'cancelled' %}active{% endif %}">
+            {% trans "Cancelled" %} ({{ counts.cancelled }})
         </a>
     </div>
 
-    <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 4px solid var(--pixel-black);">
-        <a href="?tab=new" class="btn-main" style="{% if current_tab == 'new' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "New" %} ({{ counts.new }})</a>
-        <a href="?tab=completed" class="btn-main" style="{% if current_tab == 'completed' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "Completed" %} ({{ counts.completed }})</a>
-        <a href="?tab=cancelled" class="btn-main" style="{% if current_tab == 'cancelled' %}background: var(--pixel-blue); color: white; border-bottom: 0; transform: translateY(4px);{% else %}background: var(--pixel-white); color: black;{% endif %} margin: 0; box-shadow: none;">{% trans "Cancelled" %} ({{ counts.cancelled }})</a>
-    </div>
-
-    <div class="pixel-card" style="padding: 10px; margin-bottom: 20px; background: #f9f9f9;">
-        <form method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+    <div class="pixel-card filter-card">
+        <form method="GET" class="filter-form">
             <input type="hidden" name="tab" value="{{ current_tab }}">
-            <input type="text" name="q" value="{{ query }}" placeholder="{% trans 'Search by ID, Customer...' %}" style="padding: 8px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black); flex-grow: 1;">
+            <input type="text" name="q" value="{{ query }}" class="filter-input" placeholder="{% trans 'Search by ID, Customer...' %}">
             
-            <select name="sort" style="padding: 8px; font-family: 'VT323', monospace; font-size: 1.2rem; border: 2px solid var(--pixel-black);">
+            <select name="sort" class="filter-select">
                 <option value="-start_time" {% if sort_by == '-start_time' %}selected{% endif %}>{% trans "Soonest First" %}</option>
                 <option value="start_time" {% if sort_by == 'start_time' %}selected{% endif %}>{% trans "Oldest First" %}</option>
             </select>
-            <button type="submit" class="btn-main" style="width: auto; padding: 5px 15px;">{% trans "Apply" %}</button>
+            
+            <button type="submit" class="btn-main pixel-btn-action pixel-btn-blue">
+                {% trans "Apply" %}
+            </button>
         </form>
     </div>
 
     {% if bookings %}
-        <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-family: 'VT323', monospace; font-size: 1.2rem; border: 3px solid var(--pixel-black);">
-                <thead style="background: var(--pixel-yellow);">
+        <div class="table-responsive">
+            <table class="pixel-table">
+                <thead>
                     <tr>
-                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">ID</th>
-                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Date & Time" %}</th>
-                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Customer" %}</th>
-                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Service" %}</th>
-                        <th style="border: 2px solid var(--pixel-black); padding: 10px;">{% trans "Action" %}</th>
+                        <th>ID</th>
+                        <th>{% trans "Date & Time" %}</th>
+                        <th>{% trans "Customer" %}</th>
+                        <th>{% trans "Service" %}</th>
+                        <th>{% trans "Action" %}</th>
                     </tr>
                 </thead>
-                <tbody style="background: var(--pixel-white);">
+                <tbody>
                     {% for booking in bookings %}
-                    <tr style="text-align: center; border-bottom: 2px solid var(--pixel-black);">
-                        <td style="border: 2px solid var(--pixel-black); padding: 10px; font-weight: bold;">#{{ booking.reservation_number }}</td>
-                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">
-                            {{ booking.start_time|date:"Y-m-d" }}<br>{{ booking.start_time|date:"H:i" }}
+                    <tr>
+                        <td class="id-cell">#{{ booking.reservation_number }}</td>
+                        <td>
+                            {{ booking.start_time|date:"Y-m-d" }}<br>
+                            {{ booking.start_time|date:"H:i" }}
                         </td>
-                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">{{ booking.customer.username }}</td>
-                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">{{ booking.service.title }}</td>
-                        <td style="border: 2px solid var(--pixel-black); padding: 10px;">
-                             <a href="{% url 'booking_detail' booking.uuid %}" class="btn-main" style="padding: 5px 10px; display: inline-block; width: auto; font-size: 1rem;">{% trans "Details" %}</a>
+                        <td>{{ booking.customer.username }}</td>
+                        <td>{{ booking.service.title }}</td>
+                        <td>
+                             <a href="{% url 'booking_detail' booking.uuid %}" class="btn-main pixel-btn-action pixel-btn-yellow">
+                                 {% trans "Details" %}
+                             </a>
                         </td>
                     </tr>
                     {% endfor %}

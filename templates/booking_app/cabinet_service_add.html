@@ -3,16 +3,20 @@
 
 {% block content %}
 <div class="content-center">
-    <h1>{% trans "Add New Service" %}</h1>
+    <h1>{% trans "Add New Service" %}</h1>cabinet_service_add
     
-    <div class="pixel-card">
+    <div class="pixel-card border-grey">
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
+            
             {{ form.as_p }}
             
-            <div style="margin-top: 20px;">
-                <button type="submit" class="btn-main">{% trans "Save Service" %}</button>
-                <a href="{% url 'cabinet_booking_list' %}" style="margin-left: 15px; color: var(--pixel-red); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.2rem;">
+            <div class="form-actions">
+                <button type="submit" class="btn-main pixel-btn-action pixel-btn-grey">
+                    {% trans "Save Service" %}
+                </button>
+                
+                <a href="{% url 'cabinet_booking_list' %}" class="pixel-link-cancel">
                     {% trans "Cancel" %}
                 </a>
             </div>

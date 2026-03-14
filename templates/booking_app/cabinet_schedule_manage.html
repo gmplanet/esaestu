@@ -10,23 +10,23 @@
             {% trans "General Schedule" %}
         {% endif %}
     </h1>
-    
-    <div class="pixel-card" style="border-color: var(--pixel-yellow);">
+    cabinet_schedule_manage
+    <div class="pixel-card schedule-card">
         <form method="POST">
             {% csrf_token %}
             {{ formset.management_form }}
             
-            <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div class="schedule-container">
                 {% for form in formset %}
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px dashed #ccc; padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                    <div class="schedule-row">
                         
                         {{ form.id }}
                         
-                        <div style="font-family: 'Press Start 2P', cursive; font-size: 0.8rem; width: 150px;">
+                        <div class="day-label">
                             {{ form.instance.get_day_of_week_display }}
                         </div>
                         
-                        <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="time-inputs">
                             <label>{% trans "From" %}:</label>
                             {{ form.start_time }}
                             
@@ -34,8 +34,8 @@
                             {{ form.end_time }}
                         </div>
                         
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <label style="cursor: pointer; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                        <div class="day-off-group">
+                            <label class="day-off-label">
                                 {% trans "Day Off" %}:
                             </label>
                             {{ form.is_day_off }}
@@ -44,11 +44,11 @@
                 {% endfor %}
             </div>
             
-            <div style="margin-top: 25px;">
-                <button type="submit" class="btn-main" style="background: var(--pixel-blue); color: white;">
+            <div class="schedule-actions">
+                <button type="submit" class="btn-main pixel-btn-action pixel-btn-blue">
                     {% trans "Save Schedule" %}
                 </button>
-                <a href="{% url 'cabinet_booking_list' %}" style="margin-left: 15px; color: var(--pixel-red); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                <a href="{% url 'cabinet_booking_list' %}" class="pixel-link-cancel">
                     {% trans "Cancel" %}
                 </a>
             </div>

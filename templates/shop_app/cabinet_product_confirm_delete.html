@@ -5,18 +5,21 @@
 <div class="content-center">
     <h1>{% trans "Delete Product" %}</h1>
     
-    <div class="pixel-card">
-        <p>{% trans "Are you sure you want to delete the product" %} "{{ product.title }}"?</p>
+    <div class="pixel-card border-red">
+        <p class="delete-warning-text">
+            {% trans "Are you sure you want to delete the product" %} 
+            <strong class="status-inactive">"{{ product.title }}"</strong>?
+        </p>
         
         <form method="POST">
             {% csrf_token %}
             
-            <div style="margin-top: 20px;">
-                <button type="submit" class="btn-main" style="background-color: var(--pixel-red);">
+            <div class="delete-actions">
+                <button type="submit" class="btn-main pixel-btn-action pixel-btn-red">
                     {% trans "Confirm Delete" %}
                 </button>
                 
-                <a href="{% url 'cabinet_shop_list' %}" style="margin-left: 15px; color: var(--pixel-grey); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.2rem;">
+                <a href="{% url 'cabinet_shop_list' %}" class="btn-main pixel-btn-action pixel-btn-grey">
                     {% trans "Cancel" %}
                 </a>
             </div>

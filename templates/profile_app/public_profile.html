@@ -4,29 +4,30 @@
 {% block content %}
 <div class="content-center">
     <div class="pixel-card">
-        <h1>{% trans "Profile" %}: {{ profile_user.username }}</h1>
+        <h1>{% trans "Space of" %} {{ profile_user.username }}</h1>public_profile
         <p>{% trans "Member since" %}: {{ profile_user.date_joined|date:"d M Y" }}</p>
         
-        <div style="margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px;">
+        <div class="profile-showcase-section">
             <h2>{% trans "Showcase" %}</h2>
             
-            {# Проверка наличия группы продавца у пользователя, чей профиль мы просматриваем #}
-            {% if profile_user.is_seller %}
-                {# Ссылка на маршрут public_shop с передачей текущего слага #}
-                <a href="{% url 'public_shop' slug=profile_user.slug %}" class="btn-main" style="text-decoration: none; padding: 10px 15px; display: inline-block;">
-                    {% trans "Visit Shop" %}
-                </a>
-            {% else %}
-                {# Сообщение для пользователей без роли продавца #}
-                <p style="color: #666;">{% trans "This user has no active storefront." %}</p>
-            {% endif %}
+            <div class="profile-actions">
+                {# Проверка наличия группы продавца у пользователя, чей профиль мы просматриваем #}
+                {% if profile_user.is_seller %}
+                    {# Ссылка на маршрут public_shop с передачей текущего слага #}
+                    <a href="{% url 'public_shop' slug=profile_user.slug %}" class="btn-main pixel-btn-blue">
+                        {% trans "Visit Shop" %}
+                    </a>
+                {% else %}
+                    {# Сообщение для пользователей без роли продавца #}
+                    <p class="profile-no-store-text">{% trans "This user has no active storefront." %}</p>
+                {% endif %}
 
-            {% if profile_user.is_booking_provider %}
-                <a href="{% url 'public_booking' slug=profile_user.slug %}" class="btn-main" style="text-decoration: none; padding: 10px 15px; display: inline-block; background: var(--pixel-yellow); color: black;">
-                    {% trans "Book a Time" %}
-                </a>
-            {% endif %}
-
+                {% if profile_user.is_booking_provider %}
+                    <a href="{% url 'public_booking' slug=profile_user.slug %}" class="btn-main pixel-btn-yellow">
+                        {% trans "Book a Time" %}
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

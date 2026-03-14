@@ -2,100 +2,106 @@
 {% load i18n %}
 
 {% block content %}
+prof_app/cabinet
 <div class="content-center">
-    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 30px;">
+    <div class="cabinet-profile-header">
         <div style="flex-shrink: 0;">
             {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" alt="Avatar" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid var(--pixel-black);">
+                <img src="{{ user.avatar.url }}" alt="Avatar" class="cabinet-avatar-img">
             {% else %}
-                <div style="width: 100px; height: 100px; background: #eee; border: 3px solid var(--pixel-black); display: flex; align-items: center; justify-content: center; color: #999; font-family: 'VT323', monospace; text-align: center;">No Avatar</div>
+                <div class="cabinet-avatar-placeholder">No Avatar</div>
             {% endif %}
         </div>
         
-        <div>
-            <h1 style="margin: 0; text-transform: uppercase;">{% trans "Dashboard" %}: {{ user.username }}</h1>
-            <p style="margin: 5px 0 0 0;">{% trans "Email" %}: {{ user.email }}</p>
-            <p style="margin: 5px 0 0 0;">{% trans "Joined" %}: {{ user.date_joined|date:"d M Y" }}</p>
+        <div class="cabinet-profile-info">
+            <h1>{% trans "Dashboard" %}: {{ user.username }}</h1> 
+            <p>{% trans "Email" %}: {{ user.email }}</p>
+            <p>{% trans "Joined" %}: {{ user.date_joined|date:"d M Y" }}</p>
         </div>
     </div>
 
-    <div class="pixel-card" style="margin-bottom: 30px; border-color: var(--pixel-grey);">
-        <h2 style="margin-top: 0;">{% trans "Profile Settings" %}</h2>
+    <div class="pixel-card cabinet-settings-card">
+        <h2>{% trans "Profile Settings" %}</h2> 
         
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="action" value="update_profile">
             
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Update Avatar" %}:</label>
+            <div class="cabinet-form-group">
+                <label class="cabinet-form-label">{% trans "Update Avatar" %}:</label>
                 {{ form.avatar }}
-                <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">{% trans "Image will be automatically cropped to 100x100 pixels." %}</p>
+                <p class="cabinet-form-help">{% trans "Image will be automatically cropped to 100x100 pixels." %}</p>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; border: 2px dashed #ccc; padding: 10px;">
+            <div class="cabinet-form-group">
+                <label class="cabinet-checkbox-wrapper">
                     {{ form.show_in_catalog }}
                     <span>{% trans "Show my profile in the public Creators catalog" %}</span>
                 </label>
             </div>
 
-            <button type="submit" class="btn-main" style="background: var(--pixel-blue); display: inline-block; padding: 5px 15px; text-transform: uppercase; width: auto;">
+             <div class="cabinet-form-group">
+                <label class="cabinet-form-label">{% trans "Preferred Currency" %}:</label>
+                {{ form.currency }}
+            </div>
+
+            
+            <button type="submit" class="btn-main pixel-btn-action pixel-btn-blue">
                 {% trans "Save Settings" %}
             </button>
         </form>
     </div>
     
-    <div class="pixel-card" style="margin-bottom: 30px;">
-        <h2 style="margin-top: 0;">{% trans "My Activity" %}</h2>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="{% url 'cabinet_my_bookings' %}" class="btn-main" style="display: inline-block; width: auto;">{% trans "My Bookings" %}</a>
-            <a href="{% url 'cabinet_my_orders' %}" class="btn-main" style="display: inline-block; width: auto; background: var(--pixel-yellow); color: black;">{% trans "My Purchases" %}</a>
+    <div class="pixel-card cabinet-activity-card">
+        <h2>{% trans "My Activity" %}</h2>
+        <div class="cabinet-button-group">
+            <a href="{% url 'cabinet_my_bookings' %}" class="btn-main pixel-btn-action pixel-btn-grey">{% trans "My Bookings" %}</a>
+            <a href="{% url 'cabinet_my_orders' %}" class="btn-main pixel-btn-action pixel-btn-yellow">{% trans "My Purchases" %}</a>
         </div>
     </div>
 
-    <hr style="margin: 30px 0; border: 1px dashed #ccc;">
+    <hr class="cabinet-hr-dashed">
 
     <div class="cabinet-modules">
         {% if user.is_seller %}
-        <div class="pixel-card" style="border-color: var(--pixel-blue);">
+        <div class="pixel-card cabinet-card-blue">
             <h2>{% trans "Shop Management" %}</h2>
             <p>{% trans "Manage your products, inventory, and orders." %}</p>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="{% url 'cabinet_shop_list' %}" class="btn-main" style="width: auto; text-align: center;">{% trans "Go to Shop" %}</a>
-                <a href="{% url 'cabinet_incoming_orders' %}" class="btn-main" style="width: auto; background: var(--pixel-yellow); color: black; text-align: center;">{% trans "Incoming Orders" %}</a>
+            <div class="cabinet-button-group">
+                <a href="{% url 'cabinet_shop_list' %}" class="btn-main pixel-btn-action pixel-btn-grey">{% trans "Go to Shop" %}</a>
+                <a href="{% url 'cabinet_incoming_orders' %}" class="btn-main pixel-btn-action pixel-btn-yellow">{% trans "Incoming Orders" %}</a>
             </div>
         </div>
         {% endif %}
 
         {% if user.is_booking_provider %}
-        <div class="pixel-card" style="border-color: var(--pixel-blue);">
+        <div class="pixel-card cabinet-card-blue">
             <h2>{% trans "Booking Management" %}</h2>
             <p>{% trans "Manage your services, providers, schedule, and incoming bookings." %}</p>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="{% url 'cabinet_booking_list' %}" class="btn-main" style="width: auto; text-align: center;">{% trans "Go to Settings" %}</a>
-                <a href="{% url 'cabinet_incoming_bookings' %}" class="btn-main" style="width: auto; background: var(--pixel-yellow); color: black; text-align: center;">{% trans "Incoming Bookings" %}</a>
+            <div class="cabinet-button-group">
+                <a href="{% url 'cabinet_booking_list' %}" class="btn-main pixel-btn-action pixel-btn-grey">{% trans "Go to Settings" %}</a>
+                <a href="{% url 'cabinet_incoming_bookings' %}" class="btn-main pixel-btn-action pixel-btn-yellow">{% trans "Incoming Bookings" %}</a>
             </div>
         </div>
         {% endif %}
 
-        
         {% if user.is_blogger %}
-        <div class="pixel-card" style="border-color: var(--pixel-yellow);">
+        <div class="pixel-card cabinet-card-yellow">
             <h2>{% trans "Blog Management" %}</h2>
             <p>{% trans "Write and publish new articles." %}</p>
-            <a href="#" class="btn-main" style="width: auto; background: var(--pixel-yellow); color: black; text-align: center;">{% trans "New Post (Coming Soon)" %}</a>
+            <a href="#" class="btn-main pixel-btn-action pixel-btn-yellow">{% trans "New Post (Coming Soon)" %}</a>
         </div>
         {% endif %}
 
         {% if user.is_gallery_owner %}
-        <div class="pixel-card" style="border-color: var(--pixel-red);">
+        <div class="pixel-card cabinet-card-red">
             <h2>{% trans "Gallery Management" %}</h2>
             <p>{% trans "Upload and organize your photos." %}</p>
-            <a href="#" class="btn-main" style="width: auto; background: var(--pixel-red); text-align: center;">{% trans "Upload Photo (Coming Soon)" %}</a>
+            <a href="#" class="btn-main pixel-btn-action pixel-btn-red">{% trans "Upload Photo (Coming Soon)" %}</a>
         </div>
         {% endif %}
 
-        {% if not user.is_seller and not user.is_blogger and not user.is_gallery_owner %}
+        {% if not user.is_seller and not user.is_blogger and not user.is_gallery_owner and not user.is_booking_provider %}
         <div class="pixel-card">
             <h2>{% trans "Standard Account" %}</h2>
             <p>{% trans "You currently do not have any active creator modules. Contact the administrator to upgrade your account." %}</p>
@@ -103,13 +109,13 @@
         {% endif %}
     </div>
 
-    <hr style="margin: 40px 0 20px 0; border: 1px solid var(--pixel-red);">
+    <hr class="cabinet-hr-solid-red">
 
-    <div style="text-align: right;">
+    <div class="cabinet-delete-wrapper">
         <form method="POST" onsubmit="return confirm('{% trans "Are you absolutely sure you want to delete your account? This action cannot be undone and all your data will be permanently lost." %}');">
             {% csrf_token %}
             <input type="hidden" name="action" value="delete_account">
-            <button type="submit" class="btn-main" style="background: var(--pixel-red); color: white; border: 2px solid var(--pixel-black); display: inline-block; padding: 5px 15px; width: auto;">
+            <button type="submit" class="btn-main pixel-btn-action pixel-btn-red">
                 {% trans "Delete Account" %}
             </button>
         </form>

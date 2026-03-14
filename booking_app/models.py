@@ -34,20 +34,26 @@ class Provider(models.Model):
 
     def save(self, *args, **kwargs):
         if self.avatar:
-            # Открываем изображение
             img = Image.open(self.avatar)
             
-            # ImageOps.fit вырезает квадрат из центра и ресайзит до 100x100
-            # Это удалит всё лишнее по бокам или сверху/снизу автоматически
+            # 1. Выполняем агрессивный кроп 100x100
             img = ImageOps.fit(img, (100, 100), Image.Resampling.LANCZOS)
             
-            buffer = BytesIO()
-            # Пытаемся сохранить оригинальный формат или используем JPEG
-            img_format = img.format if img.format else 'JPEG'
-            img.save(buffer, format=img_format, quality=85)
+            # 2. ИСПРАВЛЕНИЕ ОШИБКИ: Если изображение в режиме RGBA или P (с палитрой),
+            # конвертируем его в RGB, чтобы можно было сохранить в JPEG
+            if img.mode in ('RGBA', 'P'):
+                img = img.convert('RGB')
             
+            buffer = BytesIO()
+            # Сохраняем как JPEG (это обеспечит минимальный вес файла)
+            img.save(buffer, format='JPEG', quality=85)
+            
+            # Сохраняем файл с расширением .jpg
             file_name = os.path.basename(self.avatar.name)
-            self.avatar.save(file_name, ContentFile(buffer.getvalue()), save=False)
+            base_name = os.path.splitext(file_name)[0]
+            new_name = f"{base_name}.jpg"
+            
+            self.avatar.save(new_name, ContentFile(buffer.getvalue()), save=False)
         
         super().save(*args, **kwargs)    
 
@@ -96,15 +102,20 @@ class BookingService(models.Model):
         if self.image:
             img = Image.open(self.image)
             
-            # Применяем тот же агрессивный кроп 100x100
             img = ImageOps.fit(img, (100, 100), Image.Resampling.LANCZOS)
             
+            # Повторяем ту же логику конвертации для услуг
+            if img.mode in ('RGBA', 'P'):
+                img = img.convert('RGB')
+            
             buffer = BytesIO()
-            img_format = img.format if img.format else 'JPEG'
-            img.save(buffer, format=img_format, quality=85)
+            img.save(buffer, format='JPEG', quality=85)
             
             file_name = os.path.basename(self.image.name)
-            self.image.save(file_name, ContentFile(buffer.getvalue()), save=False)
+            base_name = os.path.splitext(file_name)[0]
+            new_name = f"{base_name}.jpg"
+            
+            self.image.save(new_name, ContentFile(buffer.getvalue()), save=False)
         
         super().save(*args, **kwargs)
 

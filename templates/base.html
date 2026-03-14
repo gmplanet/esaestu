@@ -107,14 +107,14 @@
 
             
             {% if messages %}
-                    <div class="messages-wrapper" style="max-width: 800px; margin: 0 auto 20px auto;">
-                        {% for message in messages %}
-                            <div class="pixel-card" style="border-color: {% if message.tags == 'error' %}red{% else %}var(--pixel-blue){% endif %}; padding: 15px; margin-bottom: 10px;">
-                                <p style="margin: 0; font-weight: bold; {% if message.tags == 'error' %}color: red;{% endif %}">{{ message }}</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-             {% endif %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="pixel-card message-pixel-card {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
 
             {% block content %}

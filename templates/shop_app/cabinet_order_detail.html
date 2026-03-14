@@ -1,59 +1,85 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block content %}
 <div class="content-center">
-    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; margin-bottom: 20px; gap: 15px;">
-        <h1 style="margin: 0;">{% trans "Order" %} #{{ order.order_number }}</h1>
-        <a href="javascript:history.back()" class="btn-main" style="background: var(--pixel-grey); text-decoration: none; padding: 0 15px; display: inline-flex; align-items: center; justify-content: center; height: 35px; width: auto; font-family: 'VT323', monospace; text-transform: uppercase;">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="pixel-card border-blue mb-20" style="white-space: pre-wrap; font-family: 'VT323', monospace; font-size: 1.1rem;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="order-detail-header">
+        <h1 style="margin: 0;">{% trans "Order" %} #{{ order.order_number }}</h1> 
+        <a href="javascript:history.back()" class="btn-main pixel-btn-action pixel-btn-grey">
             {% trans "Go Back" %}
         </a>
     </div>
 
-    <div class="pixel-card" style="border-color: {% if order.status == 'active' %}var(--pixel-blue){% elif order.status == 'processing' %}var(--pixel-yellow){% elif order.status == 'completed' %}green{% else %}var(--pixel-red){% endif %};">
+    <div class="pixel-card order-card-{{ order.status }}">
         
-        <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
-            <div style="flex: 1; min-width: 250px;">
+        <div class="order-info-grid">
+            <div class="order-info-col">
                 <h3 style="margin-top: 0; font-size: 1.2rem;">{% trans "General Info" %}</h3>
                 <p><strong>{% trans "Date" %}:</strong> {{ order.created_at|date:"Y-m-d H:i" }}</p>
                 <p><strong>{% trans "Status" %}:</strong> 
-                    {% if order.status == 'active' %}<span style="color: var(--pixel-blue); font-weight: bold;">{% trans "New" %}</span>{% endif %}
-                    {% if order.status == 'processing' %}<span style="color: #b8860b; font-weight: bold;">{% trans "Processing" %}</span>{% endif %}
+                    {% if order.status == 'active' %}<span class="status-text-new">{% trans "New" %}</span>{% endif %}
+                    {% if order.status == 'processing' %}<span class="status-text-processing">{% trans "Processing" %}</span>{% endif %}
                     {% if order.status == 'completed' %}<span style="color: green; font-weight: bold;">{% trans "Completed" %}</span>{% endif %}
                     {% if order.status == 'cancelled_by_buyer' %}<span style="color: red; font-weight: bold;">{% trans "Cancelled by Buyer" %}</span>{% endif %}
                     {% if order.status == 'cancelled_by_seller' %}<span style="color: red; font-weight: bold;">{% trans "Cancelled by Seller" %}</span>{% endif %}
                 </p>
             </div>
             
-            <div style="flex: 1; min-width: 250px;">
+            <div class="order-info-col">
                 <h3 style="margin-top: 0; font-size: 1.2rem;">{% trans "Customer Details" %}</h3>
                 <p><strong>{% trans "Name" %}:</strong> {{ order.customer_name }}</p>
                 <p><strong>{% trans "Email" %}:</strong> {{ order.customer_email }}</p>
                 <p><strong>{% trans "Phone" %}:</strong> {{ order.customer_phone }}</p>
                 {% if order.additional_info %}
-                    <div style="background: #eee; padding: 5px; font-family: 'VT323', monospace;">{{ order.additional_info }}</div>
+                    <div style="background: #eee; padding: 10px; font-family: 'VT323', monospace; white-space: pre-wrap; border: 1px solid var(--pixel-black);">{{ order.additional_info }}</div>
                 {% endif %}
             </div>
         </div>
 
         <h3 style="margin-top: 0; font-size: 1.2rem;">{% trans "Items" %}</h3>
-        <div style="background: #f9f9f9; padding: 10px; border: 2px dashed var(--pixel-black); margin-bottom: 20px;">
-            <ul style="margin: 0; padding-left: 20px; font-family: 'VT323', monospace; font-size: 1.2rem;">
+        <div class="order-items-box">
+            <ul class="order-items-list">
                 {% for item in order.items.all %}
-                    <li>{{ item.product_name }} <strong style="color: var(--pixel-red);">x{{ item.quantity }}</strong> - ${{ item.total_price }}</li>
+                    <li style="margin-bottom: 10px;">
+                        {% if item.product %}
+                            <a href="{% url 'public_product_detail' product_id=item.product.id %}" target="_blank" class="pixel-link">
+                                {{ item.product_name }}
+                            </a>
+                        {% else %}
+                            {{ item.product_name }}
+                        {% endif %}
+                        <strong style="color: var(--pixel-red);">x{{ item.quantity }}</strong> - ${{ item.total_price }}
+                        
+                        {% if item.selected_options %}
+                            <div style="font-size: 0.9rem; color: #666; margin-top: 3px;">
+                                {% for key, value in item.selected_options.items %}
+                                    <span style="background: #f0f0f0; padding: 1px 4px; border: 1px solid #ccc; margin-right: 5px;">
+                                        {{ key }}: {{ value }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </li>
                 {% endfor %}
             </ul>
         </div>
 
         {% if order.status == 'active' or order.status == 'processing' %}
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; border-bottom: 2px solid var(--pixel-black); padding-bottom: 20px;">
-                
+            <div class="order-actions-bar">
                 {% if request.user == order.seller %}
                     {% if order.status == 'active' %}
                         <form action="{% url 'shop_update_order_status' order.uuid %}" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="status" value="processing">
-                            <button type="submit" class="btn-main" style="background: var(--pixel-yellow); color: black; width: auto;">{% trans "Mark as Processing" %}</button>
+                            <button type="submit" class="btn-main pixel-btn-action pixel-btn-yellow" style="width: auto;">{% trans "Mark as Processing" %}</button>
                         </form>
                     {% endif %}
                     
@@ -61,14 +87,14 @@
                         <form action="{% url 'shop_update_order_status' order.uuid %}" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="status" value="completed">
-                            <button type="submit" class="btn-main" style="background: green; color: white; width: auto;">{% trans "Mark as Completed" %}</button>
+                            <button type="submit" class="btn-main pixel-btn-action" style="background: green; color: white; width: auto;">{% trans "Mark as Completed" %}</button>
                         </form>
                     {% endif %}
                 {% endif %}
 
                 <form action="{% url 'shop_cancel_order' order.uuid %}" method="POST" onsubmit="return confirm('{% trans "Are you sure you want to cancel this order?" %}');">
                     {% csrf_token %}
-                    <button type="submit" class="btn-main" style="background: var(--pixel-red); color: white; border: 2px solid var(--pixel-black); width: auto;">
+                    <button type="submit" class="btn-main pixel-btn-action pixel-btn-red" style="width: auto;">
                         {% trans "Cancel Order" %}
                     </button>
                 </form>
@@ -77,29 +103,28 @@
 
         <div>
             <h3 style="margin-top: 0; font-size: 1.2rem;">{% trans "Order Messages" %}</h3>
-            
-            {% if order.comments.all %}
-                <div style="max-height: 300px; overflow-y: auto; margin-bottom: 15px; padding-right: 10px;">
-                    {% for comment in order.comments.all %}
-                        <div style="margin-bottom: 10px; padding: 10px; background: {% if comment.author == request.user %}#e6f7ff{% else %}#f0f0f0{% endif %}; border: 2px solid var(--pixel-black);">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; margin-bottom: 5px;">
-                                <strong style="color: var(--pixel-black);">{% if comment.author == request.user %}{% trans "You" %}{% else %}{{ comment.author.username }}{% endif %}</strong>
-                                <span>{{ comment.created_at|date:"d M H:i" }}</span>
+            <div id="chat-wrapper">
+                <div class="chat-container" id="chat-messages">
+                    {% if order.comments.all %}
+                        {% for comment in order.comments.all %}
+                            <div class="chat-msg-wrapper {% if comment.author == request.user %}chat-msg-mine{% else %}chat-msg-theirs{% endif %}">
+                                <div class="chat-msg-header">
+                                    <strong style="color: var(--pixel-black);">{% if comment.author == request.user %}{% trans "You" %}{% else %}{{ comment.author.username }}{% endif %}</strong>
+                                    <span>{{ comment.created_at|date:"d M H:i" }}</span>
+                                </div>
+                                <div class="chat-msg-text" style="white-space: pre-wrap;">{{ comment.text }}</div>
                             </div>
-                            <div style="font-family: 'VT323', monospace; font-size: 1.4rem; word-wrap: break-word;">
-                                {{ comment.text }}
-                            </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #666; font-size: 0.9rem; font-family: 'VT323', monospace;">{% trans "No messages yet." %}</p>
+                    {% endif %}
                 </div>
-            {% else %}
-                <p style="color: #666; font-size: 0.9rem; font-family: 'VT323', monospace;">{% trans "No messages yet." %}</p>
-            {% endif %}
+            </div>
 
-            <form action="{% url 'shop_add_comment' order.uuid %}" method="POST" style="display: flex; gap: 10px; flex-direction: column;">
+            <form id="chat-form" action="{% url 'shop_add_comment' order.uuid %}" method="POST" style="display: flex; gap: 10px; flex-direction: column;">
                 {% csrf_token %}
-                <textarea name="comment_text" rows="3" maxlength="250" required placeholder="{% trans 'Write a message (max 250 chars)...' %}" style="width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.4rem; border: 2px solid var(--pixel-black); resize: vertical;"></textarea>
-                <button type="submit" class="btn-main" style="width: auto; align-self: flex-start; padding: 5px 25px; background: var(--pixel-blue); color: white;">
+                <textarea name="comment_text" id="comment-input" rows="3" maxlength="250" required placeholder="{% trans 'Write a message (max 250 chars)...' %}" class="chat-form-area"></textarea>
+                <button type="submit" id="send-btn" class="btn-main pixel-btn-action pixel-btn-blue" style="width: auto; align-self: flex-start; padding: 5px 25px;">
                     {% trans "Send Message" %}
                 </button>
             </form>
@@ -107,4 +132,6 @@
 
     </div>
 </div>
+
+<script src="{% static 'js/order_chat.js' %}"></script>
 {% endblock %}

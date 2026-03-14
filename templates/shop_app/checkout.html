@@ -4,84 +4,76 @@
 {% block content %}
 <div class="content-center">
     <h1>{% trans "Checkout" %}</h1>
-    <p style="font-family: 'VT323', monospace; font-size: 1.2rem; color: #555;">
-        {% trans "Complete your order from" %} <strong style="color: var(--pixel-black);">{{ seller.username }}</strong>
+    <p class="checkout-subtitle">
+        {% trans "Complete your order from" %} <strong>{{ seller.username }}</strong>
     </p>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 20px;">
+    <div class="checkout-layout">
         
-        <div class="pixel-card" style="flex: 1; min-width: 300px; border-color: var(--pixel-blue);">
-            <h2 style="margin-top: 0; color: var(--pixel-blue);">{% trans "Your Details" %}</h2>
+        <div class="pixel-card border-blue checkout-form-col">
+            <h2 class="status-active" style="margin-top: 0;">{% trans "Your Details" %}</h2>
             
             <form method="POST">
                 {% csrf_token %}
                 
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Full Name" %} *</label>
+                <div class="checkout-field-group">
+                    <label class="checkout-field-label">{% trans "Full Name" %} *</label>
                     {{ form.customer_name }}
                     {% if form.customer_name.errors %}
-                        <div style="color: var(--pixel-red); font-size: 0.85rem; margin-top: 5px;">
-                            {{ form.customer_name.errors|striptags }}
-                        </div>
+                        <div class="checkout-error-text">{{ form.customer_name.errors|striptags }}</div>
                     {% endif %}
                 </div>
                 
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Phone Number" %} *</label>
+                <div class="checkout-field-group">
+                    <label class="checkout-field-label">{% trans "Phone Number" %} *</label>
                     {{ form.customer_phone }}
                     {% if form.customer_phone.errors %}
-                        <div style="color: var(--pixel-red); font-size: 0.85rem; margin-top: 5px;">
-                            {{ form.customer_phone.errors|striptags }}
-                        </div>
+                        <div class="checkout-error-text">{{ form.customer_phone.errors|striptags }}</div>
                     {% endif %}
                 </div>
                 
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Email Address" %} *</label>
+                <div class="checkout-field-group">
+                    <label class="checkout-field-label">{% trans "Email Address" %} *</label>
                     {{ form.customer_email }}
                     {% if form.customer_email.errors %}
-                        <div style="color: var(--pixel-red); font-size: 0.85rem; margin-top: 5px;">
-                            {{ form.customer_email.errors|striptags }}
-                        </div>
+                        <div class="checkout-error-text">{{ form.customer_email.errors|striptags }}</div>
                     {% endif %}
                 </div>
                 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">{% trans "Additional Information" %}</label>
+                <div class="checkout-field-group">
+                    <label class="checkout-field-label">{% trans "Additional Information" %}</label>
                     {{ form.additional_info }}
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 2px;">{% trans "Maximum 500 characters." %}</p>
+                    <p class="variant-hint">{% trans "Maximum 500 characters." %}</p>
                     {% if form.additional_info.errors %}
-                        <div style="color: var(--pixel-red); font-size: 0.85rem; margin-top: 5px;">
-                            {{ form.additional_info.errors|striptags }}
-                        </div>
+                        <div class="checkout-error-text">{{ form.additional_info.errors|striptags }}</div>
                     {% endif %}
                 </div>
 
-                <button type="submit" class="btn-main" style="width: 100%; background: var(--pixel-blue); color: white; text-transform: uppercase; font-size: 1.2rem;">
+                <button type="submit" class="btn-main pixel-btn-action pixel-btn-blue w-100" style="text-transform: uppercase; font-size: 1.2rem;">
                     {% trans "Confirm Order" %}
                 </button>
             </form>
         </div>
 
-        <div class="pixel-card" style="flex: 1; min-width: 300px; background: #fafafa; height: fit-content;">
+        <div class="pixel-card checkout-summary-col">
             <h2 style="margin-top: 0;">{% trans "Order Summary" %}</h2>
             
-            <ul style="list-style: none; padding: 0; margin: 0 0 20px 0;">
+            <ul class="checkout-items-list">
                 {% for item in cart_items %}
-                    <li style="display: flex; justify-content: space-between; border-bottom: 2px dashed #ccc; padding: 10px 0; font-family: 'VT323', monospace; font-size: 1.2rem;">
-                        <span>{{ item.product.title }} <strong style="color: var(--pixel-red);">x {{ item.quantity }}</strong></span>
+                    <li class="checkout-item-row">
+                        <span>{{ item.product.title }} <strong class="status-inactive">x {{ item.quantity }}</strong></span>
                         <span>${{ item.total_price }}</span>
                     </li>
                 {% endfor %}
             </ul>
             
-            <div style="display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-family: 'VT323', monospace; font-size: 1.8rem; text-transform: uppercase; color: var(--pixel-red);">
+            <div class="checkout-total-row">
                 <span>{% trans "Total" %}:</span>
                 <span>${{ cart_total }}</span>
             </div>
             
-            <div style="margin-top: 20px;">
-                <a href="{% url 'public_shop' slug=seller.slug %}" class="btn-main" style="background: var(--pixel-grey); display: block; text-align: center; text-decoration: none; color: black;">
+            <div class="mt-20">
+                <a href="{% url 'public_shop' slug=seller.slug %}" class="btn-main pixel-btn-action pixel-btn-grey w-100" style="text-align: center;">
                     {% trans "Cancel & Return to Shop" %}
                 </a>
             </div>

@@ -1,30 +1,32 @@
 {% load i18n %}
-<div class="pixel-card user-item" style="display: flex; align-items: center; padding: 15px;">
-    <div style="display: flex; align-items: center; gap: 15px; width: 100%;">
+<div class="pixel-card user-card-container">
+    <div class="user-card-flex">
         <div style="flex-shrink: 0;">
             {% if creator.avatar %}
-                <img src="{{ creator.avatar.url }}" alt="{{ creator.username }}" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid var(--pixel-black);">
+                <img src="{{ creator.avatar.url }}" alt="{{ creator.username }}" class="user-card-avatar">
             {% else %}
-                <div style="width: 100px; height: 100px; background: #eee; border: 3px solid var(--pixel-black); display: flex; align-items: center; justify-content: center; color: #999; font-family: 'VT323', monospace; font-size: 0.8rem; text-align: center;">No Avatar</div>
+                <div class="user-card-no-avatar">{% trans "No Avatar" %}</div>
             {% endif %}
         </div>
         
-        <div style="flex-grow: 1;">
-            <h3 style="margin: 0 0 10px 0; text-transform: uppercase;">{{ creator.username }}</h3>
+        <div class="user-card-info">
+            <h3 class="user-card-name">{{ creator.username }}</h3>
             
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <span style="color: #555; font-family: 'VT323', monospace; font-size: 1.2rem;">{% trans "Services" %}:</span>
-                
-                {% if creator.is_seller %}
-                    <a href="{% url 'public_shop' slug=creator.slug %}" class="btn-main" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 10px; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; font-size: 1rem; border: 2px solid var(--pixel-black); margin: 0; color: black; background: var(--pixel-yellow);">
-                        SHOP
+            <div class="user-card-actions">
+                {% if creator.products.all %}
+                    <a href="{% url 'public_shop' slug=creator.slug %}" class="btn-main btn-small-pixel pixel-btn-yellow">
+                        {% trans "SHOP" %}
                     </a>
                 {% endif %}
                 
-                {% if creator.is_booking_provider %}
-                    <a href="{% url 'public_booking' slug=creator.slug %}" class="btn-main" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 10px; font-family: 'VT323', monospace; width: auto; text-transform: uppercase; font-size: 1rem; border: 2px solid var(--pixel-black); margin: 0; color: white; background: var(--pixel-blue);">
-                        BOOK
+                {% if creator.booking_services.all %}
+                    <a href="{% url 'public_booking' slug=creator.slug %}" class="btn-main btn-small-pixel pixel-btn-blue">
+                        {% trans "BOOK" %}
                     </a>
+                {% endif %}
+                
+                {% if not creator.products.all and not creator.booking_services.all %}
+                     <span class="user-card-label">{% trans "Profile" %}</span>
                 {% endif %}
             </div>
         </div>

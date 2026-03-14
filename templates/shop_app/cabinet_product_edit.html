@@ -1,31 +1,89 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block content %}
 <div class="content-center">
     <h1>{% trans "Edit Product" %}: {{ product.title }}</h1>
     
-    <div class="pixel-card">
+    <div class="pixel-card border-grey">
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             
             {{ form.as_p }}
             
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 5px;">{% trans "Update Product Images (optional)" %}:</label>
-                <p style="font-size: 0.9rem; color: #666; margin-top: 0;">
-                    {% trans "If you upload new images, the old ones will be deleted. Leave empty to keep current images." %}
+            {% if product.images.all %}
+                <div class="mb-20">
+                    <label class="bold-label d-block mb-5">{% trans "Current Images" %}:</label>
+                    <div class="image-preview-container">
+                        {% for img_obj in product.images.all %}
+                            <img src="{{ img_obj.image.url }}" class="preview-img-item" onclick="openImagePopup('{{ img_obj.image.url }}')">
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="mb-20">
+                <label class="bold-label d-block mb-5">{% trans "Update Product Images (optional)" %}:</label>
+                <p class="mb-5" style="font-size: 0.9rem; color: var(--pixel-grey);">
+                    {% trans "If you upload new images, the old ones will be deleted." %}
                 </p>
-                <input type="file" name="images" multiple accept="image/*" style="padding: 10px; border: 2px solid var(--pixel-black); width: 100%;">
+                <input type="file" name="images" {% if has_multi_image_access %}multiple{% endif %} accept="image/*" class="pixel-file-input">
+                {% if not has_multi_image_access %}
+                    <small class="variant-hint">{% trans "You can upload only 1 image." %}</small>
+                {% endif %}
             </div>
+
+            {% if has_variant_access %}
+            <div class="variants-management-box mb-20">
+                <h3 style="margin-top: 0;">{% trans "Product Variants" %}</h3>
+                <div id="variants-container">
+                    {% for option in product.options.all %}
+                    <div class="variant-input-row">
+                        <div style="flex: 1;">
+                            <input type="text" name="option_names" value="{{ option.name }}" placeholder="Название" required>
+                        </div>
+                        <div style="flex: 2;">
+                            <input type="text" name="option_values" 
+                                   value="{% for val in option.values.all %}{{ val.value }}{% if not forloop.last %}, {% endif %}{% endfor %}" 
+                                   placeholder="Значения через запятую" required>
+                        </div>
+                        <button type="button" class="btn-main pixel-btn-action pixel-btn-red" onclick="this.parentElement.remove()" style="height: 40px; padding: 0 10px;">X</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" id="add-variant-btn" class="btn-main pixel-btn-action pixel-btn-yellow" style="margin-top: 10px;">
+                    + {% trans "Add Option (Size, Color, etc.)" %}
+                </button>
+            </div>
+            {% endif %}
             
-            <div style="margin-top: 20px;">
-                <button type="submit" class="btn-main">{% trans "Update Product" %}</button>
-                <a href="{% url 'cabinet_shop_list' %}" style="margin-left: 15px; color: var(--pixel-red); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.2rem;">
+            <div class="form-actions">
+                <button type="submit" class="btn-main pixel-btn-action pixel-btn-blue">
+                    {% trans "Update Product" %}
+                </button>
+                <a href="{% url 'cabinet_shop_list' %}" class="btn-main pixel-btn-action pixel-btn-red">
                     {% trans "Cancel" %}
                 </a>
             </div>
         </form>
     </div>
 </div>
+
+<div id="imagePopup" class="image-popup-overlay" style="display: none;" onclick="closeImagePopup()">
+    <div class="popup-content">
+        <img id="popupImage" src="" alt="Popup" class="popup-img">
+        <p class="popup-hint">{% trans "Click anywhere to close" %}</p>
+    </div>
+</div>
+
+<script src="{% static 'js/variants_manager.js' %}"></script>
+<script>
+    function openImagePopup(imageUrl) {
+        document.getElementById('popupImage').src = imageUrl;
+        document.getElementById('imagePopup').style.display = 'flex';
+    }
+    function closeImagePopup() {
+        document.getElementById('imagePopup').style.display = 'none';
+    }
+</script>
 {% endblock %}

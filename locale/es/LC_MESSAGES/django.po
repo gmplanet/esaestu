@@ -8,20 +8,574 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-03 13:09+0100\n"
+"POT-Creation-Date: 2026-03-14 10:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
 "1 : 2;\n"
 
+#: .\booking_app\forms.py:16
+msgid ""
+"Select providers who can perform this service. Leave unselected if anyone "
+"can do this."
+msgstr ""
+"Selecciona los proveedores que pueden realizar este servicio. Deja sin "
+"seleccionar si cualquiera puede hacerlo."
+
+#: .\booking_app\forms.py:46
+msgid "No providers yet. Please Add Providers first."
+msgstr "Aún no hay proveedores. Por favor, añade proveedores primero."
+
+#: .\booking_app\models.py:20 .\booking_app\models.py:72
+#: .\booking_app\models.py:199
+msgid "Owner"
+msgstr "Propietario"
+
+#: .\booking_app\models.py:22 .\templates\shop_app\cabinet_order_detail.html:30
+msgid "Name"
+msgstr "Nombre"
+
+#: .\booking_app\models.py:23 .\booking_app\models.py:83
+#: .\templates\shop_app\cabinet_product_list.html:45
+msgid "Active"
+msgstr "Activo"
+
+#: .\booking_app\models.py:28
+msgid "Provider Avatar"
+msgstr "Avatar del proveedor"
+
+#: .\booking_app\models.py:64
+msgid "15-minute Slots"
+msgstr "Franjas de 15 minutos"
+
+#: .\booking_app\models.py:65
+msgid "Exact Time (Start and End)"
+msgstr "Hora exacta (inicio y fin)"
+
+#: .\booking_app\models.py:74
+msgid "Title"
+msgstr "Título"
+
+#: .\booking_app\models.py:75
+msgid "Description"
+msgstr "Descripción"
+
+#: .\booking_app\models.py:76 .\templates\shop_app\cabinet_product_list.html:41
+#: .\templates\shop_app\public_shop.html:68
+msgid "Price"
+msgstr "Precio"
+
+#: .\booking_app\models.py:78
+msgid "Booking Type"
+msgstr "Tipo de reserva"
+
+#: .\booking_app\models.py:89
+msgid "Service Image"
+msgstr "Imagen del servicio"
+
+#: .\booking_app\models.py:98
+msgid "Providers"
+msgstr "Proveedores"
+
+#: .\booking_app\models.py:128
+#: .\templates\booking_app\cabinet_incoming_bookings.html:15
+#: .\templates\booking_app\cabinet_my_bookings.html:15
+#: .\templates\shop_app\cabinet_incoming_orders.html:14
+#: .\templates\shop_app\cabinet_my_orders.html:14
+#: .\templates\shop_app\cabinet_order_detail.html:20
+msgid "New"
+msgstr "Nuevo"
+
+#: .\booking_app\models.py:129
+#: .\templates\booking_app\cabinet_booking_detail.html:22
+#: .\templates\booking_app\cabinet_incoming_bookings.html:18
+#: .\templates\booking_app\cabinet_my_bookings.html:18
+#: .\templates\shop_app\cabinet_incoming_orders.html:18
+#: .\templates\shop_app\cabinet_my_orders.html:18
+#: .\templates\shop_app\cabinet_order_detail.html:22
+msgid "Completed"
+msgstr "Completado"
+
+#: .\booking_app\models.py:130
+#: .\templates\booking_app\cabinet_booking_detail.html:23
+msgid "Cancelled by Customer"
+msgstr "Cancelado por el cliente"
+
+#: .\booking_app\models.py:131
+#: .\templates\booking_app\cabinet_booking_detail.html:24
+#: .\templates\shop_app\cabinet_order_detail.html:24
+msgid "Cancelled by Seller"
+msgstr "Cancelado por el vendedor"
+
+#: .\booking_app\models.py:138
+#: .\templates\booking_app\cabinet_booking_detail.html:30
+#: .\templates\booking_app\cabinet_booking_list.html:16
+#: .\templates\booking_app\cabinet_incoming_bookings.html:49
+#: .\templates\booking_app\cabinet_my_bookings.html:49
+msgid "Service"
+msgstr "Servicio"
+
+#: .\booking_app\models.py:146 .\booking_app\models.py:207
+#: .\templates\booking_app\cabinet_booking_list.html:24
+msgid "Provider"
+msgstr "Proveedor"
+
+#: .\booking_app\models.py:152 .\booking_app\views.py:618
+#: .\templates\booking_app\cabinet_booking_detail.html:32
+#: .\templates\booking_app\cabinet_incoming_bookings.html:48
+#: .\templates\shop_app\cabinet_incoming_orders.html:47
+msgid "Customer"
+msgstr "Cliente"
+
+#: .\booking_app\models.py:155 .\booking_app\models.py:211
+#: .\templates\booking_app\public_booking.html:72
+msgid "Start Time"
+msgstr "Hora de inicio"
+
+#: .\booking_app\models.py:158 .\booking_app\models.py:212
+#: .\templates\booking_app\public_booking.html:78
+msgid "End Time"
+msgstr "Hora de fin"
+
+#: .\booking_app\models.py:160
+#: .\templates\booking_app\cabinet_booking_detail.html:41
+msgid "Customer Comment"
+msgstr "Comentario del cliente"
+
+#: .\booking_app\models.py:161
+#: .\templates\booking_app\cabinet_booking_detail.html:20
+#: .\templates\shop_app\cabinet_order_detail.html:19
+#: .\templates\shop_app\cabinet_product_list.html:43
+msgid "Status"
+msgstr "Estado"
+
+#: .\booking_app\models.py:186
+msgid "Monday"
+msgstr "Lunes"
+
+#: .\booking_app\models.py:187
+msgid "Tuesday"
+msgstr "Martes"
+
+#: .\booking_app\models.py:188
+msgid "Wednesday"
+msgstr "Miércoles"
+
+#: .\booking_app\models.py:189
+msgid "Thursday"
+msgstr "Jueves"
+
+#: .\booking_app\models.py:190
+msgid "Friday"
+msgstr "Viernes"
+
+#: .\booking_app\models.py:191
+msgid "Saturday"
+msgstr "Sábado"
+
+#: .\booking_app\models.py:192
+msgid "Sunday"
+msgstr "Domingo"
+
+#: .\booking_app\models.py:210
+msgid "Day of Week"
+msgstr "Día de la semana"
+
+#: .\booking_app\models.py:213
+#: .\templates\booking_app\cabinet_schedule_manage.html:39
+msgid "Day Off"
+msgstr "Día libre"
+
+#: .\booking_app\views.py:66 .\booking_app\views.py:80
+msgid ""
+"You have reached the maximum number of services allowed for your account."
+msgstr "Has alcanzado el número máximo de servicios permitidos para tu cuenta."
+
+#: .\booking_app\views.py:125 .\booking_app\views.py:137
+msgid ""
+"You have reached the maximum number of providers allowed for your account."
+msgstr ""
+"Has alcanzado el número máximo de proveedores permitidos para tu cuenta."
+
+#: .\booking_app\views.py:202 .\templates\booking_app\public_booking.html:31
+msgid "Price not specified; payment upon service completion"
+msgstr "Precio no especificado; pago al finalizar el servicio"
+
+#: .\booking_app\views.py:203 .\templates\home.html:65
+msgid "Loading..."
+msgstr "Cargando..."
+
+#: .\booking_app\views.py:204
+msgid "No available slots on this date."
+msgstr "No hay franjas disponibles en esta fecha."
+
+#: .\booking_app\views.py:205
+msgid "No free time available on this date."
+msgstr "No hay tiempo libre disponible en esta fecha."
+
+#: .\booking_app\views.py:206
+msgid "PROCESSING..."
+msgstr "PROCESANDO..."
+
+#: .\booking_app\views.py:207 .\templates\booking_app\public_booking.html:98
+msgid "CONFIRM BOOKING"
+msgstr "CONFIRMAR RESERVA"
+
+#: .\booking_app\views.py:208
+msgid "Error processing booking."
+msgstr "Error al procesar la reserva."
+
+#: .\booking_app\views.py:209
+msgid "Error fetching availability:"
+msgstr "Error al obtener la disponibilidad:"
+
+#: .\booking_app\views.py:356
+msgid "Invalid data"
+msgstr "Datos inválidos"
+
+#: .\booking_app\views.py:363
+msgid "Service not found"
+msgstr "Servicio no encontrado"
+
+#: .\booking_app\views.py:372
+msgid "No slots selected"
+msgstr "No hay franjas seleccionadas"
+
+#: .\booking_app\views.py:405
+msgid "No exact time provided"
+msgstr "No se proporcionó una hora exacta"
+
+#: .\booking_app\views.py:412
+msgid "Invalid time range"
+msgstr "Rango de tiempo inválido"
+
+#: .\booking_app\views.py:438
+msgid "Time is already booked. Please refresh the page."
+msgstr "Este horario ya está reservado. Por favor, actualiza la página."
+
+#: .\booking_app\views.py:463
+#, python-format
+msgid "Booking Confirmed: %(service)s"
+msgstr "Reserva confirmada: %(service)s"
+
+#: .\booking_app\views.py:465
+#, python-format
+msgid ""
+"Hello %(buyer)s!\n"
+"\n"
+"Your booking for %(service)s%(provider)s is confirmed.\n"
+"\n"
+"Reservation Details:\n"
+"%(details)s\n"
+"\n"
+"Total items booked: %(count)s\n"
+"\n"
+"Thank you for your reservation!"
+msgstr ""
+"¡Hola %(buyer)s!\n"
+"\n"
+"Tu reserva para %(service)s%(provider)s está confirmada.\n"
+"\n"
+"Detalles de la reserva:\n"
+"%(details)s\n"
+"\n"
+"Total de elementos reservados: %(count)s\n"
+"\n"
+"¡Gracias por tu reserva!"
+
+#: .\booking_app\views.py:478
+#, python-format
+msgid "New Booking: %(service)s"
+msgstr "Nueva reserva: %(service)s"
+
+#: .\booking_app\views.py:480
+#, python-format
+msgid ""
+"Hello %(seller)s!\n"
+"\n"
+"You have a new reservation from %(buyer)s for %(service)s%(provider)s.\n"
+"\n"
+"Customer Information:\n"
+"Email: %(email)s\n"
+"\n"
+"Reservation Details:\n"
+"%(details)s\n"
+"\n"
+"Customer comment: %(comment)s\n"
+"\n"
+"Please check your personal cabinet to manage this booking."
+msgstr ""
+"¡Hola %(seller)s!\n"
+"\n"
+"Tienes una nueva reserva de %(buyer)s para %(service)s%(provider)s.\n"
+"\n"
+"Información del cliente:\n"
+"Email: %(email)s\n"
+"\n"
+"Detalles de la reserva:\n"
+"%(details)s\n"
+"\n"
+"Comentario del cliente: %(comment)s\n"
+"\n"
+"Por favor, revisa tu panel personal para gestionar esta reserva."
+
+#: .\booking_app\views.py:494
+msgid "No comment provided"
+msgstr "Sin comentario"
+
+#: .\booking_app\views.py:504
+#, python-format
+msgid ""
+"Booking confirmed successfully!\n"
+"\n"
+"Service: %(service)s%(provider)s\n"
+"Reserved time:\n"
+"%(details)s"
+msgstr ""
+"¡Reserva confirmada con éxito!\n"
+"\n"
+"Servicio: %(service)s%(provider)s\n"
+"Horario reservado:\n"
+"%(details)s"
+
+#: .\booking_app\views.py:622
+#: .\templates\booking_app\cabinet_booking_detail.html:31
+#: .\templates\booking_app\cabinet_my_bookings.html:48
+#: .\templates\shop_app\cabinet_my_orders.html:47
+msgid "Seller"
+msgstr "Vendedor"
+
+#: .\booking_app\views.py:627
+#, python-format
+msgid "Booking Cancelled: #%(number)s"
+msgstr "Reserva cancelada: #%(number)s"
+
+#: .\booking_app\views.py:631
+#, python-format
+msgid ""
+"Hello!\n"
+"\n"
+"The booking #%(number)s for %(service)s has been cancelled by the "
+"%(canceler_type)s (%(canceler_name)s).\n"
+"\n"
+"Cancelled Booking Details:\n"
+"• Service: %(service)s\n"
+"• Date: %(date)s\n"
+"• Time: %(time)s - %(end_time)s\n"
+"• Final Status: %(status)s"
+msgstr ""
+"¡Hola!\n"
+"\n"
+"La reserva #%(number)s para %(service)s ha sido cancelada por "
+"%(canceler_type)s (%(canceler_name)s).\n"
+"\n"
+"Detalles de la reserva cancelada:\n"
+"• Servicio: %(service)s\n"
+"• Fecha: %(date)s\n"
+"• Hora: %(time)s - %(end_time)s\n"
+"• Estado final: %(status)s"
+
+#: .\core\validators.py:22
+#, python-format
+msgid ""
+"Unsupported file type: %(type)s. Please upload a valid JPEG, PNG or WEBP "
+"image."
+msgstr ""
+"Tipo de archivo no admitido: %(type)s. Por favor, sube una imagen JPEG, PNG "
+"o WEBP válida."
+
+#: .\profile_app\models.py:48
+msgid "Maximum Services"
+msgstr "Máximo de servicios"
+
+#: .\profile_app\models.py:50
+msgid "Maximum number of services this user can create."
+msgstr "Número máximo de servicios que este usuario puede crear."
+
+#: .\profile_app\models.py:53
+msgid "Maximum Providers"
+msgstr "Máximo de proveedores"
+
+#: .\profile_app\models.py:55
+msgid "Maximum number of providers this user can create."
+msgstr "Número máximo de proveedores que este usuario puede crear."
+
+#: .\shop_app\views.py:85
+msgid "Error updating cart."
+msgstr ""
+
+#: .\shop_app\views.py:86 .\templates\shop_app\public_shop.html:103
+msgid "Click anywhere to close"
+msgstr "Haz clic en cualquier lugar para cerrar"
+
+#: .\shop_app\views.py:211
+#, python-format
+msgid "Your order #%(order_id)s from %(seller)s"
+msgstr "Tu pedido #%(order_id)s de %(seller)s"
+
+#: .\shop_app\views.py:214
+#, python-format
+msgid ""
+"Hello %(buyer_name)s!\n"
+"\n"
+"Your order #%(order_id)s has been successfully placed and sent to "
+"%(seller)s.\n"
+"\n"
+"Order Details:\n"
+"%(items)s\n"
+"Total Price: $%(total)s\n"
+"\n"
+"Thank you for your purchase!"
+msgstr ""
+"¡Hola %(buyer_name)s!\n"
+"\n"
+"Tu pedido #%(order_id)s ha sido realizado con éxito y enviado a %(seller)s.\n"
+"\n"
+"Detalles del pedido:\n"
+"%(items)s\n"
+"Precio total: $%(total)s\n"
+"\n"
+"¡Gracias por tu compra!"
+
+#: .\shop_app\views.py:229
+#, python-format
+msgid "New order #%(id)s from %(buyer)s"
+msgstr "Nuevo pedido #%(id)s de %(buyer)s"
+
+#: .\shop_app\views.py:232
+#, python-format
+msgid ""
+"Hello %(seller_name)s!\n"
+"\n"
+"You have received a new order #%(order_id)s.\n"
+"\n"
+"Customer Information:\n"
+"Name: %(buyer_name)s\n"
+"Email: %(buyer_email)s\n"
+"\n"
+"Order Details:\n"
+"%(items)s\n"
+"Total Amount: $%(total)s\n"
+"\n"
+"Please check your personal cabinet to process this order."
+msgstr ""
+"¡Hola %(seller_name)s!\n"
+"\n"
+"Has recibido un nuevo pedido #%(order_id)s.\n"
+"\n"
+"Información del cliente:\n"
+"Nombre: %(buyer_name)s\n"
+"Email: %(buyer_email)s\n"
+"\n"
+"Detalles del pedido:\n"
+"%(items)s\n"
+"Importe total: $%(total)s\n"
+"\n"
+"Por favor, revisa tu panel personal para procesar este pedido."
+
+#: .\shop_app\views.py:259
+#, python-format
+msgid ""
+"Order #%(order_id)s confirmed successfully!\n"
+"\n"
+"Items:\n"
+"%(items)s\n"
+"Total Amount: $%(total)s"
+msgstr ""
+"¡Pedido #%(order_id)s confirmado con éxito!\n"
+"\n"
+"Artículos:\n"
+"%(items)s\n"
+"Importe total: $%(total)s"
+
+#: .\shop_app\views.py:293
+msgid "Not enough stock."
+msgstr "Stock insuficiente."
+
+#: .\shop_app\views.py:381
+#, python-format
+msgid "Order #%(id)s Status Update"
+msgstr "Actualización del estado del pedido #%(id)s"
+
+#: .\shop_app\views.py:384
+#, python-format
+msgid ""
+"Hello %(buyer_name)s!\n"
+"\n"
+"The status of your order #%(order_id)s has been updated to: %(status)s.\n"
+"\n"
+"Thank you!"
+msgstr ""
+"¡Hola %(buyer_name)s!\n"
+"\n"
+"El estado de tu pedido #%(order_id)s ha sido actualizado a: %(status)s.\n"
+"\n"
+"¡Gracias!"
+
+#: .\shop_app\views.py:418
+#, python-format
+msgid "Order Cancelled: #%(number)s"
+msgstr "Pedido cancelado: #%(number)s"
+
+#: .\shop_app\views.py:419
+msgid "buyer"
+msgstr "comprador"
+
+#: .\shop_app\views.py:419
+msgid "seller"
+msgstr "vendedor"
+
+#: .\shop_app\views.py:422
+#, python-format
+msgid ""
+"Hello!\n"
+"\n"
+"Order #%(number)s from %(date)s has been cancelled by the %(canceler)s.\n"
+"\n"
+"Order details:\n"
+"%(items)s\n"
+"Final Status: %(status)s"
+msgstr ""
+"¡Hola!\n"
+"\n"
+"El pedido #%(number)s del %(date)s ha sido cancelado por el %(canceler)s.\n"
+"\n"
+"Detalles del pedido:\n"
+"%(items)s\n"
+"Estado final: %(status)s"
+
+#: .\shop_app\views.py:461
+#, python-format
+msgid "New comment on order #%(id)s"
+msgstr "Nuevo comentario en el pedido #%(id)s"
+
+#: .\shop_app\views.py:463
+#, python-format
+msgid ""
+"Hello!\n"
+"\n"
+"A new comment has been added to order #%(order_id)s by %(author)s:\n"
+"\n"
+"\"%(comment)s\"\n"
+"\n"
+"Please check your personal cabinet to view and reply."
+msgstr ""
+"¡Hola!\n"
+"\n"
+"%(author)s ha añadido un nuevo comentario al pedido #%(order_id)s:\n"
+"\n"
+"\"%(comment)s\"\n"
+"\n"
+"Por favor, revisa tu panel personal para verlo y responder."
+
 #: .\templates\account\email_confirm.html:8
 msgid "Confirm Email"
-msgstr ""
+msgstr "Confirmar correo electrónico"
 
 #: .\templates\account\email_confirm.html:14
 #, python-format
@@ -29,6 +583,8 @@ msgid ""
 "Please confirm that <span style=\"font-weight: bold; border-bottom: 2px "
 "solid #000;\">%(email)s</span> is your email."
 msgstr ""
+"Por favor, confirma que <span style=\"font-weight: bold; border-bottom: 2px "
+"solid #000;\">%(email)s</span> es tu correo electrónico."
 
 #: .\templates\account\email_confirm.html:21
 msgid "CONFIRM"
@@ -36,7 +592,8 @@ msgstr "CONFIRMAR"
 
 #: .\templates\account\email_confirm.html:26
 msgid "This e-mail confirmation link expired or is invalid."
-msgstr "Este enlace de confirmación de correo electrónico ha expirado o no es válido."
+msgstr ""
+"Este enlace de confirmación de correo electrónico ha expirado o no es válido."
 
 #: .\templates\account\email_confirm.html:29
 msgid "New Request"
@@ -44,22 +601,23 @@ msgstr "Nueva solicitud"
 
 #: .\templates\account\login.html:8
 msgid "Login"
-msgstr "Inicio seción"
+msgstr "Iniciar sesión"
 
 #: .\templates\account\login.html:15 .\templates\account\password_reset.html:14
-#: .\templates\account\signup.html:14 .\templates\profile_app\profile.html:9
+#: .\templates\account\signup.html:15 .\templates\profile_app\cabinet.html:18
+#: .\templates\shop_app\cabinet_order_detail.html:31
 msgid "Email"
-msgstr "Email"
+msgstr "Correo electrónico"
 
-#: .\templates\account\login.html:24 .\templates\account\signup.html:34
+#: .\templates\account\login.html:24 .\templates\account\signup.html:35
 msgid "Password"
 msgstr "Contraseña"
 
 #: .\templates\account\login.html:34
 msgid "Remember Me"
-msgstr "Acuérdate de mí"
+msgstr "Recuérdame"
 
-#: .\templates\account\login.html:41 .\templates\account\signup.html:82
+#: .\templates\account\login.html:41 .\templates\account\signup.html:83
 msgid "Log In"
 msgstr "Acceder"
 
@@ -72,64 +630,58 @@ msgid "Sign Up"
 msgstr "Crear cuenta"
 
 #: .\templates\account\login.html:76
-#, fuzzy
-#| msgid "Password"
 msgid "Forgot Password?"
-msgstr "Contraseña"
+msgstr "¿Olvidaste tu contraseña?"
 
 #: .\templates\account\password_reset.html:7
-#, fuzzy
-#| msgid "Password"
 msgid "Password Reset"
-msgstr "Contraseña"
+msgstr "Restablecer contraseña"
 
 #: .\templates\account\password_reset.html:9
 msgid ""
 "Forgotten your password? Enter your email address below, and we'll send you "
 "an email allowing you to reset it."
 msgstr ""
+"¿Olvidaste tu contraseña? Introduce tu correo electrónico a continuación y "
+"te enviaremos un mensaje para restablecerla."
 
 #: .\templates\account\password_reset.html:15
 msgid "Email address"
 msgstr "Correo electrónico"
 
 #: .\templates\account\password_reset.html:21
-#, fuzzy
-#| msgid "Password"
 msgid "Reset My Password"
-msgstr "Contraseña"
+msgstr "Restablecer mi contraseña"
 
 #: .\templates\account\password_reset.html:25
 msgid "Please contact us if you have any trouble resetting your password."
-msgstr "Comuníquese con nosotros si tiene algún problema para restablecer su contraseña."
+msgstr ""
+"Comuníquese con nosotros si tiene algún problema para restablecer su "
+"contraseña."
 
 #: .\templates\account\signup.html:7
 msgid "Registration"
 msgstr "Registro"
 
-#: .\templates\account\signup.html:24 .\templates\profile_app\profile.html:8
+#: .\templates\account\signup.html:25
 msgid "Username"
 msgstr "Usuario"
 
-#: .\templates\account\signup.html:43
-#, fuzzy
-#| msgid "Password"
+#: .\templates\account\signup.html:44
 msgid "Password (again)"
-msgstr "Contraseña"
+msgstr "Contraseña (de nuevo)"
 
-#: .\templates\account\signup.html:53
+#: .\templates\account\signup.html:54
 msgid "Captcha"
 msgstr "Captcha"
 
-#: .\templates\account\signup.html:78
+#: .\templates\account\signup.html:79
 msgid "Register"
 msgstr "Registrarse"
 
-#: .\templates\account\signup.html:82
-#, fuzzy
-#| msgid "Don't have an account?"
+#: .\templates\account\signup.html:83
 msgid "Already have an account?"
-msgstr "¿No tienes cuenta?"
+msgstr "¿Ya tienes una cuenta?"
 
 #: .\templates\account\verification_sent.html:7
 msgid "Check Your Email"
@@ -140,62 +692,789 @@ msgid ""
 "We have sent an e-mail to you for verification. Please follow the link "
 "provided to finalize your registration."
 msgstr ""
+"Te hemos enviado un correo electrónico de verificación. Por favor, sigue el "
+"enlace proporcionado para finalizar tu registro."
 
 #: .\templates\account\verification_sent.html:16
 msgid "If you do not see the email, please check your spam folder."
-msgstr "Si no ve el correo electrónico, revise su carpeta de correo no deseado."
+msgstr ""
+"Si no ves el correo electrónico, revisa tu carpeta de correo no deseado."
 
 #: .\templates\account\verification_sent.html:22
-#, fuzzy
-#| msgid "Back to Home"
 msgid "Back to Login"
-msgstr "Inicio"
+msgstr "Volver al inicio de sesión"
 
-#: .\templates\base.html:49
-msgid "SEARCH"
-msgstr "BUSCAR"
-
-#: .\templates\base.html:63
+#: .\templates\base.html:55
 msgid "LOGOUT"
 msgstr "SALIR"
 
-#: .\templates\base.html:67
+#: .\templates\base.html:59
 msgid "ENTER"
 msgstr "ENTRAR"
 
-#: .\templates\base.html:68
+#: .\templates\base.html:60
 msgid "REGISTER"
 msgstr "REGISTRO"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:7
+msgid "Booking"
+msgstr "Reserva"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:9
+#: .\templates\shop_app\cabinet_order_detail.html:9
+msgid "Go Back"
+msgstr "Volver"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:17
+msgid "Session Info"
+msgstr "Información de la sesión"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:18
+#: .\templates\shop_app\cabinet_incoming_orders.html:46
+#: .\templates\shop_app\cabinet_my_orders.html:46
+#: .\templates\shop_app\cabinet_order_detail.html:18
+msgid "Date"
+msgstr "Fecha"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:19
+msgid "Time"
+msgstr "Hora"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:21
+msgid "New / Active"
+msgstr "Nuevo / Activo"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:29
+msgid "Participants"
+msgstr "Participantes"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:34
+msgid "Provider/Master"
+msgstr "Proveedor/Maestro"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:50
+msgid "Are you sure you want to cancel this booking?"
+msgstr "¿Estás seguro de que quieres cancelar esta reserva?"
+
+#: .\templates\booking_app\cabinet_booking_detail.html:53
+msgid "Cancel Booking"
+msgstr "Cancelar reserva"
+
+#: .\templates\booking_app\cabinet_booking_list.html:7
+#: .\templates\profile_app\cabinet.html:73
+msgid "Booking Management"
+msgstr "Gestión de reservas"
+
+#: .\templates\booking_app\cabinet_booking_list.html:28
+#: .\templates\booking_app\cabinet_schedule_manage.html:10
+msgid "General Schedule"
+msgstr "Horario general"
+
+#: .\templates\booking_app\cabinet_booking_list.html:29
+#: .\templates\booking_app\cabinet_incoming_bookings.html:9
+#: .\templates\booking_app\cabinet_my_bookings.html:9
+#: .\templates\shop_app\cabinet_incoming_orders.html:9
+#: .\templates\shop_app\cabinet_my_orders.html:9
+#: .\templates\shop_app\cabinet_product_list.html:20
+msgid "Back to Dashboard"
+msgstr "Volver al panel"
+
+#: .\templates\booking_app\cabinet_booking_list.html:32
+msgid "My Services"
+msgstr "Mis servicios"
+
+#: .\templates\booking_app\cabinet_booking_list.html:53
+#: .\templates\booking_app\cabinet_booking_list.html:88
+msgid "EDIT"
+msgstr "EDITAR"
+
+#: .\templates\booking_app\cabinet_booking_list.html:54
+msgid "Are you sure you want to delete this service?"
+msgstr "¿Estás seguro de que quieres eliminar este servicio?"
+
+#: .\templates\booking_app\cabinet_booking_list.html:56
+#: .\templates\booking_app\cabinet_booking_list.html:91
+msgid "DELETE"
+msgstr "ELIMINAR"
+
+#: .\templates\booking_app\cabinet_booking_list.html:62
+msgid "You have no services yet."
+msgstr "Aún no tienes servicios."
+
+#: .\templates\booking_app\cabinet_booking_list.html:67
+msgid "My Providers"
+msgstr "Mis proveedores"
+
+#: .\templates\booking_app\cabinet_booking_list.html:84
+msgid "Manage Schedule"
+msgstr "Gestionar horario"
+
+#: .\templates\booking_app\cabinet_booking_list.html:89
+msgid "Are you sure you want to delete this provider?"
+msgstr "¿Estás seguro de que quieres eliminar este proveedor?"
+
+#: .\templates\booking_app\cabinet_booking_list.html:97
+msgid "You have no providers yet."
+msgstr "Aún no tienes proveedores."
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:7
+#: .\templates\profile_app\cabinet.html:77
+msgid "Incoming Bookings"
+msgstr "Reservas entrantes"
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:21
+#: .\templates\booking_app\cabinet_my_bookings.html:21
+#: .\templates\shop_app\cabinet_incoming_orders.html:20
+#: .\templates\shop_app\cabinet_my_orders.html:20
+msgid "Cancelled"
+msgstr "Cancelado"
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:28
+msgid "Search by ID, Customer..."
+msgstr "Buscar por ID, cliente..."
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:31
+#: .\templates\booking_app\cabinet_my_bookings.html:31
+msgid "Soonest First"
+msgstr "Más próximo primero"
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:32
+#: .\templates\booking_app\cabinet_my_bookings.html:32
+#: .\templates\shop_app\cabinet_incoming_orders.html:31
+#: .\templates\shop_app\cabinet_my_orders.html:31
+msgid "Oldest First"
+msgstr "Más antiguo primero"
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:36
+#: .\templates\booking_app\cabinet_my_bookings.html:36
+#: .\templates\shop_app\cabinet_incoming_orders.html:36
+#: .\templates\shop_app\cabinet_my_orders.html:36
+msgid "Apply"
+msgstr "Aplicar"
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:47
+#: .\templates\booking_app\cabinet_my_bookings.html:47
+msgid "Date & Time"
+msgstr "Fecha y hora"
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:50
+#: .\templates\booking_app\cabinet_my_bookings.html:50
+#: .\templates\shop_app\cabinet_incoming_orders.html:49
+#: .\templates\shop_app\cabinet_my_orders.html:49
+msgid "Action"
+msgstr "Acción"
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:65
+#: .\templates\booking_app\cabinet_my_bookings.html:65
+#: .\templates\shop_app\cabinet_incoming_orders.html:62
+#: .\templates\shop_app\cabinet_my_orders.html:60
+msgid "Details"
+msgstr "Detalles"
+
+#: .\templates\booking_app\cabinet_incoming_bookings.html:75
+msgid "No bookings found."
+msgstr "No se encontraron reservas."
+
+#: .\templates\booking_app\cabinet_my_bookings.html:7
+#: .\templates\profile_app\cabinet.html:52
+msgid "My Bookings"
+msgstr "Mis reservas"
+
+#: .\templates\booking_app\cabinet_my_bookings.html:28
+#: .\templates\shop_app\cabinet_my_orders.html:27
+msgid "Search by ID or Seller..."
+msgstr "Buscar por ID o vendedor..."
+
+#: .\templates\booking_app\cabinet_my_bookings.html:75
+msgid "You have no bookings here."
+msgstr "Aún no tienes reservas."
+
+#: .\templates\booking_app\cabinet_provider_add.html:6
+msgid "Add New Provider"
+msgstr "Añadir nuevo proveedor"
+
+#: .\templates\booking_app\cabinet_provider_add.html:10
+msgid ""
+"Add staff members, specialists, or generic roles (e.g., 'Master 1') that "
+"customers can choose."
+msgstr ""
+"Añade miembros del equipo, especialistas o roles genéricos (p. ej., 'Maestro "
+"1') que los clientes puedan elegir."
+
+#: .\templates\booking_app\cabinet_provider_add.html:20
+msgid "Save Provider"
+msgstr "Guardar proveedor"
+
+#: .\templates\booking_app\cabinet_provider_add.html:24
+#: .\templates\booking_app\cabinet_schedule_manage.html:52
+#: .\templates\booking_app\cabinet_service_add.html:20
+#: .\templates\booking_app\edit_provider.html:20
+#: .\templates\shop_app\cabinet_product_add.html:25
+#: .\templates\shop_app\cabinet_product_confirm_delete.html:20
+#: .\templates\shop_app\cabinet_product_edit.html:25
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: .\templates\booking_app\cabinet_schedule_manage.html:8
+msgid "Schedule for"
+msgstr "Horario de"
+
+#: .\templates\booking_app\cabinet_schedule_manage.html:30
+msgid "From"
+msgstr "Desde"
+
+#: .\templates\booking_app\cabinet_schedule_manage.html:33
+msgid "To"
+msgstr "Hasta"
+
+#: .\templates\booking_app\cabinet_schedule_manage.html:49
+msgid "Save Schedule"
+msgstr "Guardar horario"
+
+#: .\templates\booking_app\cabinet_service_add.html:6
+msgid "Add New Service"
+msgstr "Añadir nuevo servicio"
+
+#: .\templates\booking_app\cabinet_service_add.html:16
+msgid "Save Service"
+msgstr "Guardar servicio"
+
+#: .\templates\booking_app\edit_provider.html:6
+msgid "Edit Provider"
+msgstr "Editar proveedor"
+
+#: .\templates\booking_app\edit_provider.html:16
+msgid "Save Changes"
+msgstr "Guardar cambios"
+
+#: .\templates\booking_app\edit_service.html:6
+msgid "Edit Service"
+msgstr "Editar servicio"
+
+#: .\templates\booking_app\edit_service.html:10
+msgid "Back to List"
+msgstr "Volver a la lista"
+
+#: .\templates\booking_app\edit_service.html:67
+msgid "SAVE CHANGES"
+msgstr "GUARDAR CAMBIOS"
+
+#: .\templates\booking_app\public_booking.html:6
+msgid "Book a Time with"
+msgstr "Reservar una cita con"
+
+#: .\templates\booking_app\public_booking.html:10
+#: .\templates\shop_app\public_shop.html:10
+msgid "Back to Profile"
+msgstr "Volver al perfil"
+
+#: .\templates\booking_app\public_booking.html:23
+msgid "Select Service"
+msgstr "Seleccionar servicio"
+
+#: .\templates\booking_app\public_booking.html:25
+msgid "Choose a service"
+msgstr "Elige un servicio"
+
+#: .\templates\booking_app\public_booking.html:43
+msgid "Select Provider (Optional)"
+msgstr "Seleccionar proveedor (opcional)"
+
+#: .\templates\booking_app\public_booking.html:45
+msgid "Anyone available"
+msgstr "Cualquier disponible"
+
+#: .\templates\booking_app\public_booking.html:56
+msgid "Select Date"
+msgstr "Seleccionar fecha"
+
+#: .\templates\booking_app\public_booking.html:62
+msgid "Available Time Slots"
+msgstr "Franjas horarias disponibles"
+
+#: .\templates\booking_app\public_booking.html:67
+msgid "Available Free Blocks"
+msgstr "Bloques libres disponibles"
+
+#: .\templates\booking_app\public_booking.html:87
+msgid "Summary"
+msgstr "Resumen"
+
+#: .\templates\booking_app\public_booking.html:89
+msgid "Selected Slots"
+msgstr "Franjas seleccionadas"
+
+#: .\templates\booking_app\public_booking.html:90
+msgid "Selected Time"
+msgstr "Hora seleccionada"
+
+#: .\templates\booking_app\public_booking.html:92
+msgid "Total Price"
+msgstr "Precio total"
+
+#: .\templates\booking_app\public_booking.html:94
+msgid "Add a comment (optional)"
+msgstr "Añadir un comentario (opcional)"
+
+#: .\templates\booking_app\public_booking.html:105
+msgid "This user has no active services available for booking at the moment."
+msgstr ""
+"Este usuario no tiene servicios activos disponibles para reservar en este "
+"momento."
 
 #: .\templates\core\search_results.html:6
 #, python-format
 msgid "Search results for: \"%(query)s\""
-msgstr "Resultos: \"%(query)s\""
+msgstr "Resultados de búsqueda para: \"%(query)s\""
 
 #: .\templates\core\search_results.html:21
 msgid "No results found."
-msgstr "No resultos"
+msgstr "No se encontraron resultados."
 
-#: .\templates\profile_app\profile.html:6
-msgid "User Profile"
-msgstr "Mi perfil"
+#: .\templates\home.html:17
+msgid "Search in feed..."
+msgstr "Buscar en el feed..."
 
-#: .\templates\profile_app\profile.html:10
-msgid "Status"
-msgstr "Estado"
+#: .\templates\home.html:18
+msgid "Search"
+msgstr "Buscar"
 
-#: .\templates\profile_app\profile.html:17
+#: .\templates\home.html:22
+msgid "All"
+msgstr "Todo"
+
+#: .\templates\home.html:24
+msgid "Shop"
+msgstr "Tienda"
+
+#: .\templates\home.html:26 .\templates\includes\user_card.html:16
+msgid "Services"
+msgstr "Servicios"
+
+#: .\templates\home.html:28
+msgid "Articles"
+msgstr "Artículos"
+
+#: .\templates\home.html:34
+msgid "Creators & Services"
+msgstr "Creadores y servicios"
+
+#: .\templates\home.html:41
+msgid "Nothing found."
+msgstr "No se encontró nada."
+
+#: .\templates\home.html:86
+msgid "No more content."
+msgstr "No hay más contenido."
+
+#: .\templates\includes\user_card_partial_loop.html:34
+msgid "Read Article"
+msgstr "Leer artículo"
+
+#: .\templates\profile_app\cabinet.html:17
+msgid "Dashboard"
+msgstr "Panel"
+
+#: .\templates\profile_app\cabinet.html:19
 msgid "Joined"
-msgstr "Unido"
+msgstr "Registrado"
+
+#: .\templates\profile_app\cabinet.html:24
+msgid "Profile Settings"
+msgstr "Configuración del perfil"
+
+#: .\templates\profile_app\cabinet.html:31
+msgid "Update Avatar"
+msgstr "Actualizar avatar"
+
+#: .\templates\profile_app\cabinet.html:33
+msgid "Image will be automatically cropped to 100x100 pixels."
+msgstr "La imagen se recortará automáticamente a 100x100 píxeles."
+
+#: .\templates\profile_app\cabinet.html:39
+msgid "Show my profile in the public Creators catalog"
+msgstr "Mostrar mi perfil en el catálogo público de creadores"
+
+#: .\templates\profile_app\cabinet.html:44
+msgid "Save Settings"
+msgstr "Guardar configuración"
+
+#: .\templates\profile_app\cabinet.html:50
+msgid "My Activity"
+msgstr "Mi actividad"
+
+#: .\templates\profile_app\cabinet.html:53
+#: .\templates\shop_app\cabinet_my_orders.html:6
+msgid "My Purchases"
+msgstr "Mis compras"
+
+#: .\templates\profile_app\cabinet.html:62
+#: .\templates\shop_app\cabinet_product_list.html:6
+msgid "Shop Management"
+msgstr "Gestión de la tienda"
+
+#: .\templates\profile_app\cabinet.html:63
+msgid "Manage your products, inventory, and orders."
+msgstr "Gestiona tus productos, inventario y pedidos."
+
+#: .\templates\profile_app\cabinet.html:65
+msgid "Go to Shop"
+msgstr "Ir a la tienda"
+
+#: .\templates\profile_app\cabinet.html:66
+#: .\templates\shop_app\cabinet_incoming_orders.html:6
+msgid "Incoming Orders"
+msgstr "Pedidos entrantes"
+
+#: .\templates\profile_app\cabinet.html:74
+msgid "Manage your services, providers, schedule, and incoming bookings."
+msgstr "Gestiona tus servicios, proveedores, horario y reservas entrantes."
+
+#: .\templates\profile_app\cabinet.html:76
+msgid "Go to Settings"
+msgstr "Ir a la configuración"
+
+#: .\templates\profile_app\cabinet.html:84
+msgid "Blog Management"
+msgstr "Gestión del blog"
+
+#: .\templates\profile_app\cabinet.html:85
+msgid "Write and publish new articles."
+msgstr "Escribe y publica nuevos artículos."
+
+#: .\templates\profile_app\cabinet.html:86
+msgid "New Post (Coming Soon)"
+msgstr "Nueva publicación (próximamente)"
+
+#: .\templates\profile_app\cabinet.html:92
+msgid "Gallery Management"
+msgstr "Gestión de la galería"
+
+#: .\templates\profile_app\cabinet.html:93
+msgid "Upload and organize your photos."
+msgstr "Sube y organiza tus fotos."
+
+#: .\templates\profile_app\cabinet.html:94
+msgid "Upload Photo (Coming Soon)"
+msgstr "Subir foto (próximamente)"
+
+#: .\templates\profile_app\cabinet.html:100
+msgid "Standard Account"
+msgstr "Cuenta estándar"
+
+#: .\templates\profile_app\cabinet.html:101
+msgid ""
+"You currently do not have any active creator modules. Contact the "
+"administrator to upgrade your account."
+msgstr ""
+"Actualmente no tienes módulos de creador activos. Contacta al administrador "
+"para actualizar tu cuenta."
+
+#: .\templates\profile_app\cabinet.html:109
+msgid ""
+"Are you absolutely sure you want to delete your account? This action cannot "
+"be undone and all your data will be permanently lost."
+msgstr ""
+"¿Estás completamente seguro de que quieres eliminar tu cuenta? Esta acción "
+"no se puede deshacer y todos tus datos se perderán de forma permanente."
+
+#: .\templates\profile_app\cabinet.html:113
+msgid "Delete Account"
+msgstr "Eliminar cuenta"
+
+#: .\templates\profile_app\public_profile.html:7
+msgid "Profile"
+msgstr "Perfil"
+
+#: .\templates\profile_app\public_profile.html:8
+msgid "Member since"
+msgstr "Miembro desde"
+
+#: .\templates\profile_app\public_profile.html:11
+msgid "Showcase"
+msgstr "Vitrina"
+
+#: .\templates\profile_app\public_profile.html:18
+msgid "Visit Shop"
+msgstr "Visitar tienda"
+
+#: .\templates\profile_app\public_profile.html:22
+msgid "This user has no active storefront."
+msgstr "Este usuario no tiene tienda activa."
+
+#: .\templates\profile_app\public_profile.html:27
+msgid "Book a Time"
+msgstr "Reservar una cita"
+
+#: .\templates\shop_app\cabinet_incoming_orders.html:16
+#: .\templates\shop_app\cabinet_my_orders.html:16
+#: .\templates\shop_app\cabinet_order_detail.html:21
+msgid "Processing"
+msgstr "En proceso"
+
+#: .\templates\shop_app\cabinet_incoming_orders.html:27
+msgid "Search by ID, Name, Email or Phone..."
+msgstr "Buscar por ID, nombre, email o teléfono..."
+
+#: .\templates\shop_app\cabinet_incoming_orders.html:30
+#: .\templates\shop_app\cabinet_my_orders.html:30
+msgid "Newest First"
+msgstr "Más reciente primero"
+
+#: .\templates\shop_app\cabinet_incoming_orders.html:32
+#: .\templates\shop_app\cabinet_my_orders.html:32
+msgid "ID (Desc)"
+msgstr "ID (desc.)"
+
+#: .\templates\shop_app\cabinet_incoming_orders.html:33
+#: .\templates\shop_app\cabinet_my_orders.html:33
+msgid "ID (Asc)"
+msgstr "ID (asc.)"
+
+#: .\templates\shop_app\cabinet_incoming_orders.html:48
+#: .\templates\shop_app\checkout.html:79
+#: .\templates\shop_app\public_shop.html:36
+msgid "Total"
+msgstr "Total"
+
+#: .\templates\shop_app\cabinet_incoming_orders.html:59
+msgid "items"
+msgstr "artículos"
+
+#: .\templates\shop_app\cabinet_incoming_orders.html:71
+#: .\templates\shop_app\cabinet_my_orders.html:69
+msgid "No orders found in this category."
+msgstr "No se encontraron pedidos en esta categoría."
+
+#: .\templates\shop_app\cabinet_my_orders.html:48
+#: .\templates\shop_app\cabinet_order_detail.html:39
+msgid "Items"
+msgstr "Artículos"
+
+#: .\templates\shop_app\cabinet_order_detail.html:7
+msgid "Order"
+msgstr "Pedido"
+
+#: .\templates\shop_app\cabinet_order_detail.html:17
+msgid "General Info"
+msgstr "Información general"
+
+#: .\templates\shop_app\cabinet_order_detail.html:23
+msgid "Cancelled by Buyer"
+msgstr "Cancelado por el comprador"
+
+#: .\templates\shop_app\cabinet_order_detail.html:29
+msgid "Customer Details"
+msgstr "Datos del cliente"
+
+#: .\templates\shop_app\cabinet_order_detail.html:32
+msgid "Phone"
+msgstr "Teléfono"
+
+#: .\templates\shop_app\cabinet_order_detail.html:56
+msgid "Mark as Processing"
+msgstr "Marcar como en proceso"
+
+#: .\templates\shop_app\cabinet_order_detail.html:64
+msgid "Mark as Completed"
+msgstr "Marcar como completado"
+
+#: .\templates\shop_app\cabinet_order_detail.html:69
+msgid "Are you sure you want to cancel this order?"
+msgstr "¿Estás seguro de que quieres cancelar este pedido?"
+
+#: .\templates\shop_app\cabinet_order_detail.html:72
+msgid "Cancel Order"
+msgstr "Cancelar pedido"
+
+#: .\templates\shop_app\cabinet_order_detail.html:79
+msgid "Order Messages"
+msgstr "Mensajes del pedido"
+
+#: .\templates\shop_app\cabinet_order_detail.html:86
+msgid "You"
+msgstr "Tú"
+
+#: .\templates\shop_app\cabinet_order_detail.html:96
+msgid "No messages yet."
+msgstr "Aún no hay mensajes."
+
+#: .\templates\shop_app\cabinet_order_detail.html:101
+msgid "Write a message (max 250 chars)..."
+msgstr "Escribe un mensaje (máx. 250 caracteres)..."
+
+#: .\templates\shop_app\cabinet_order_detail.html:103
+msgid "Send Message"
+msgstr "Enviar mensaje"
+
+#: .\templates\shop_app\cabinet_product_add.html:6
+#: .\templates\shop_app\cabinet_product_list.html:11
+msgid "Add New Product"
+msgstr "Añadir nuevo producto"
+
+#: .\templates\shop_app\cabinet_product_add.html:17
+msgid "Product Images"
+msgstr "Imágenes del producto"
+
+#: .\templates\shop_app\cabinet_product_add.html:23
+msgid "Save Product"
+msgstr "Guardar producto"
+
+#: .\templates\shop_app\cabinet_product_confirm_delete.html:6
+msgid "Delete Product"
+msgstr "Eliminar producto"
+
+#: .\templates\shop_app\cabinet_product_confirm_delete.html:9
+msgid "Are you sure you want to delete the product"
+msgstr "¿Estás seguro de que quieres eliminar el producto"
+
+#: .\templates\shop_app\cabinet_product_confirm_delete.html:16
+msgid "Confirm Delete"
+msgstr "Confirmar eliminación"
+
+#: .\templates\shop_app\cabinet_product_edit.html:6
+msgid "Edit Product"
+msgstr "Editar producto"
+
+#: .\templates\shop_app\cabinet_product_edit.html:15
+msgid "Update Product Images (optional)"
+msgstr "Actualizar imágenes del producto (opcional)"
+
+#: .\templates\shop_app\cabinet_product_edit.html:17
+msgid ""
+"If you upload new images, the old ones will be deleted. Leave empty to keep "
+"current images."
+msgstr ""
+"Si subes nuevas imágenes, las anteriores se eliminarán. Deja vacío para "
+"conservar las imágenes actuales."
+
+#: .\templates\shop_app\cabinet_product_edit.html:23
+msgid "Update Product"
+msgstr "Actualizar producto"
+
+#: .\templates\shop_app\cabinet_product_list.html:15
+msgid "SKU Limit Reached"
+msgstr "Límite de SKU alcanzado"
+
+#: .\templates\shop_app\cabinet_product_list.html:41
+msgid "Stock"
+msgstr "Stock"
+
+#: .\templates\shop_app\cabinet_product_list.html:47
+msgid "Hidden"
+msgstr "Oculto"
+
+#: .\templates\shop_app\cabinet_product_list.html:57
+msgid "Deactivate"
+msgstr "Desactivar"
+
+#: .\templates\shop_app\cabinet_product_list.html:59
+msgid "Activate"
+msgstr "Activar"
+
+#: .\templates\shop_app\cabinet_product_list.html:65
+msgid "Edit"
+msgstr "Editar"
+
+#: .\templates\shop_app\cabinet_product_list.html:69
+msgid "Delete"
+msgstr "Eliminar"
+
+#: .\templates\shop_app\cabinet_product_list.html:79
+msgid "You haven't added any products yet."
+msgstr "Aún no has añadido ningún producto."
+
+#: .\templates\shop_app\checkout.html:6
+msgid "Checkout"
+msgstr "Finalizar compra"
+
+#: .\templates\shop_app\checkout.html:8
+msgid "Complete your order from"
+msgstr "Completa tu pedido de"
+
+#: .\templates\shop_app\checkout.html:14
+msgid "Your Details"
+msgstr "Tus datos"
+
+#: .\templates\shop_app\checkout.html:20
+msgid "Full Name"
+msgstr "Nombre completo"
+
+#: .\templates\shop_app\checkout.html:30
+msgid "Phone Number"
+msgstr "Número de teléfono"
+
+#: .\templates\shop_app\checkout.html:40
+msgid "Email Address"
+msgstr "Correo electrónico"
+
+#: .\templates\shop_app\checkout.html:50
+msgid "Additional Information"
+msgstr "Información adicional"
+
+#: .\templates\shop_app\checkout.html:52
+msgid "Maximum 500 characters."
+msgstr "Máximo 500 caracteres."
+
+#: .\templates\shop_app\checkout.html:61
+msgid "Confirm Order"
+msgstr "Confirmar pedido"
+
+#: .\templates\shop_app\checkout.html:67
+msgid "Order Summary"
+msgstr "Resumen del pedido"
+
+#: .\templates\shop_app\checkout.html:85
+msgid "Cancel & Return to Shop"
+msgstr "Cancelar y volver a la tienda"
+
+#: .\templates\shop_app\public_shop.html:6
+msgid "Shop by"
+msgstr "Tienda de"
+
+#: .\templates\shop_app\public_shop.html:16
+msgid "Your Cart in this Shop"
+msgstr "Tu carrito en esta tienda"
+
+#: .\templates\shop_app\public_shop.html:41
+msgid "Proceed to Checkout"
+msgstr "Proceder al pago"
+
+#: .\templates\shop_app\public_shop.html:44
+msgid "Your cart is empty."
+msgstr "Tu carrito está vacío."
+
+#: .\templates\shop_app\public_shop.html:71
+msgid "In Stock"
+msgstr "En stock"
+
+#: .\templates\shop_app\public_shop.html:77
+msgid "Add to Cart"
+msgstr "Añadir al carrito"
+
+#: .\templates\shop_app\public_shop.html:82
+msgid "Log in to Buy"
+msgstr "Inicia sesión para comprar"
+
+#: .\templates\shop_app\public_shop.html:87
+msgid "Out of Stock"
+msgstr "Sin stock"
+
+#: .\templates\shop_app\public_shop.html:95
+msgid "This user has no active products at the moment."
+msgstr "Este usuario no tiene productos activos en este momento."
+
+#~ msgid "Add Provider"
+#~ msgstr "Añadir proveedor"
+
+#~ msgid "SEARCH"
+#~ msgstr "BUSCAR"
 
 #~ msgid "Verified"
 #~ msgstr "Verificada/o"
 
 #~ msgid "Not Verified"
 #~ msgstr "No verificada/o"
-
-#~ msgid "Search..."
-#~ msgstr "Buscar"
 
 #~ msgid "Go"
 #~ msgstr "Ir"
